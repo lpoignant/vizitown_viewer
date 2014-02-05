@@ -27,13 +27,14 @@ describe('VWebSocket', function () {
 				host: vhost,
 				port: vport,
 				path: vpath,
+				onopen:  function () {
+					ws.socket.send(echo);
+				},
 				onmessage: function (message) {
 					assert.equal(echo, message.data);
 					done();
 				}
 			});
-			done();
-			ws.socket.send(echo);
 		});
 	});
 	

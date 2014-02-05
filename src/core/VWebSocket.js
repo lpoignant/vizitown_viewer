@@ -13,15 +13,16 @@
  * @param {Function} args.onclose Function called when socket is closed
  **/
 var VWebSocket = function (args) {
-	this.host = args.host;
-	this.port = args.port;
-	this.path = args.path;
-	this.url = "ws://"+args.host+":"+args.port+args.path;
+	this._host = args.host;
+	this._port = args.port;
+	this._path = args.path;
+	this._url = "ws://"+args.host+":"+args.port+args.path;
 	if (window.MozWebSocket) {
         window.WebSocket = window.MozWebSocket;
 	}
-	if (args.onmessage) this.socket.onmessage = args.onmessage;
-	if (args.onopen) this.socket.onopen = args.onopen;
-	if (args.onerror) this.socket.onerror = args.onerror;
-	if (args.onclose) this.socket.onclose = args.onclose;
+	this._socket = new WebSocket(this._url);
+	if (args.onmessage) this._socket.onmessage = args.onmessage;
+	if (args.onopen) this._socket.onopen = args.onopen;
+	if (args.onerror) this._socket.onerror = args.onerror;
+	if (args.onclose) this._socket.onclose = args.onclose;
 };
