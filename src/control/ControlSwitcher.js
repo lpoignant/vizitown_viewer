@@ -13,7 +13,7 @@ var Controls = function(camera) {
 	this.current.panSpeed = this._trackPanSpeed;
 	this.current.staticMoving = this._trackStaticMoving;
 	this.current.reset();
-}
+};
 
 Controls.prototype.changeControlMode = function() {
 	if (this._control) {
@@ -31,7 +31,7 @@ Controls.prototype.changeControlMode = function() {
 		this.current.reset();
 	}
 	this._control = !this._control;
-}
+};
 
 Controls.prototype.allowMultipleControls = function(document) {
     var self = this;
@@ -43,4 +43,4 @@ Controls.prototype.allowMultipleControls = function(document) {
         }
         
     }, false);
-}
+};
