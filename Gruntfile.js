@@ -25,7 +25,7 @@ module.exports = function(grunt) {
 		},
 
 		jshint: {
-			files: ['Gruntfile.js', 'src/**/*.js', 'test/**/*.js'],
+			files: ['Gruntfile.js', 'src/**/*.js', 'test/**/*.js', '!test/vendor/**'],
 			options: {
 				// options here to override JSHint defaults
 				globals: {

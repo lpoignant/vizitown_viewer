@@ -1,0 +1,84 @@
+<html>
+
+<head>
+    <title></title>
+    <script type="text/javascript" src="../js/Vizitown.js"></script>
+	<style>
+		body {
+			margin: 0px;
+			background-color: #000000;
+			overflow: hidden;
+		}
+	</style>
+</head>
+
+<body>
+
+<div id="main_map"></div>
+ 
+<script type="text/javascript">
+    var CONS = {
+        CAMERA_X:750,
+        CAMERA_Y:750,
+        CAMERA_Z:500
+    }
+	
+	// setup default three.js stuff
+	var renderer = new THREE.WebGLRenderer();
+	renderer.setSize( window.innerWidth, window.innerHeight );
+	renderer.setClearColor(0x5de576);
+	
+	document.getElementById("main_map").appendChild(renderer.domElement);
+	
+	var camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 1, 1000 );
+	camera.position.z = CONS.CAMERA_Z;
+	camera.position.x = CONS.CAMERA_X;
+	camera.position.y = CONS.CAMERA_Y;
+	camera.lookAt(new THREE.Vector3(750, 750, 0));
+	
+	var scene = new THREE.Scene();
+	scene.add(camera);
+	
+	var tileLayer = new Layer ({
+		x: 500,
+		y: 500,
+		tileSizeWidth: 100,
+		tileSizeHeight: 100,
+		width: 500,
+		height: 500,
+		ortho: '/image/mnt.png',
+		dem: '/image/mnt.png',
+		scene: scene,
+		minHeight: 0,
+		maxHeight: 10,
+		xDensity: 64,
+		yDensity: 64,
+	});
+	
+	//var controls = new ControlSwitcher( camera, document );
+	
+	function onWindowResize() {
+		camera.aspect = window.innerWidth / window.innerHeight;
+		camera.updateProjectionMatrix();
+		renderer.setSize( window.innerWidth, window.innerHeight );
+	}
+	
+	window.addEventListener( 'resize', onWindowResize, false );
+	
+	function animate() {
+		requestAnimationFrame( animate );
+		renderer.render( scene, camera );
+	//	controls.current.update();
+	}
+	
+	animate();
+	
+	for (var i=0; i< tileLayer.nbTileX; i++) {
+		for (var j=0; j< tileLayer.nbTileY; j++) {
+			tileLayer.addTile(i,j);
+		}
+	}
+	
+</script>
+</body>
+</html>

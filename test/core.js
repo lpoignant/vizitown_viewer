@@ -34,12 +34,28 @@ describe('Function', function () {
 		return '[Cat "'+this.name+'"]';
 	};
 	
-	describe('#inheritsFrom', function () {
-		it('should be a living cat family', function () {
-			var cat = new Cat("Felix");
-			var kitten = cat.haveABaby();
+	var cat, kitten;
+	
+	beforeEach(function (done) {
+		cat = new Cat("Felix");
+		kitten = cat.haveABaby();
+		done();
+	});
+	
+	describe('#assign', function () {
+		it('should be felix the cat', function () {
 			assert.equal('[Cat "Felix"]', cat.toString());
+		});
+	});
+	
+	describe('#override', function () {
+		it('should be a baby felix', function () {
 			assert.equal('[Cat "Baby Felix"]', kitten.toString());
+		});
+	});
+	
+	describe('#superContructor', function () {
+		it('should be a mother and child', function () {
 			assert.equal(true, cat.alive);
 			assert.equal(undefined, kitten.alive);
 			assert.equal(1, cat.offspring.length);

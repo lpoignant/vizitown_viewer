@@ -1,3 +1,49 @@
+var Controls = function(camera) {
+    this._camera = camera;
+	this._control = true;
+	
+	this._trackRotateSpeed = 1.0;
+	this._trackZoomSpeed = 1.0;
+	this._trackPanSpeed = 1.0;
+	this._trackStaticMoving = true;
+	
+	this.current = new THREE.TrackballControls(this._camera);
+	this.current.rotateSpeed = this._trackRotateSpeed;
+	this.current.zoomSpeed = this._trackZoomSpeed;
+	this.current.panSpeed = this._trackPanSpeed;
+	this.current.staticMoving = this._trackStaticMoving;
+	this.current.reset();
+};
+
+Controls.prototype.changeControlMode = function() {
+	if (this._control) {
+		this.current = new THREE.FlyControls(this._camera);
+		this.current.movementSpeed = 50;
+		this.current.rollSpeed = 0.125;
+		this.current.lookVertical = true;
+	}
+	else {
+		this.current = new THREE.TrackballControls(this._camera);
+		this.current.rotateSpeed = this._trackRotateSpeed;
+		this.current.zoomSpeed = this._trackZoomSpeed;
+		this.current.panSpeed = this._trackPanSpeed;
+		this.current.staticMoving = this._trackStaticMoving;
+		this.current.reset();
+	}
+	this._control = !this._control;
+};
+
+Controls.prototype.allowMultipleControls = function(document) {
+    var self = this;
+	document.addEventListener('keyup', function(e) {
+        
+        var ascii_value = e.keyCode;
+        if(String.fromCharCode(ascii_value) == 'H' ) {
+            self.changeControlMode();
+        }
+        
+    }, false);
+};
 /**
  * Symplify inheritance.
  * @method Function.inheritsFrom
@@ -19,6 +65,34 @@ Function.prototype.inheritsFrom = function( parentClassOrObject ){
 	}
 	return this;
 };
+/**
+ * Basic WebSocket implementation. You should override onmessage, onerror, onclose, onopen
+ * with your application logic.
+ * 
+ * @class VWebSocket
+ * @constructor
+ * @param {String} args.host String representing the host
+ * @param {String} args.port String representing the port number
+ * @param {String} args.path String representing the server socket url  
+ * @param {Function} args.onmessage Function called when a message is received
+ * @param {Function} args.onopen Function called when the socket is closed
+ * @param {Function} args.onerror Function called when an error happened
+ * @param {Function} args.onclose Function called when socket is closed
+ **/
+var VWebSocket = function (args) {
+	this._host = args.host;
+	this._port = args.port;
+	this._path = args.path;
+	this._url = "ws://"+args.host+":"+args.port+args.path;
+	if (window.MozWebSocket) {
+        window.WebSocket = window.MozWebSocket;
+	}
+	this._socket = new WebSocket(this._url);
+	if (args.onmessage) this._socket.onmessage = args.onmessage;
+	if (args.onopen) this._socket.onopen = args.onopen;
+	if (args.onerror) this._socket.onerror = args.onerror;
+	if (args.onclose) this._socket.onclose = args.onclose;
+};
 var BoundingBox = function (args) {
 	this.bottomLeft = args.bottomLeft || new Point();
 	this.topRight = args.topRight || new Point();
@@ -27,7 +101,9 @@ var Point = function (args) {
 	this.x = args.x || 0;
 	this.y = args.y || 0;
 };
-
+var GridLayer = function (args) {
+	this._extent = args.extent;
+};
 BasicHeightMapMaterialDefinition = {
 
 	/* -------------------------------------------------------------------------
