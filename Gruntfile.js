@@ -57,7 +57,17 @@ module.exports = function(grunt) {
 		watch: {
 			files: ['<%= jshint.files %>'],
 			tasks: ['jshint']
-		}
+		},
+        
+        simplemocha: {
+            options: {
+                timeout: 3000,
+                ignoreLeaks: false,
+                reporter: 'spec'
+            },
+
+            all: { src: ['test/core.js'] }
+        }
 	});
 
 	grunt.loadNpmTasks('grunt-contrib-uglify');
@@ -66,9 +76,10 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-concat');
 	grunt.loadNpmTasks('grunt-contrib-copy');
 	grunt.loadNpmTasks('grunt-contrib-yuidoc');
-
+    grunt.loadNpmTasks('grunt-simple-mocha');
+    
 	grunt.registerTask('test', ['jshint']);
-	grunt.registerTask('default', ['jshint', 'concat', 'copy']);
+	grunt.registerTask('default', ['jshint', 'concat', 'simplemocha', 'copy']);
 	grunt.registerTask('release', ['jshint', 'concat', 'uglify']);
 
 };
