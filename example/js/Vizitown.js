@@ -1,47 +1,60 @@
-var Controls = function(camera) {
+var ControlSwitcher = function(camera, domElement) {
     this._camera = camera;
 	this._control = true;
+	this._domElement = domElement || document;
 	
 	this._trackRotateSpeed = 1.0;
 	this._trackZoomSpeed = 1.0;
 	this._trackPanSpeed = 1.0;
 	this._trackStaticMoving = true;
 	
-	this.current = new THREE.TrackballControls(this._camera);
-	this.current.rotateSpeed = this._trackRotateSpeed;
-	this.current.zoomSpeed = this._trackZoomSpeed;
-	this.current.panSpeed = this._trackPanSpeed;
-	this.current.staticMoving = this._trackStaticMoving;
-	this.current.reset();
+	this._createTrackball = function () {
+		var control = new THREE.TrackballControls(this._camera);
+		control.rotateSpeed = this._trackRotateSpeed;
+		control.zoomSpeed = this._trackZoomSpeed;
+		control.panSpeed = this._trackPanSpeed;
+		control.staticMoving = this._trackStaticMoving;
+		control.reset();
+		return control;
+	};
+	
+	this._createFlyControl = function (pointToLook) {
+		var control = new THREE.FlyControls(this._camera);
+		control.movementSpeed = 50;
+		control.rollSpeed = 0.125;
+		control.lookVertical = true;
+		//this._camera.lookAt(pointToLook);
+		console.log(control);
+		return control;
+	};
+
+	this.current = this._createTrackball();
+	
+	this._addListeners();
 };
 
-Controls.prototype.changeControlMode = function() {
+ControlSwitcher.prototype.changeControlMode = function() {
+	var pLocal = new THREE.Vector3( 0, 0, -1 );
+	console.log(this._camera);
+	var pWorld = pLocal.applyMatrix4( this._camera.matrixWorld );
+	//console.log(pWorld);
 	if (this._control) {
-		this.current = new THREE.FlyControls(this._camera);
-		this.current.movementSpeed = 50;
-		this.current.rollSpeed = 0.125;
-		this.current.lookVertical = true;
+		this.current = this._createFlyControl(pWorld);
 	}
 	else {
-		this.current = new THREE.TrackballControls(this._camera);
-		this.current.rotateSpeed = this._trackRotateSpeed;
-		this.current.zoomSpeed = this._trackZoomSpeed;
-		this.current.panSpeed = this._trackPanSpeed;
-		this.current.staticMoving = this._trackStaticMoving;
-		this.current.reset();
+		this.current = this._createTrackball();
 	}
 	this._control = !this._control;
 };
 
-Controls.prototype.allowMultipleControls = function(document) {
+ControlSwitcher.prototype._addListeners = function() {
     var self = this;
-	document.addEventListener('keyup', function(e) {
-        
+	this._domElement.addEventListener('keyup', function(e) {
         var ascii_value = e.keyCode;
-        if(String.fromCharCode(ascii_value) == 'H' ) {
+		console.log(ascii_value);
+        if(String.fromCharCode(ascii_value) == 'K' ) {
             self.changeControlMode();
         }
-        
     }, false);
 };
 /**
@@ -93,6 +106,40 @@ var VWebSocket = function (args) {
 	if (args.onerror) this._socket.onerror = args.onerror;
 	if (args.onclose) this._socket.onclose = args.onclose;
 };
+var ExtentProvider = function(camera) {
+	this._camera = camera;
+	this._camFar = this._camera.far;
+	this._camPosition = this._camera.position;
+	this._camFov = this._camera.fov;
+
+};
+
+
+ExtentProvider.prototype.getCameraExtent = function() {
+	console.log(this._camera);
+	//console.log(this._camFar);
+	//console.log(this._camPosition);
+	//console.log(this._camFov);
+
+	// Calculate the half height of the extent
+	var halfHeightExtent;
+	var angle = this._camFov / 2;
+	halfHeightExtent = Math.sin(angle)/Math.cos(angle)*this._camFar;
+
+	// Get the direction vector of the camera
+	var pLocal = new THREE.Vector3(0, 0, -1);
+	var pWorld = pLocal.applyMatrix4( this._camera.matrixWorld );
+	var dir = pWorld.sub( this._camPosition).normalize();
+
+	console.log(dir);
+
+
+	var topLeft, topRight, bottomRight, bottomLeft;
+
+
+
+
+};
 var BoundingBox = function (args) {
 	this.bottomLeft = args.bottomLeft || new Point();
 	this.topRight = args.topRight || new Point();
@@ -104,6 +151,89 @@ var Point = function (args) {
 var GridLayer = function (args) {
 	this._extent = args.extent;
 };
+/**
+ * This class represents a tiled layer
+ *  
+ * @class TiledLayer
+ * @constructor
+ * @param {int} args.x X Origin of the layer in the layer coordinate system
+ * @param {int} args.y Y Origin of the layer in the layer coordinate system
+ * @param {int} args.tileSizeWidth Width of a tile in the layer coordinate system
+ * @param {int} args.tileSizeHeight Height of a tile in the layer coordinate system
+ * @param {String} args.ortho Url to get the ortho
+ * @param {String} args.dem Url to get the dem raster
+ * @param {int} args.xDensity Number of on the x axis
+ * @param {int} args.yDensity Number of line on the y axis
+ */
+var Layer = function (args) {
+	this._origX = args.x || 0;
+	this._origY = args.y || 0;
+	
+	this._tileSizeWidth = args.tileSizeWidth || 512;
+	this._tileSizeHeight = args.tileSizeHeight || 512;
+	
+	this._width = args.width || this._tileSizeWidth * 2;
+	this._height = args.height || this._tileSizeHeight * 2;
+	
+	this.nbTileX = this._width / this._tileSizeWidth;
+	this.nbTileY = this._height / this._tileSizeHeight;
+	
+	this._xDensity = args.xDensity || 10;
+	this._yDensity = args.yDensity || 10;
+	
+	this._ortho = args.ortho || false;
+	this._dem = args.dem || false;
+	this._scene = args.scene || false;
+	
+	this._minHeight = args.minHeight || 0;
+	this._maxHeight = args.maxHeight || 100;
+	
+	this._shaderDef = args.shaderDef || BasicHeightMapMaterialDefinition;
+	
+	this._tiles = [];
+	this._textures = {};
+};
+
+Layer.prototype._loadTexture = function (url) {
+	this._textures[url] = THREE.ImageUtils.loadTexture(url);
+	return this._textures[url];
+};
+
+Layer.prototype._createTile = function (x, y) {
+	//Tile origin
+	var dx = this._origX + this._tileSizeWidth * x;
+	var dy = this._origY + this._tileSizeHeight * y;
+	var geometry = new THREE.PlaneGeometry(this._tileSizeWidth, this._tileSizeWidth, this._xDensity, this._yDensity);
+	
+	var dem = this._textures[this._dem] || this._loadTexture(this._dem);
+	var ortho = this._textures[this._ortho] || this._loadTexture(this._ortho);
+	
+	var uniformsTerrain = THREE.UniformsUtils.clone(this._shaderDef.uniforms);
+	uniformsTerrain.dem.value = dem;
+	uniformsTerrain.ortho.value = ortho;
+	uniformsTerrain.minHeight.value = this._minHeight;
+	uniformsTerrain.maxHeight.value = this._maxHeight;
+	
+	var material = new THREE.ShaderMaterial({
+        uniforms: uniformsTerrain,
+        vertexShader: this._shaderDef.vertexShader,
+        fragmentShader: this._shaderDef.fragmentShader
+    });
+	
+	var tile = new THREE.Mesh(geometry, material);
+	tile.translateX(dx);
+	tile.translateY(dy);
+	
+	this._tiles[this.nbTileX * x + y] = tile;
+	return tile;
+};
+
+Layer.prototype.addTile = function (x, y) {
+	var tile = this._tiles[this.nbTileX * x + y] || this._createTile(x,y);
+	console.log(tile);
+	this._scene.add(tile);
+};
+
 BasicHeightMapMaterialDefinition = {
 
 	/* -------------------------------------------------------------------------
