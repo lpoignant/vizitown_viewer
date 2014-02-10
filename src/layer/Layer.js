@@ -36,7 +36,19 @@ var Layer = function (args) {
 	this._maxHeight = args.maxHeight || 100;
 	
 	this._shaderDef = args.shaderDef || BasicHeightMapMaterialDefinition;
-	
+    
+    Layer._wireMaterial = new THREE.MeshBasicMaterial({
+        wireframe: true,
+        color: 'red',
+        transparent: true,
+    });
+    
+    Layer._heightmapMaterial = new THREE.ShaderMaterial({
+        vertexShader: this._shaderDef.vertexShader,
+        fragmentShader: this._shaderDef.fragmentShader,
+        transparent: true,
+    });
+    
 	this._tiles = [];
 	this._textures = {};
 };
@@ -61,13 +73,13 @@ Layer.prototype._createTile = function (x, y) {
 	uniformsTerrain.minHeight.value = this._minHeight;
 	uniformsTerrain.maxHeight.value = this._maxHeight;
 	
-	var material = new THREE.ShaderMaterial({
-        uniforms: uniformsTerrain,
-        vertexShader: this._shaderDef.vertexShader,
-        fragmentShader: this._shaderDef.fragmentShader
-    });
+	var heightMapMaterial = Layer._heightmapMaterial.clone();
+    heightMapMaterial.uniforms = uniformsTerrain;
 	
-	var tile = new THREE.Mesh(geometry, material);
+    var tile = new THREE.Object3D();
+    
+	//tile.add(new THREE.Mesh(geometry, Layer._wireMaterial));
+    tile.add(new THREE.Mesh(geometry, heightMapMaterial));
 	tile.translateX(dx);
 	tile.translateY(dy);
 	
@@ -77,6 +89,5 @@ Layer.prototype._createTile = function (x, y) {
 
 Layer.prototype.addTile = function (x, y) {
 	var tile = this._tiles[this.nbTileX * x + y] || this._createTile(x,y);
-	console.log(tile);
 	this._scene.add(tile);
 };

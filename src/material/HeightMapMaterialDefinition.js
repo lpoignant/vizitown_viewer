@@ -1,4 +1,4 @@
-HeightMapMaterialDefinition = {
+var HeightMapMaterialDefinition = {
 
 	/* -------------------------------------------------------------------------
 	//	Dynamic terrain shader
