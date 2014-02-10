@@ -1,3 +1,5 @@
 node_modules
 example/aspnet_client
 example/image
+dist/Vizitown.js
+example/js/Vizitown.js
