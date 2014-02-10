@@ -20,9 +20,22 @@ var VWebSocket = function (args) {
 	if (window.MozWebSocket) {
         window.WebSocket = window.MozWebSocket;
 	}
-	this._socket = new WebSocket(this._url);
-	if (args.onmessage) this._socket.onmessage = args.onmessage;
-	if (args.onopen) this._socket.onopen = args.onopen;
-	if (args.onerror) this._socket.onerror = args.onerror;
-	if (args.onclose) this._socket.onclose = args.onclose;
+	this.socket = new WebSocket(this._url);
+	if (args.onmessage) this.socket.onmessage = args.onmessage;
+	if (args.onopen) this.socket.onopen = args.onopen;
+	if (args.onerror) this.socket.onerror = args.onerror;
+	if (args.onclose) this.socket.onclose = args.onclose;
 };
+
+/**
+ * Sends a JSON Object to the socket
+ * 
+ * @class VWebSocket
+ * @method send
+ * @param {Object} JSON Object to send
+ */
+VWebSocket.prototype.send = function (jsonObject) {
+    this.socket.send(JSON.stringify(jsonObject));
+};
+
+module.exports = VWebSocket;
