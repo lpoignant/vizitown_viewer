@@ -3,7 +3,7 @@
 describe('VWebSocket', function () {
 	var vhost = "127.0.0.1";
 	var vport = "8888";
-	var vpath = "/ws";
+	var vpath = "/test/echo";
 	
 	describe('#onopen', function () {
 		it('should be opened', function (done) {
@@ -31,6 +31,7 @@ describe('VWebSocket', function () {
 					ws.socket.send(echo);
 				},
 				onmessage: function (message) {
+                    console.log(message);
 					assert.equal(echo, message.data);
 					done();
 				}
