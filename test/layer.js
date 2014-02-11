@@ -1,42 +1,18 @@
-//require('../src/layer/ExtentProvider.js');
-//THREE = require('../dist/three.js');
-//var assert = require("assert");
-
-
-// create a scene, that will hold all our elements such as objects, cameras and lights.
-//var scene = new THREE.Scene();
-
-//VWebSocket = require('../src/core/VWebSocket.js');
-
 describe('CamPosition', function () {
 
     var scene = new THREE.Scene();
     var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
     var renderer = new THREE.WebGLRenderer();
+    
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.getElementById("main_map").appendChild(renderer.domElement);
 
     var axes = new THREE.AxisHelper( 20 );
     scene.add(axes);
-    /*
-    // create the ground plane
-    var planeGeometry = new THREE.PlaneGeometry(5,5);
-    var planeMaterial = new THREE.MeshBasicMaterial({color: 0xcccccc});
-    var plane = new THREE.Mesh(planeGeometry,planeMaterial);
-    plane.position.x=0
-    plane.position.y=0
-    plane.position.z=0
-    scene.add(plane);
-    */
-
-    // position and point the camera to the center of the scene
-
-
-    //renderer.render(scene, camera)
 
     var extentProvider;
 
-    describe('#initExtentprovider', function () {
+    describe('#initExtentprovider', function (done) {
         camera.position.x = 0;
         camera.position.y = 10;
         camera.position.z = 10;
@@ -49,14 +25,11 @@ describe('CamPosition', function () {
             assert.equal(pos.x, 0);
             assert.equal(pos.y, 10);
             assert.equal(pos.z, 10);
-            //done();
+            done();
         });
-
     });
 
-
-
-    describe('#changeLookAt', function () {
+    describe('#changeLookAt', function (done) {
 
 
         it('should be equal', function () {
@@ -71,16 +44,11 @@ describe('CamPosition', function () {
             assert.equal(pos.x, 0);
             assert.equal(pos.y, 10);
             assert.equal(pos.z, 10);
-            //done();
+            done();
         });
-
     });
 
-    
-
-
     describe('#changeCamPositionAndLookAt', function () {
-
 
         it('should be equal', function (done) {
             camera.position.x = 0;
@@ -99,8 +67,6 @@ describe('CamPosition', function () {
             assert.equal(pos.z, -10);
             done();
         });
-
     });
 
-    
 });
