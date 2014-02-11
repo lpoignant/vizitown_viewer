@@ -83,7 +83,22 @@ module.exports = function(grunt) {
             },
 
             all: { src: ['test/core.js'] }
-        }
+        },
+        
+        yuidoc: {
+            compile: {
+                name: '<%= pkg.name %>',
+                description: '<%= pkg.description %>',
+                version: '<%= pkg.version %>',
+                url: '<%= pkg.homepage %>',
+                options: {
+                    paths: 'src/',
+                    outdir: 'doc/build',
+                    themedir: "doc/themes/simple",
+                    //helpers: ["doc/yuidoc-bootstrap-theme/helpers/helpers.js"],
+                }
+            }
+        },
 	});
 
 	grunt.loadNpmTasks('grunt-contrib-uglify');
@@ -93,9 +108,10 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-copy');
 	grunt.loadNpmTasks('grunt-contrib-yuidoc');
     grunt.loadNpmTasks('grunt-simple-mocha');
+    grunt.loadNpmTasks('grunt-contrib-yuidoc');
     
 	grunt.registerTask('test', ['jshint']);
-	grunt.registerTask('default', ['jshint', 'concat', 'simplemocha', 'copy']);
+	grunt.registerTask('default', ['jshint', 'concat', 'simplemocha', 'copy', 'yuidoc']);
 	grunt.registerTask('release', ['jshint', 'concat', 'uglify']);
 
 };
