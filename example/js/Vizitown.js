@@ -136,6 +136,25 @@ var ExtentProvider = function(camera) {
 ExtentProvider.prototype.getPosition = function() {
 	return this._camPosition.clone();
 };
+/**
+@method sendToAppServer
+*/
+ExtentProvider.prototype.sendToAppServer = function (appServerUrl, bottomLeft, topRight) {
+	var toSend = "{ 'Xmin' : "+bottomLeft.x+", 'Ymin' : "+bottomLeft.y+", 'Xmax' : "+topRight.x+", 'Ymax': "+topRight.y+" }";
+	
+	var ws = new WebSocket(appServerUrl);
+	ws.onopen = function() {
+       ws.send(toSend);
+	};
+	
+	// TODO : get the data provided by the appServer
+	/*
+	ws.onmessage = function (evt) {
+       alert(evt.data);
+	};
+	*/
+
+};
 
 var GridLayer = function (args) {
 	this._extent = args.extent;
