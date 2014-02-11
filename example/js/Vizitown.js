@@ -106,12 +106,24 @@ var VWebSocket = function (args) {
 	if (args.onerror) this._socket.onerror = args.onerror;
 	if (args.onclose) this._socket.onclose = args.onclose;
 };
+var BoundingBox = function (args) {
+	this.bottomLeft = args.bottomLeft || new Point();
+	this.topRight = args.topRight || new Point();
+};
+var Point = function (args) {
+	this.x = args.x || 0;
+	this.y = args.y || 0;
+};
 var ExtentProvider = function(camera) {
 	this._camera = camera;
 	this._camFar = this._camera.far;
 	this._camPosition = this._camera.position;
 	this._camFov = this._camera.fov;
 
+};
+
+ExtentProvider.prototype.getPosition = function() {
+	return this._camPosition.clone();
 };
 
 
@@ -139,14 +151,6 @@ ExtentProvider.prototype.getCameraExtent = function() {
 
 
 
-};
-var BoundingBox = function (args) {
-	this.bottomLeft = args.bottomLeft || new Point();
-	this.topRight = args.topRight || new Point();
-};
-var Point = function (args) {
-	this.x = args.x || 0;
-	this.y = args.y || 0;
 };
 var GridLayer = function (args) {
 	this._extent = args.extent;
