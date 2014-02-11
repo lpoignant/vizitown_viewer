@@ -1,4 +1,8 @@
+/* global EventDispatcher:true */
+"use strict";
+
 require('../src/core/Function.js');
+EventDispatcher = require('../src/core/EventDispatcher.js');
 var assert = require("assert");
 
 describe('Function', function () {
@@ -63,4 +67,49 @@ describe('Function', function () {
 		});
 	});
 	
+});
+
+describe('EventDispatcher', function () {
+    
+    var echo = "echo";
+    
+    var EventProvider = function () {};
+    EventProvider.inheritsFrom(EventDispatcher);
+    
+    describe('#registerEventListener', function () {
+        it("should have a listener", function () {
+            var event1 = "event1";
+            var p1 = new EventProvider();
+            var f1 = function () {};
+            p1.registerEventListener(event1, f1);
+            assert.equal(true, p1._hasEventListener(event1, f1));
+        });
+    });
+    
+    describe('#dispatch', function () {
+        it('should dispatch', function (done) {
+            var event2 = "event2";
+            var p2 = new EventProvider();
+            var f2 = function (object) {
+                assert.equal(echo, object.detail.message);
+                done();
+            };
+            p2.registerEventListener(event2, f2);
+            p2.dispatch(event2, {message: echo});
+            p2.removeEventListener(event2, f2);
+            assert.equal(false, p2._hasEventListener(event2, f2));
+        });
+    });
+    
+    describe('#removeEventListener', function () {
+        it("shouldn't have a listener", function () {
+            var event3 = "event3";
+            var p3 = new EventProvider();
+            var f3 = function () {};
+            p3.registerEventListener(event3, f3);
+            p3.removeEventListener(event3, f3);
+            assert.equal(false, p3._hasEventListener(event3, f3));
+        });
+    });
+    
 });

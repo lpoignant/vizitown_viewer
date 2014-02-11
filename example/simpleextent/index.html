@@ -18,7 +18,7 @@
     var scene = new THREE.Scene();
 
     // create a camera, which defines where we're looking at.
-    var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+    var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
 
     // create a render and set the size
     var renderer = new THREE.WebGLRenderer();
@@ -31,20 +31,18 @@
 
     // create the ground plane
     var planeGeometry = new THREE.PlaneGeometry(5,5);
-    var planeMaterial = new THREE.MeshBasicMaterial({color: 0xcccccc});
+    var planeMaterial = new THREE.MeshBasicMaterial({color: 0xcccccc, wireframe:true});
     var plane = new THREE.Mesh(planeGeometry,planeMaterial);
-    plane.position.x=0
-    plane.position.y=0
-    plane.position.z=0
-
+    plane.position.x=0;
+    plane.position.y=0;
+    plane.position.z=0;
+    scene.add(plane);
+    
     // position and point the camera to the center of the scene
     camera.position.x = 0;
-    camera.position.y = 10;
+    camera.position.y = 0;
     camera.position.z = 10;
     camera.lookAt(new THREE.Vector3(0,0,0));
-
-    console.log("POSITION");
-    console.log(scene.position);
     
     var clock = new THREE.Clock();
     var trackballControls = new THREE.TrackballControls(camera);
@@ -54,7 +52,11 @@
     trackballControls.panSpeed = 1.0;
     trackballControls.staticMoving = true;
 
-    var extentProvider = new ExtentProvider(camera);
+    var extentProvider = new ExtentProvider(camera, renderer.domElement);
+    
+    
+    var debugMaterial = new THREE.MeshBasicMaterial({color: 0xff0000, wireframe: true});
+    debugMaterial.side = THREE.DoubleSide;
 
     function render() {
         var delta = clock.getDelta();
@@ -66,7 +68,9 @@
     document.addEventListener('keyup', function(e) {
         var ascii_value = e.keyCode;
         if(String.fromCharCode(ascii_value) == 'K' ) {
-            extentProvider.getCameraExtent();
+            var array = extentProvider.cameraExtent;
+            var mesh = new THREE.Mesh(array, debugMaterial);
+            scene.add(mesh);
         }
     }, false);
 

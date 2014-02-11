@@ -25,6 +25,9 @@
 	
 	// setup default three.js stuff
 	var renderer = new THREE.WebGLRenderer();
+    var gl = renderer.context;
+    gl.blendFunc( gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA  );
+    gl.enable(gl.BLEND);
 	renderer.setSize( window.innerWidth, window.innerHeight );
 	renderer.setClearColor(0x5de576);
 	
@@ -50,12 +53,12 @@
 		dem: '/image/mnt.png',
 		scene: scene,
 		minHeight: 0,
-		maxHeight: 10,
+		maxHeight: 1,
 		xDensity: 64,
 		yDensity: 64,
 	});
 	
-	//var controls = new ControlSwitcher( camera, document );
+	var controls = new ControlSwitcher( camera, document );
 	
 	function onWindowResize() {
 		camera.aspect = window.innerWidth / window.innerHeight;
@@ -68,7 +71,7 @@
 	function animate() {
 		requestAnimationFrame( animate );
 		renderer.render( scene, camera );
-	//	controls.current.update();
+		controls.current.update();
 	}
 	
 	animate();
