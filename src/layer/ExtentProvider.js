@@ -12,6 +12,7 @@ var ExtentProvider = function(camera, domElement) {
 	this._camera = camera;
     this._domElement = domElement;
     
+    //Area coordinates viewed by the camera
     var distanceViewed = this.cameraFar();
     var halfWidth = this._extentHalfWidth();
     var bottomLeft = new THREE.Vector2(-halfWidth, 0);
@@ -24,7 +25,6 @@ var ExtentProvider = function(camera, domElement) {
     var shape = new THREE.Shape(pts);
     
     this._geometry = shape.makeGeometry();
-    console.log(this._geometry);
 };
 
 /**
@@ -64,8 +64,10 @@ ExtentProvider.prototype.cameraRotation = function () {
 };
 
 /**
- *
- *
+ * @class ExtentProvider
+ * @method _flattentGeometry Project the area on the x-y plane
+ * @param {THREE.Geometry} geometry Geometry to flatten
+ * @return {THREE.Geometry} Returns the 
  */
 ExtentProvider.prototype._flattenGeometry = function (geometry) {
     geometry.vertices.forEach(function (vector) {
@@ -74,6 +76,12 @@ ExtentProvider.prototype._flattenGeometry = function (geometry) {
     return geometry;
 };
 
+/**
+ * @class ExtentProvider
+ * @method _minimumExtent Garantees the extent is at least as big as the canvas. Change the extent passed as argument.
+ * @param {THREE.Box3} extent Extent viewed by the camera
+ * @return {THREE.Box3} The modified extent
+ */
 ExtentProvider.prototype._minimumExtent = function (extent) {
     console.log(this, this._domElement);
     var halfHeight = this._domElement.height * 0.5;
@@ -89,6 +97,12 @@ ExtentProvider.prototype._minimumExtent = function (extent) {
     return extent;
 };
 
+/**
+ * @class ExtentProvider
+ * @method _extentHalfWidth Returns the half width of the extent.
+ *                          Based on the camera view angle and the far distance
+ * @return {float} Half width of the extent
+ */
 ExtentProvider.prototype._extentHalfWidth = function () {
     //Basic trigonometry
     var angle = this.cameraFov();
@@ -124,10 +138,23 @@ ExtentProvider.prototype.cameraExtent = function () {
     geometry.applyMatrix(position);
     geometry = this._flattenGeometry(geometry);
     
+    //Calculating final extent
     var extent  = new THREE.Box3();
     extent.setFromPoints(geometry.vertices);
     extent = this._minimumExtent(extent);
-    console.log(extent);
     
-    return geometry;
+    return extent;
+};
+
+/**
+ * @class ExtentProvider
+ * @method sendToAppServer Function to be defined and implemented
+ */
+ExtentProvider.prototype.sendToAppServer = function (appServerUrl, bottomLeft, topRight) {
+	var toSend = "{ 'Xmin' : "+bottomLeft.x+", 'Ymin' : "+bottomLeft.y+", 'Xmax' : "+topRight.x+", 'Ymax': "+topRight.y+" }";
+	
+	var ws = new WebSocket(appServerUrl);
+	ws.onopen = function() {
+       ws.send(toSend);
+	};
 };
