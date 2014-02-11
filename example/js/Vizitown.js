@@ -114,44 +114,29 @@ var Point = function (args) {
 	this.x = args.x || 0;
 	this.y = args.y || 0;
 };
+/**
+ * Class which provides the extent of the view seen by the camera, in order
+ * to make requests only on the visible zone.
+ * 
+ * @class ExtentProvider
+ * @constructor
+ * @param {THREE.Camera} camera the main camera of the Three.js scene
+ */
 var ExtentProvider = function(camera) {
 	this._camera = camera;
 	this._camFar = this._camera.far;
 	this._camPosition = this._camera.position;
 	this._camFov = this._camera.fov;
-
 };
 
+/**
+@method getPosition
+@return {THREE.Vector3} the position of the camera stored in the ExtententProvider instance
+*/
 ExtentProvider.prototype.getPosition = function() {
 	return this._camPosition.clone();
 };
 
-
-ExtentProvider.prototype.getCameraExtent = function() {
-	console.log(this._camera);
-	//console.log(this._camFar);
-	//console.log(this._camPosition);
-	//console.log(this._camFov);
-
-	// Calculate the half height of the extent
-	var halfHeightExtent;
-	var angle = this._camFov / 2;
-	halfHeightExtent = Math.sin(angle)/Math.cos(angle)*this._camFar;
-
-	// Get the direction vector of the camera
-	var pLocal = new THREE.Vector3(0, 0, -1);
-	var pWorld = pLocal.applyMatrix4( this._camera.matrixWorld );
-	var dir = pWorld.sub( this._camPosition).normalize();
-
-	console.log(dir);
-
-
-	var topLeft, topRight, bottomRight, bottomLeft;
-
-
-
-
-};
 var GridLayer = function (args) {
 	this._extent = args.extent;
 };
