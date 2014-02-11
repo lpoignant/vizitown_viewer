@@ -1,3 +1,4 @@
+/* exported EventDispatcher */
 "use strict";
 /**
  * This class is meant to be inherited from. It provides support

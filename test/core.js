@@ -2,7 +2,7 @@
 "use strict";
 
 require('../src/core/Function.js');
-EventDispatcher = require('../src/core/EventDispatcher.js');
+var EventDispatcher = require('../src/core/EventDispatcher.js');
 var assert = require("assert");
 
 describe('Function', function () {
