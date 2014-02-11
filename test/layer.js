@@ -3,7 +3,7 @@ describe('CamPosition', function () {
     var scene = new THREE.Scene();
     var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
     var renderer = new THREE.WebGLRenderer();
-    
+
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.getElementById("main_map").appendChild(renderer.domElement);
 
@@ -12,7 +12,7 @@ describe('CamPosition', function () {
 
     var extentProvider;
 
-    describe('#initExtentprovider', function (done) {
+    describe('#initExtentprovider', function () {
         camera.position.x = 0;
         camera.position.y = 10;
         camera.position.z = 10;
@@ -20,7 +20,7 @@ describe('CamPosition', function () {
         camera.lookAt(position1);
         extentProvider = new ExtentProvider(camera);
 
-        it('should be equal', function () {
+        it('should be equal', function (done) {
             var pos = extentProvider.getPosition();
             assert.equal(pos.x, 0);
             assert.equal(pos.y, 10);
@@ -29,10 +29,10 @@ describe('CamPosition', function () {
         });
     });
 
-    describe('#changeLookAt', function (done) {
+    describe('#changeLookAt', function () {
 
 
-        it('should be equal', function () {
+        it('should be equal', function (done) {
             camera.position.x = 0;
             camera.position.y = 10;
             camera.position.z = 10;
