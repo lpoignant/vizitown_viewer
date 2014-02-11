@@ -1,4 +1,6 @@
-//VWebSocket = require('../src/core/VWebSocket.js');
+/* global VWebSocket */
+/* jshint unused:false */
+"use strict";
 
 describe('VWebSocket', function () {
 	var vhost = "127.0.0.1";

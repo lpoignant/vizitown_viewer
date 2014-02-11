@@ -1,3 +1,6 @@
+/* exported VWebSocket */
+"use strict";
+
 /**
  * Basic WebSocket implementation. You should override onmessage, onerror, onclose, onopen
  * with your application logic.

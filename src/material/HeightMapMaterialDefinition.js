@@ -1,3 +1,6 @@
+/* exported HeightMapMaterialDefinition */
+"use strict";
+
 var HeightMapMaterialDefinition = {
 
 	/* -------------------------------------------------------------------------

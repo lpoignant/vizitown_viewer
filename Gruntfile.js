@@ -1,3 +1,5 @@
+"use strict";
+
 module.exports = function(grunt) {
 
 	grunt.initConfig({
@@ -38,8 +40,22 @@ module.exports = function(grunt) {
 				globals: {
 					console: true,
 					document: true,
-					THREE: true
-				}
+					THREE: true,
+                    module: true,
+                    describe: false,
+                    it: false,
+                    before: false,
+                    beforeEach: false,
+                    after: false,
+                    afterEach: false,
+                    assert: true,
+				},
+                undef: true,
+                unused: true,
+                strict: true,
+                browser: true,
+                node: true,
+                yui:true,
 			}
 		},
 		
