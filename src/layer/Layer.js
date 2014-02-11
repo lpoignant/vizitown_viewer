@@ -1,3 +1,5 @@
+/* global BasicHeightMapMaterialDefinition:false */
+"use strict";
 /**
  * This class represents a tiled layer
  *  

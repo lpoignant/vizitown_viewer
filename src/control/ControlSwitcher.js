@@ -1,3 +1,5 @@
+"use strict";
+
 var ControlSwitcher = function(camera, domElement) {
     this._camera = camera;
 	this._control = true;
@@ -18,13 +20,11 @@ var ControlSwitcher = function(camera, domElement) {
 		return control;
 	};
 	
-	this._createFlyControl = function (pointToLook) {
+	this._createFlyControl = function () {
 		var control = new THREE.FlyControls(this._camera);
 		control.movementSpeed = 50;
 		control.rollSpeed = 0.125;
 		control.lookVertical = true;
-		//this._camera.lookAt(pointToLook);
-		console.log(control);
 		return control;
 	};
 
@@ -34,12 +34,14 @@ var ControlSwitcher = function(camera, domElement) {
 };
 
 ControlSwitcher.prototype.changeControlMode = function() {
-	var pLocal = new THREE.Vector3( 0, 0, -1 );
-	console.log(this._camera);
-	var pWorld = pLocal.applyMatrix4( this._camera.matrixWorld );
-	//console.log(pWorld);
+
+	var prevCamera = this._camera;
+    this._camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 1, 1000 );
+    this._camera.position.copy( prevCamera.position );
+    this._camera.rotation.copy( prevCamera.rotation );
+	
 	if (this._control) {
-		this.current = this._createFlyControl(pWorld);
+		this.current = this._createFlyControl();
 	}
 	else {
 		this.current = this._createTrackball();
