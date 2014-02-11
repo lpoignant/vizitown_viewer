@@ -14,7 +14,6 @@ var EventDispatcher = function () {
 /**
  * Register a listener to be called when an event is dispatched.
  * 
- * @class EventDispatcher
  * @method registerEventListener
  * @param {String} event Name of the event to listen
  * @param {Function} listener Function called when event is emitted
@@ -27,10 +26,9 @@ EventDispatcher.prototype.registerEventListener = function (event, listener) {
 };
 
 /**
- * Function used to dispatch event. Call the listeners registered function
+ * Function used to dispatch event. Call the listeners registered
  * when called.
  *
- * @class EventDispatcher
  * @method dispatch
  * @param {String} event Event name
  * @param {Object} detail JSON object reprensenting the data of the event
@@ -52,7 +50,6 @@ EventDispatcher.prototype.dispatch = function (event, detail) {
 /**
  * Removes the event listener previously registered with registerEventListener
  *
- * @class EventDispatcher
  * @method removeEventListener
  * @param {String} event Event name
  * @param {Object} listener Listener to remove
