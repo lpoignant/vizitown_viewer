@@ -6,6 +6,10 @@ var ExtentProvider = function(camera) {
 
 };
 
+ExtentProvider.prototype.getPosition = function() {
+	return this._camPosition.clone();
+};
+
 
 ExtentProvider.prototype.getCameraExtent = function() {
 	console.log(this._camera);
