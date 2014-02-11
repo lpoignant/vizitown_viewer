@@ -1,3 +1,6 @@
+/* global ExtentProvider */
+"use strict";
+
 describe('CamPosition', function () {
 
     var scene = new THREE.Scene();
