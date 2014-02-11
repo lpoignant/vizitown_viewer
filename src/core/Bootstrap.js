@@ -1,9 +1,9 @@
+/* exported module */
+
 /**
  * Prevent client side error when importing
  */
 if (typeof module === 'undefined') {
-    module = {};
+    var module = {};
 }
-if (typeof exports === 'undefined') {
-    exports = {};
-}
+
