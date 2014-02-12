@@ -1,0 +1,36 @@
+{
+    "metadata" :
+    {
+        "formatVersion" : 3.1,
+        "generatedBy"   : "Vizitown Creation",
+        "vertices"      : 1,
+        "faces"         : 0,
+        "normals"       : 0,
+        "colors"        : 0,
+        "uvs"           : 0,
+        "materials"     : 0,
+        "morphTargets"  : 0,
+        "bones"         : 0
+    },
+
+    "vertices" : [844134.284462888841517,6516568.605687109753489,0],
+
+    "morphTargets" : [],
+
+    "normals" : [],
+
+    "colors" : [],
+
+    "uvs" : [],
+
+    "faces" : [],
+
+    "bones" : [],
+
+    "skinIndices" : [],
+
+    "skinWeights" : [],
+
+    "animations" : []
+
+}
