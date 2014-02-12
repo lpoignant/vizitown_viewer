@@ -8,6 +8,9 @@
  * @constructor
  */
 var MeshFactory = function(args) {
+    if (typeof args === undefined) {
+        args = '{}';
+    }
     this._pointMaterial = args.pointMaterial || new THREE.MeshBasicMaterial({color: 0xffff00}) ; // default : yellow
     this._lineMaterial = args.lineMaterial || new THREE.LineBasicMaterial({color: 0x00ee00}) ; // default : green
     this._polyhMaterial = args.polyhMaterial ||  new THREE.MeshLambertMaterial({color:  0xcc0000}); // default : red
