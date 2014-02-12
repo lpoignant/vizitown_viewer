@@ -4,6 +4,7 @@
     <title></title>
     <script type="text/javascript" src="../../src/vectors/MeshFactory.js"></script>
     <script type="text/javascript" src="../../dist/three.js"></script>
+    <script type="text/javascript" src="../js/TrackballControls.js"></script>
 
 </head>
 
@@ -64,6 +65,60 @@
         "animations" : []
     };
 
+
+        //line
+    var json4 = {
+        "metadata" :{
+            "formatVersion" : 3.1,
+            "generatedBy"   : "Vizitown Creation",
+            "vertices"      : 5,
+            "faces"         : 0,
+            "normals"       : 0,
+            "colors"        : 0,
+            "uvs"           : 0,
+            "materials"     : 0,
+            "morphTargets"  : 0,
+            "bones"         : 0
+        },
+        "vertices" : [0,0,0,1,1,0,2,2,0,3,3,0,4,4,0],
+        "morphTargets" : [],
+        "normals" : [],
+        "colors" : [],
+        "uvs" : [],
+        "faces" : [],
+        "bones" : [],
+        "skinIndices" : [],
+        "skinWeights" : [],
+        "animations" : []
+    };
+
+        //point
+    var json5 = {
+        "metadata" :{
+            "formatVersion" : 3.1,
+            "generatedBy"   : "Vizitown Creation",
+            "vertices"      : 1, 
+            "faces"         : 0,
+            "normals"       : 0,
+            "colors"        : 0, 
+            "uvs"           : 0,
+            "materials"     : 0,
+            "morphTargets"  : 0,
+            "bones"         : 0
+        },
+        "vertices" : [10,10,5],
+        "morphTargets" : [],
+        "normals" : [],
+        "colors" : [],
+        "uvs" : [],
+        "faces" : [], 
+        "bones" : [],
+        "skinIndices" : [],
+        "skinWeights" : [],
+        "animations" : []
+    };
+
+
     //polyh
     var json3 = {
     "metadata" :
@@ -89,14 +144,92 @@
     "skinIndices" : [],
     "skinWeights" : [],
     "animations" : []
-};
+    };
 
-var meshFactory = new MeshFactory();
 
-var geom = meshFactory.jsonToMesh(json1);
+    var meshFactory = new MeshFactory();
+    var meshPoint = meshFactory.jsonToMesh(json1);
+    var meshLine = meshFactory.jsonToMesh(json2);
+    var meshPolyh = meshFactory.jsonToMesh(json3);
+    var line2 = meshFactory.jsonToMesh(json4);
+    var point2 = meshFactory.jsonToMesh(json5);
+
+
+    // create a scene, that will hold all our elements such as objects, cameras and lights.
+    var scene = new THREE.Scene();
+
+    // create a camera, which defines where we're looking at.
+    var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+    // create a render and set the size
+    var renderer = new THREE.WebGLRenderer();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+
+    document.getElementById("main_map").appendChild(renderer.domElement);
+
+    var axes = new THREE.AxisHelper( 20 );
+    scene.add(axes);
+
+    //scene.add(meshLine);
+    //scene.add(meshPolyh);
+    //scene.add(meshPoint);
+    //scene.add(line2);
+    //scene.add(point2);
+
+
+    var cubeGeometry = new THREE.CubeGeometry(4,4,4);
+    var cubeMaterial = new THREE.MeshBasicMaterial({color: 0xff0000,wireframe: true});
+    var cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
+
+    console.log(cube);
+    console.log(point2);
+    console.log(line2);
+    scene.add(cube);
+    //scene.add(point2);
+    scene.add(line2);
+
+    //camera.position.x = 844187;
+    //camera.position.y = 6518224;
+    //camera.position.z = 10;
+   // camera.lookAt(scene);
+
+           camera.position.x = -30;
+        camera.position.y = 40;
+        camera.position.z = 30;
+
+       //camera.position.x = 844187;
+    //camera.position.y = 6518224;
+    //camera.position.z = 10;
+  
+ 
+
+    var clock = new THREE.Clock();
+    var trackballControls = new THREE.TrackballControls(camera);
+
+    trackballControls.rotateSpeed = 1.0;
+    trackballControls.zoomSpeed = 1.0;
+    trackballControls.panSpeed = 1.0;
+    trackballControls.staticMoving = true;
+
+    function render() {
+        var delta = clock.getDelta();
+        trackballControls.update(delta);
+        requestAnimationFrame(render);
+        renderer.render(scene, camera)
+    }
+
+    document.addEventListener('keyup', function(e) {
+        var ascii_value = e.keyCode;
+        if(String.fromCharCode(ascii_value) == 'K' ) {
+           //
+        }
+    }, false);
+
+    render();
+
+    console.log(camera);
 
 </script>
-
 
 </body>
 </html>
