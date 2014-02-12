@@ -10,8 +10,8 @@ var MeshFactory = function(args) {
     
     if (args === undefined) args = {};
 
-    this._pointMaterial = /*args.pointMaterial ||*/ new THREE.MeshBasicMaterial({color: 0xffff00, wireframe: true}); // default : yellow
-    this._lineMaterial = /*args.lineMaterial ||*/ new THREE.LineBasicMaterial({color: 0x00ee00, wireframe: true}); // default : green
+    this._pointMaterial = /*args.pointMaterial ||*/ new THREE.ParticleSystemMaterial({color: 0xFFFF00, size: 20}); // default : yellow
+    this._lineMaterial = /*args.lineMaterial ||*/ new THREE.LineBasicMaterial({color: 0x00ee00, lineWidth: 3}); // default : green
     this._polyhMaterial = /*args.polyhMaterial ||*/  new THREE.MeshLambertMaterial({color:  0xcc0000, wireframe: true}); // default : red
 };
 
@@ -30,14 +30,13 @@ MeshFactory.prototype.jsonToMesh = function(jsonString) {
 
         //console.log("point");
         material = this._pointMaterial;
+        return new THREE.ParticleSystem(geom.geometry, material);
         
     }
     else if(verticesCount > 1 && facesCount == 0 ) {
 
-        //console.log("line");
-        //geom = new THREE.Line(geom);
         material = this._lineMaterial;
-        return new THREE.Line(geom, material)
+        return new THREE.Line(geom.geometry, material)
     }
     else if(verticesCount > 3 && facesCount > 0) {
 
