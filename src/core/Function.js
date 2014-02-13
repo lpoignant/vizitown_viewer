@@ -2,6 +2,7 @@
 
 /**
  * Symplify inheritance.
+ * 
  * @method Function.inheritsFrom
  * @param {Object} parentClass Function to inherit from
  * @return {Function} Your Function inhereting from parentClass
