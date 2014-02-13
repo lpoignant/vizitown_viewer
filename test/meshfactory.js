@@ -1,4 +1,7 @@
+/* global window, MeshFactory */
+
 "use strict";  
+
    
 describe('MeshFactory', function () {
     var scene = new THREE.Scene();
@@ -24,8 +27,8 @@ describe('MeshFactory', function () {
     function render() {
         var delta = clock.getDelta();
         trackballControls.update(delta);
-        requestAnimationFrame(render);
-        renderer.render(scene, camera)
+        window.requestAnimationFrame(render);
+        renderer.render(scene, camera);
     }
 
     render();
