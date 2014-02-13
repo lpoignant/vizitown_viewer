@@ -6,3 +6,4 @@ example/js/Vizitown.js
 doc/build
 .externalToolBuilders
 .settings
+.project
