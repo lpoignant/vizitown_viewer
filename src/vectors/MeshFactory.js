@@ -1,4 +1,4 @@
-//"use strict";
+"use strict";
 
 /**
  * Class which permit to convert a JSON representation of a geometry to a Three.js mesh
@@ -10,15 +10,16 @@ var MeshFactory = function(args) {
     
     if (args === undefined) args = {};
 
-    this._pointMaterial = /*args.pointMaterial ||*/ new THREE.ParticleSystemMaterial({color: 0xFFFF00, size: 20}); // default : yellow
+    this._pointMaterial = /*args.pointMaterial ||*/ new THREE.ParticleSystemMaterial({color: 0xFFFF00, size: 5}); // default : yellow
     this._lineMaterial = /*args.lineMaterial ||*/ new THREE.LineBasicMaterial({color: 0x00ee00, lineWidth: 3}); // default : green
     this._polyhMaterial = /*args.polyhMaterial ||*/  new THREE.MeshLambertMaterial({color:  0xcc0000, wireframe: true}); // default : red
 };
 
 /**
-@method jsonToMesh 
+* @method jsonToThreejs 
+* @return {THREE.Object3D} The line, particle or mesh which has been built. You juste have to add this object to the scene with "scene.add(object);"
 */
-MeshFactory.prototype.jsonToMesh = function(jsonString) {
+MeshFactory.prototype.jsonToThreejs = function(jsonString) {
 
     var loader = new THREE.JSONLoader(); 
     var geom = loader.parse(jsonString);
@@ -26,24 +27,27 @@ MeshFactory.prototype.jsonToMesh = function(jsonString) {
     var verticesCount = geom.geometry.vertices.length;
     var facesCount = geom.geometry.faces.length;
    
+    // point
     if (verticesCount == 1) {
 
-        //console.log("point");
         material = this._pointMaterial;
         return new THREE.ParticleSystem(geom.geometry, material);
         
     }
-    else if(verticesCount > 1 && facesCount == 0 ) {
+    // line
+    else if(verticesCount > 1 && facesCount === 0 ) {
 
         material = this._lineMaterial;
-        return new THREE.Line(geom.geometry, material)
+        return new THREE.Line(geom.geometry, material);
     }
+
+    // polyhedral
     else if(verticesCount > 3 && facesCount > 0) {
 
-        //console.log("3D");
         material = this._polyhMaterial;
+        return new THREE.Mesh(geom.geometry, material);
     }
 
-    return new THREE.Mesh(geom.geometry, material);
+    
 
 };
