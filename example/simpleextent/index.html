@@ -44,7 +44,6 @@
     camera.position.z = 10;
     camera.lookAt(new THREE.Vector3(0,0,0));
     
-    var clock = new THREE.Clock();
     var trackballControls = new THREE.TrackballControls(camera);
 
     trackballControls.rotateSpeed = 1.0;
@@ -53,7 +52,6 @@
     trackballControls.staticMoving = true;
 
     var extentProvider = new ExtentProvider(camera, renderer.domElement);
-    
     
     var debugMaterial = new THREE.MeshBasicMaterial({color: 0xff0000, wireframe: true});
     debugMaterial.side = THREE.DoubleSide;
