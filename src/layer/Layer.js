@@ -27,8 +27,8 @@ var Layer = function (args) {
 	this.nbTileX = this._width / this._tileSizeWidth;
 	this.nbTileY = this._height / this._tileSizeHeight;
 	
-	this._xDensity = args.xDensity || 10;
-	this._yDensity = args.yDensity || 10;
+	this._xDensity = args.xDensity || 8;
+	this._yDensity = args.yDensity || 8;
 	
 	this._ortho = args.ortho || false;
 	this._dem = args.dem || false;
@@ -38,12 +38,6 @@ var Layer = function (args) {
 	this._maxHeight = args.maxHeight || 100;
 	
 	this._shaderDef = args.shaderDef || BasicHeightMapMaterialDefinition;
-    
-    Layer._wireMaterial = new THREE.MeshBasicMaterial({
-        wireframe: true,
-        color: 'red',
-        transparent: true,
-    });
     
     Layer._heightmapMaterial = new THREE.ShaderMaterial({
         vertexShader: this._shaderDef.vertexShader,
@@ -66,9 +60,11 @@ Layer.prototype._createTile = function (x, y) {
 	var dy = this._origY + this._tileSizeHeight * y;
 	var geometry = new THREE.PlaneGeometry(this._tileSizeWidth, this._tileSizeWidth, this._xDensity, this._yDensity);
 	
+    //Texture
 	var dem = this._textures[this._dem] || this._loadTexture(this._dem);
 	var ortho = this._textures[this._ortho] || this._loadTexture(this._ortho);
 	
+    //Shader properties
 	var uniformsTerrain = THREE.UniformsUtils.clone(this._shaderDef.uniforms);
 	uniformsTerrain.dem.value = dem;
 	uniformsTerrain.ortho.value = ortho;
@@ -92,4 +88,16 @@ Layer.prototype._createTile = function (x, y) {
 Layer.prototype.addTile = function (x, y) {
 	var tile = this._tiles[this.nbTileX * x + y] || this._createTile(x,y);
 	this._scene.add(tile);
+    return tile;
+};
+
+/**
+ * Add a geometry to a tile
+ * 
+ * @method Add an object to a tile
+ * @param {THREE.Object3D} Object3D to add to the scene
+ */
+Layer.prototype.addToTile = function (mesh) {
+    var tile = this.addTile();
+    tile.add(mesh);
 };
