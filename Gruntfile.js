@@ -17,6 +17,7 @@ module.exports = function(grunt) {
 					'src/control/**/*.js',
 					'src/geometry/**/*.js',
 					'src/layer/**/*.js',
+                    'src/extras/**/*.js',
 				],
 				dest: 'dist/<%= pkg.name %>.js'
 			}
@@ -82,7 +83,7 @@ module.exports = function(grunt) {
                 reporter: 'spec'
             },
 
-            all: { src: ['test/core.js'] }
+            all: { src: ['test/core.js', 'test/layer.js'] }
         },
         
         yuidoc: {
