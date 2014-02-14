@@ -35,7 +35,11 @@ var BasicHeightMapMaterialDefinition = {
     "uniform sampler2D ortho;",
 
     "void main() {", "	vec4 color = texture2D( ortho, vUv );",
+<<<<<<< Updated upstream
             "   color.a = 1.0;", "   gl_FragColor = color;", "}", ].join("\n"),
+=======
+            "   color.a = 1;", "   gl_FragColor = color;", "}", ].join("\n"),
+>>>>>>> Stashed changes
 
     vertexShader : [
             "uniform sampler2D dem;",
