@@ -1,154 +1,106 @@
 "use strict";
 
 /**
- * Send the signal "ExtentChanged" when the camera extent being watched changed
- * 
- * @class ExtentProvider
+ * @class ExtentProvider Send the signal "ExtentChanged" when the camera extent
+ *        being watched changed
  * @extends ExtentDispatcher
  * @constructor
- * @param {THREE.Camera}
- *        camera Camera to get the extent from
- * @param {DomElement}
- *        domElement DomElement to compute the minimum extent
+ * @param {THREE.Camera} camera Camera to get the extent from
+ * @param {TileLayer} domElement Layer contained in the frustum
  */
-var ExtentProvider = function(camera, domElement) {
+var ExtentProvider = function(camera, layer) {
     this._camera = camera;
-    this._domElement = domElement;
-    
-    // Area coordinates viewed by the camera
-    var distanceViewed = this.cameraFar();
-    var halfWidth = this._extentHalfWidth();
-    var bottomLeft = new THREE.Vector2(-halfWidth, 0);
-    var bottomRight = new THREE.Vector2(halfWidth, 0);
-    var topRight = new THREE.Vector2(halfWidth, distanceViewed);
-    var topLeft = new THREE.Vector2(-halfWidth, distanceViewed);
-    
-    // Shape representing the area viewed
-    var pts = [ bottomLeft, bottomRight, topRight, topLeft ];
-    var shape = new THREE.Shape(pts);
-    
-    this._geometry = shape.makeGeometry();
+    // make sure camera's local matrix is updated
+    this._camera.updateMatrix();
+    // make sure camera's world matrix is updated
+    this._camera.updateMatrixWorld();
+    this._camera.matrixWorldInverse.getInverse(this._camera.matrixWorld);
+
+    this._layer = layer;
+    // make sure plane's local matrix is updated
+    this._layer.updateMatrix();
+    // make sure plane's world matrix is updated
+    this._layer.updateMatrixWorld();
+
+    this._frustum = new THREE.Frustum();
 };
 
 /**
- * @class ExtentProvider
  * @method getCameraPosition Returns the current camera position
  * @return {THREE.Vector3} The camera position
  */
 ExtentProvider.prototype.cameraPosition = function() {
-    return this._camera.position.clone();
+    var position = this._camera.position.clone();
+    position.z = 0;
+    return position;
 };
 
 /**
- * @class ExtentProvider
  * @method getCameraPosition Returns the current camera far distance
- * @return {float} The camera far distance
+ * @returns {Number} The camera far distance
  */
 ExtentProvider.prototype.cameraFar = function() {
     return this._camera.far;
 };
 
 /**
- * @class ExtentProvider
- * @method getCameraFov Returns the current camera view angle
- * @return {float} The camera angle in degrees
+ * @method cameraVerticalFov Returns the camera Vertical Field Of View
+ * @return {Number} The camera vfov in degrees
  */
-ExtentProvider.prototype.cameraFov = function() {
+ExtentProvider.prototype.cameraVerticalFov = function() {
     return this._camera.fov;
 };
 
 /**
- * @class ExtentProvider
- * @method getCameraRotation Returns the current camera rotation in Euler angles
- * @return {THREE.Euler} The Euler rotation of the camera
+ * @method cameraHorizontalFov Returns the camera Horizontal Field Of View
+ * @return {Number} The camera hfov in degrees
  */
-ExtentProvider.prototype.cameraRotation = function() {
-    return this._camera.rotation.clone();
+ExtentProvider.prototype.cameraHorizontalFov = function() {
+    var vfov = this.cameraVerticalFov();
+    var aspect = this.cameraAspect();
+    return Math.atan(Math.tan(vfov / 2) * aspect) * 2;
 };
 
 /**
- * @class ExtentProvider
- * @method _flattentGeometry Project the area on the x-y plane
- * @param {THREE.Geometry}
- *        geometry Geometry to flatten
- * @return {THREE.Geometry} Returns the flattened geometry
+ * @method cameraAspect Returns the camera aspect ratio
+ * @return {Number} Aspect ratio of the camera
  */
-ExtentProvider.prototype._flattenGeometry = function(geometry) {
-    geometry.vertices.forEach(function(vector) {
-        vector.z = 0;
-    });
-    return geometry;
+ExtentProvider.prototype.cameraAspect = function() {
+    return this._camera.aspect;
 };
 
 /**
- * @method _isExtentHeightValid Check if the extent height covers the canvas.
- * @param {THREE.Box3}
- *        extent Extent to check
- * @return {boolean} True if the extent is tall enough, false otherwise.
+ * @method cameraRotation Returns the current camera rotation in Euler angles
+ * @return {THREE.Euler} The rotation of the camera around the Z axis
  */
-ExtentProvider.prototype._isExtentHeightValid = function(extent) {
-    // No domElement to check size against
-    if (!this._domElement) {
-        return true;
-    }
-    
-    var bottomLeft = extent.min.clone();
-    var topLeft = extent.max.clone();
-    topLeft.x = bottomLeft.x;
-    var distY = bottomLeft.distanceTo(topLeft);
-    return (distY >= this._domElement.height);
+ExtentProvider.prototype.cameraRotationY = function() {
+    var rotation = this._camera.rotation.clone();
+    rotation.x = 0;
+    rotation.y = 0;
+    return rotation;
 };
 
 /**
- * @method _isExtentWidthValid Check if the extent width covers the canvas.
- * @param {THREE.Box3}
- *        extent Extent to check
- * @return {boolean} True if the extent is large enough, false otherwise.
- */
-ExtentProvider.prototype._isExtentHeightValid = function(extent) {
-    // No domElement to check size against
-    if (!this._domElement) {
-        return true;
-    }
-    
-    var bottomLeft = extent.min.clone();
-    var bottomRight = extent.max.clone();
-    bottomRight.y = bottomLeft.y;
-    var distX = bottomLeft.distanceTo(bottomRight);
-    return (distX >= this._domElement.width);
-};
-
-/**
- * @method _minimumExtent Verify if the extent is at least as big as the canvas.
- *         Compute an extent large enough if needed. You need to specify a
- *         domElement for this function to work.
- * @param {THREE.Box3}
- *        extent Extent viewed by the camera. Extent is modified.
- * @return {THREE.Box3} The modified extent
- */
-ExtentProvider.prototype._minimumExtent = function(extent) {
-    // Modify extent if size is too small
-    if (!this._isExtentHeightValid(extent)) {
-        var halfHeight = this._domElement.height / 2;
-        extent.min.x -= halfHeight;
-        extent.max.x += halfHeight;
-    }
-    if (!this._isExtentWidthValid(extent)) {
-        var halfWidth = this._domElement.width / 2;
-        extent.min.y -= halfWidth;
-        extent.max.y += halfWidth;
-    }
-    return extent;
-};
-
-/**
- * @method _extentHalfWidth Returns the half width of the extent. Based on the
+ * @method extentHalfWidth Returns the half width of the extent. Based on the
  *         camera view angle and the far distance
  * @return {Number} Half width of the extent
  */
-ExtentProvider.prototype._extentHalfWidth = function() {
+ExtentProvider.prototype.extentHalfWidth = function() {
     // Calculating opposite field of the triangle
-    var angle = this.cameraFov();
+    var angle = this.cameraHorizontalFov();
+    var adjacent = this.cameraFar();
+    var opposed = Math.tan(angle) * adjacent;
+    return opposed;
+};
+
+/**
+ * @method extentHalfHeight Returns the half height of the extent. Based on the
+ *         camera view angle and far distance
+ * @return {Number} Half height of the extent
+ */
+ExtentProvider.prototype.extentHalfHeight = function() {
+    // Calculating opposite field of the triangle
+    var angle = this.cameraVerticalFov();
     var adjacent = this.cameraFar();
     var opposed = Math.tan(angle) * adjacent;
     return opposed;
@@ -158,45 +110,21 @@ ExtentProvider.prototype._extentHalfWidth = function() {
  * @method getCameraExtent Return the current camera extent viewed
  * @return {THREE.Geometry} Extent viewed by the camera
  */
-ExtentProvider.prototype.cameraExtent = function() {
-    var geometry = this._geometry.clone();
-    
-    // Camera view plane is perpendicular to camera object plane
-    var cameraCorrection = new THREE.Quaternion();
-    var xVector = new THREE.Vector3(1, 0, 0);
-    cameraCorrection.setFromAxisAngle(xVector, -Math.PI * 0.5);
-    
-    // Orientation of our extent
-    var orientation = new THREE.Quaternion();
-    orientation.setFromEuler(this.cameraRotation());
-    orientation.multiply(cameraCorrection);
-    
-    // Matrix representing our extent position and orientation
-    var position = new THREE.Matrix4();
-    position.makeRotationFromQuaternion(orientation);
-    position.setPosition(this.cameraPosition());
-    
-    geometry.applyMatrix(position);
-    geometry = this._flattenGeometry(geometry);
-    
-    // Calculating final extent
-    var extent = new THREE.Box3();
-    extent.setFromPoints(geometry.vertices);
-    extent = this._minimumExtent(extent);
-    
-    return extent;
-};
+ExtentProvider.prototype.extents = function() {
+    var extents = [];
+    var position = this.cameraPosition();
 
-/**
- * @method sendToAppServer Function to be defined and implemented
- */
-ExtentProvider.prototype.sendToAppServer = function(appServerUrl, bottomLeft,
-        topRight) {
-    var toSend = "{ 'Xmin' : " + bottomLeft.x + ", 'Ymin' : " + bottomLeft.y +
-            ", 'Xmax' : " + topRight.x + ", 'Ymax': " + topRight.y + " }";
-    
-    var ws = new WebSocket(appServerUrl);
-    ws.onopen = function() {
-        ws.send(toSend);
-    };
+    // Matrix representing our extent position and orientation
+    var eulerAngle = this.cameraRotationY();
+    var cameraPosition = this.cameraPosition();
+
+    var position = new THREE.Matrix4();
+    position.makeRotationFromEuler(eulerAngle);
+    position.setPosition(cameraPosition);
+
+    // Moving geometry
+    var geometry = this._geometry.clone();
+    console.log(geometry);
+    geometry.applyMatrix(position);
+    return geometry;
 };
