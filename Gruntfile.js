@@ -57,6 +57,8 @@ module.exports = function(grunt) {
                 browser: true,
                 node: true,
                 yui:true,
+                curly:true,
+                eqeqeq:true,
 			}
 		},
 		
