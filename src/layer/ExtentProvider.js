@@ -7,9 +7,9 @@
  * @extends ExtentDispatcher
  * @constructor
  * @param {THREE.Camera}
- *                camera Camera to get the extent from
+ *        camera Camera to get the extent from
  * @param {DomElement}
- *                domElement DomElement to compute the minimum extent
+ *        domElement DomElement to compute the minimum extent
  */
 var ExtentProvider = function(camera, domElement) {
     this._camera = camera;
@@ -32,7 +32,7 @@ var ExtentProvider = function(camera, domElement) {
 
 /**
  * @class ExtentProvider
- * @method getCameraPosition Retruns the current camera position
+ * @method getCameraPosition Returns the current camera position
  * @return {THREE.Vector3} The camera position
  */
 ExtentProvider.prototype.cameraPosition = function() {
@@ -41,7 +41,7 @@ ExtentProvider.prototype.cameraPosition = function() {
 
 /**
  * @class ExtentProvider
- * @method getCameraPosition Retruns the current camera far distance
+ * @method getCameraPosition Returns the current camera far distance
  * @return {float} The camera far distance
  */
 ExtentProvider.prototype.cameraFar = function() {
@@ -50,7 +50,7 @@ ExtentProvider.prototype.cameraFar = function() {
 
 /**
  * @class ExtentProvider
- * @method getCameraFov Retruns the current camera view angle
+ * @method getCameraFov Returns the current camera view angle
  * @return {float} The camera angle in degrees
  */
 ExtentProvider.prototype.cameraFov = function() {
@@ -59,7 +59,7 @@ ExtentProvider.prototype.cameraFov = function() {
 
 /**
  * @class ExtentProvider
- * @method getCameraRotation Retruns the current camera rotation in Euler angles
+ * @method getCameraRotation Returns the current camera rotation in Euler angles
  * @return {THREE.Euler} The Euler rotation of the camera
  */
 ExtentProvider.prototype.cameraRotation = function() {
@@ -70,7 +70,7 @@ ExtentProvider.prototype.cameraRotation = function() {
  * @class ExtentProvider
  * @method _flattentGeometry Project the area on the x-y plane
  * @param {THREE.Geometry}
- *                geometry Geometry to flatten
+ *        geometry Geometry to flatten
  * @return {THREE.Geometry} Returns the flattened geometry
  */
 ExtentProvider.prototype._flattenGeometry = function(geometry) {
@@ -83,7 +83,7 @@ ExtentProvider.prototype._flattenGeometry = function(geometry) {
 /**
  * @method _isExtentHeightValid Check if the extent height covers the canvas.
  * @param {THREE.Box3}
- *                extent Extent to check
+ *        extent Extent to check
  * @return {boolean} True if the extent is tall enough, false otherwise.
  */
 ExtentProvider.prototype._isExtentHeightValid = function(extent) {
@@ -102,7 +102,7 @@ ExtentProvider.prototype._isExtentHeightValid = function(extent) {
 /**
  * @method _isExtentWidthValid Check if the extent width covers the canvas.
  * @param {THREE.Box3}
- *                extent Extent to check
+ *        extent Extent to check
  * @return {boolean} True if the extent is large enough, false otherwise.
  */
 ExtentProvider.prototype._isExtentHeightValid = function(extent) {
@@ -123,7 +123,7 @@ ExtentProvider.prototype._isExtentHeightValid = function(extent) {
  *         Compute an extent large enough if needed. You need to specify a
  *         domElement for this function to work.
  * @param {THREE.Box3}
- *                extent Extent viewed by the camera. Extent is modified.
+ *        extent Extent viewed by the camera. Extent is modified.
  * @return {THREE.Box3} The modified extent
  */
 ExtentProvider.prototype._minimumExtent = function(extent) {
