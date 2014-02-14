@@ -2,7 +2,8 @@
 "use strict";
 
 /**
- * @class GeometryFactoryComposite
+ * @class GeometryFactoryComposite Create Object3D based on a JSON Object
+ *        containing geometries and the type of dimensions
  * @constructor
  */
 var GeometryFactoryComposite = function() {
@@ -13,18 +14,16 @@ var GeometryFactoryComposite = function() {
 
 /**
  * @method create Create geometries based on JSON object
- * @param {Object}
- *        obj JSON object containing the type of geometries and an array of
- *        geometries
- * @param {String}
- *        obj.type String representing the type of the geometry
- * @param {Array}
- *        obj.geometries Array of JSON object representing the geometry
+ * @param {Object} obj JSON object containing the type of geometries and an
+ *                array of geometries
+ * @param {String} obj.type String representing the type of the geometry
+ * @param {Array} obj.geometries Array of JSON object representing the geometry
  */
 GeometryFactoryComposite.prototype.create = function(obj) {
     if (!obj || !obj.type) {
         throw "Invalid geometry container";
     }
+
     switch (obj.type) {
         case "2":
             return this._geometry2DFactory(obj.geometries);
