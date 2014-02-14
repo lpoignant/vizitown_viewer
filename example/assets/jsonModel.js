@@ -1,4 +1,4 @@
-{
+var jsonModel = {
     "metadata" :
     {
         "formatVersion" : 3.1,
@@ -31,6 +31,6 @@
 
     "skinWeights" : [],
 
-    "animations" : []
+    "animations" : [],
 
-}
+};
