@@ -1,14 +1,14 @@
+/* global Geometry2DFactory, Geometry25DFactory, Geometry3DFactory */
 "use strict";
 
 /**
- * @class GeometryFactory
+ * @class GeometryFactoryComposite
  * @constructor
- * 
- * 
  */
 var GeometryFactoryComposite = function() {
     this._geometry2DFactory = new Geometry2DFactory();
     this._geometry25DFactory = new Geometry25DFactory();
+    this._geometry3DFactory = new Geometry3DFactory();
 };
 
 /**
