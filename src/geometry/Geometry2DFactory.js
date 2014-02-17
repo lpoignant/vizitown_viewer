@@ -2,7 +2,9 @@
 "use strict";
 
 /**
- * @class Geometry2DFactory This create a Flat Object3D from a polygon
+ * This create a Flat Object3D from a polygon
+ * 
+ * @class Geometry2DFactory
  * @extends GeometryFactory
  * @constructor
  * @param {Object} args JSON Object containing the arguments

@@ -2,8 +2,9 @@
 "use strict";
 
 /**
- * @class Geometry3DFactory This class create a 3D geometry from a JSON Model
- *        object
+ * This class creates a 3D object from a JSON Model
+ * 
+ * @class Geometry3DFactory
  * @extends GeometryFactory
  * @constructor
  * @param {Object} args JSON Object containing the arguments
@@ -34,7 +35,9 @@ Geometry3DFactory.prototype.isValid = function(obj) {
 };
 
 /**
- * @method parseGeometry Creates a geometry from a JSON Model object
+ * Creates a geometry from a JSON Model object
+ * 
+ * @method parseGeometry
  * @param {Object} obj JSON object respecting model format and representing the
  *                geometry
  * @return {THREE.Geometry} Created geometry

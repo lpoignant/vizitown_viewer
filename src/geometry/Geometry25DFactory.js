@@ -2,7 +2,9 @@
 "use strict";
 
 /**
- * @class Geometry25DFactory This class creates extruded geometries from polygon
+ * This class creates extruded geometries from polygon
+ * 
+ * @class Geometry25DFactory
  * @extends GeometryFactory
  * @constructor
  * @param {Object} args JSON Object containing the arguments
@@ -14,11 +16,17 @@
 var Geometry25DFactory = function(args) {
     args = args || {};
     GeometryFactory.call(this, args);
+    this._extrudeSettings = {
+        bevelEnabled: false,
+        steps: 1,
+    };
 };
 Geometry25DFactory.inheritsFrom(GeometryFactory);
 
 /**
- * @method parseGeometry Creates an extruded geometry from a JSON object
+ * Creates an extruded geometry from a JSON object
+ * 
+ * @method parseGeometry
  * @param {Object} obj JSON object representing the geometry
  * @return {THREE.Geometry} Extruded geometry
  */
@@ -31,16 +39,21 @@ Geometry25DFactory.prototype.parseGeometry = function(obj) {
     }
     // Extrude geometry
     var shape = new THREE.Shape(points2D);
-    var geometry = shape.extrude(obj.height);
+    console.log(points2D);
+    this._extrudeSettings.amount = obj.height;
+    var geometry = shape.extrude(this._extrudeSettings);
     return geometry;
 };
 
 /**
- * @method isValid Check if the object containing the geometries is valid
+ * Check if the object containing the geometries is valid
+ * 
+ * @method isValid
  * @param {Object} obj Object to be checked
  * @returns {Boolean} True if valid, false otherwise.
  */
 Geometry25DFactory.prototype.isValid = function(obj) {
+    console.log(obj);
     if (!obj || obj.type !== "2.5") {
         return false;
     }

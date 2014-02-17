@@ -1,7 +1,9 @@
+/* global EventDispatcher */
 "use strict";
 
 /**
- * @class FPSCOntrol
+ * @class FPSControl
+ * @extends EventDispatcher
  * @constructor
  */
 var FPSControl = function(camera, domElement) {
@@ -9,23 +11,38 @@ var FPSControl = function(camera, domElement) {
     this.domElement = domElement || document;
     this.mouseX = 0;
     this.mouseY = 0;
-    this.lookSpeed = 1;
-    this.movementSpeed = 1000;
-};
+    this.rotationSpeed = 90;
+    this.movementSpeed = 500;
 
+    this._clock = new THREE.Clock();
+
+    this.worldVectorZ = new THREE.Vector3(0, 0, 1);
+    this.listen();
+};
+FPSControl.inheritsFrom(EventDispatcher);
+
+/**
+ * Connect domElement events to the FPSControl
+ * 
+ * @method listen
+ */
 FPSControl.prototype.listen = function() {
     this.domElement.addEventListener('mousemove', this.onMouseMove.bind(this),
-            false);
+                                     false);
     this.domElement.addEventListener('mousedown', this.onMouseDown.bind(this),
-            false);
+                                     false);
     this.domElement.addEventListener('mouseup', this.onMouseUp.bind(this),
-            false);
+                                     false);
     this.domElement.addEventListener('keydown', this.onKeyDown.bind(this),
-            false);
+                                     false);
     this.domElement.addEventListener('keyup', this.onKeyUp.bind(this), false);
     this.handleResize();
 };
 
+/**
+ * @method onMouseDown
+ * @param event
+ */
 FPSControl.prototype.onMouseDown = function(event) {
     if (this.domElement !== document) {
         this.domElement.focus();
@@ -35,12 +52,19 @@ FPSControl.prototype.onMouseDown = function(event) {
     this.mouseDragOn = true;
 };
 
+/**
+ * @method onMouseUp
+ * @param event
+ */
 FPSControl.prototype.onMouseUp = function(event) {
     event.preventDefault();
     event.stopPropagation();
     this.mouseDragOn = false;
 };
 
+/**
+ * @method handleResize
+ */
 FPSControl.prototype.handleResize = function() {
     if (this.domElement === document) {
         this.viewHalfX = window.innerWidth / 2;
@@ -52,121 +76,132 @@ FPSControl.prototype.handleResize = function() {
     }
 };
 
+/**
+ * @method onMouseMove
+ * @param {Event} event
+ */
 FPSControl.prototype.onMouseMove = function(event) {
     if (!this.mouseDragOn) {
         return;
     }
     if (this.domElement === document) {
-        this.mouseX = event.pageX - this.viewHalfX;
-        this.mouseY = -event.pageY + this.viewHalfY;
+        this.mouseX = (event.pageX - this.viewHalfX) / this.viewHalfX;
+        this.mouseY = (-event.pageY + this.viewHalfY) / this.viewHalfY;
     }
     else {
-        this.mouseX = event.pageX - this.domElement.offsetLeft - this.viewHalfX;
-        this.mouseY = -event.pageY + this.domElement.offsetTop + this.viewHalfY;
+        this.mouseX = (event.pageX - this.domElement.offsetLeft - this.viewHalfX) /
+                      this.viewHalfX;
+        this.mouseY = (-event.pageY + this.domElement.offsetTop + this.viewHalfY) /
+                      this.viewHalfY;
     }
 };
 
+/**
+ * @method onKeyDown
+ * @param {Event} event
+ */
 FPSControl.prototype.onKeyDown = function(event) {
     switch (event.keyCode) {
-        case 38: /* up */
-        case 87: /* W */
-            this.moveForward = true;
-            break;
-        
-        case 37: /* left */
-        case 65: /* A */
-            this.moveLeft = true;
-            break;
-        
         case 40: /* down */
         case 83: /* S */
             this.moveBackward = true;
             break;
-        
+
+        case 37: /* left */
+        case 81: /* Q */
+            this.moveLeft = true;
+            break;
+
         case 39: /* right */
         case 68: /* D */
             this.moveRight = true;
             break;
-        
-        case 82: /* R */
-            this.moveUp = true;
-            break;
-        case 70: /* F */
-            this.moveDown = true;
-            break;
-        
-        case 81: /* Q */
-            this.freeze = !this.freeze;
+
+        case 38: /* up */
+        case 90: /* Z */
+            this.moveForward = true;
             break;
     }
 };
 
+/**
+ * @method onKeyUp
+ * @param {Event} event
+ */
 FPSControl.prototype.onKeyUp = function(event) {
     switch (event.keyCode) {
-        case 38: /* up */
-        case 87: /* W */
-            this.moveForward = false;
-            break;
-        
-        case 37: /* left */
-        case 65: /* A */
-            this.moveLeft = false;
-            break;
-        
         case 40: /* down */
         case 83: /* S */
             this.moveBackward = false;
             break;
-        
+
+        case 37: /* left */
+        case 81: /* Q */
+            this.moveLeft = false;
+            break;
+
         case 39: /* right */
         case 68: /* D */
             this.moveRight = false;
             break;
-        
-        case 82: /* R */
-            this.moveUp = false;
-            break;
-        case 70: /* F */
-            this.moveDown = false;
+
+        case 38: /* up */
+        case 90: /* Z */
+            this.moveForward = false;
             break;
     }
 };
 
-FPSControl.prototype.update = function(delta) {
-    if (this.freeze) {
-        return;
+/**
+ * @method update
+ */
+FPSControl.prototype.update = function() {
+
+    var delta = this._clock.getDelta();
+    var moved = false;
+
+    if (this.moveBackward || this.moveForward || this.moveLeft ||
+        this.moveRight) {
+        // Translation
+        var actualMoveSpeed = delta * this.movementSpeed;
+
+        if (this.moveForward) {
+            this._camera.translateZ(-actualMoveSpeed);
+        }
+        if (this.moveBackward) {
+            this._camera.translateZ(actualMoveSpeed);
+        }
+
+        if (this.moveLeft) {
+            this._camera.translateX(-actualMoveSpeed);
+        }
+        if (this.moveRight) {
+            this._camera.translateX(actualMoveSpeed);
+        }
+        moved = true;
     }
-    // Translation
-    var actualMoveSpeed = delta * this.movementSpeed;
-    
-    if (this.moveForward) {
-        this._camera.translateZ(-actualMoveSpeed);
-    }
-    if (this.moveBackward) {
-        this._camera.translateZ(actualMoveSpeed);
-    }
-    
-    if (this.moveLeft) {
-        this._camera.translateX(-actualMoveSpeed);
-    }
-    if (this.moveRight) {
-        this._camera.translateX(actualMoveSpeed);
-    }
-    
-    if (this.moveUp) {
-        this._camera.translateY(actualMoveSpeed);
-    }
-    if (this.moveDown) {
-        this._camera.translateY(-actualMoveSpeed);
-    }
-    
+
     // Rotation
-    if (!this.mouseDragOn) {
+    if (this.mouseDragOn) {
+        var lon = -THREE.Math.degToRad(this.mouseX * this.rotationSpeed) *
+                  delta;
+        var lat = THREE.Math.degToRad(this.mouseY * this.rotationSpeed) * delta;
+
+        var rotationMatrix = new THREE.Matrix4();
+        rotationMatrix.makeRotationAxis(this.worldVectorZ, lon);
+        rotationMatrix.multiply(this._camera.matrix);
+        this._camera.matrix = rotationMatrix;
+        this._camera.rotation.setFromRotationMatrix(this._camera.matrix);
+
+        this._camera.rotateX(lat);
+        moved = true;
+    }
+
+    if (!moved) {
         return;
     }
-    var actualLookSpeed = delta * this.lookSpeed;
-    var lon = -THREE.Math.degToRad(this.mouseX * actualLookSpeed) / 10;
-    var lat = THREE.Math.degToRad(this.mouseY * actualLookSpeed) / 10;
-    this._camera.rotateY(lon);
-    this._camera.rotateX(lat);
+
+    this.dispatch("moved", {
+        camera: this._camera
+    });
 };

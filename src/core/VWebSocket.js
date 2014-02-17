@@ -1,3 +1,4 @@
+/* global EventDispatcher */
 /* exported VWebSocket */
 "use strict";
 
@@ -7,6 +8,7 @@
  * 
  * @class VWebSocket
  * @constructor
+ * @extends EventDispatcher
  * @param {String} args.host String representing the host
  * @param {String} args.port String representing the port number
  * @param {String} args.path String representing the server socket url
@@ -19,23 +21,36 @@ var VWebSocket = function(args) {
     this._host = args.host;
     this._port = args.port;
     this._path = args.path;
-    this._url = "ws://" + args.host + ":" + args.port + args.path;
+    this._url = args.url || "ws://" + args.host + ":" + args.port + args.path;
     if (window.MozWebSocket) {
         window.WebSocket = window.MozWebSocket;
     }
+};
+VWebSocket.inheritsFrom(EventDispatcher);
+
+VWebSocket.prototype._createSocket = function(onopen) {
     this.socket = new WebSocket(this._url);
-    if (args.onmessage) {
-        this.socket.onmessage = args.onmessage;
+    var self = this;
+    this.socket.onmessage = function(event) {
+        var json = JSON.parse(event.data);
+        console.log(json);
+        self.dispatch("messageReceived", json);
+    };
+    this.socket.onopen = onopen;
+};
+
+VWebSocket.prototype.open = function(onopen) {
+    if (!this.socket) {
+        this._createSocket(onopen);
+        return true;
     }
-    if (args.onopen) {
-        this.socket.onopen = args.onopen;
+
+    var state = this.socket.readyState;
+    if (state === WebSocket.CLOSED || state === WebSocket.CLOSING) {
+        this._createSocket(onopen);
+        return true;
     }
-    if (args.onerror) {
-        this.socket.onerror = args.onerror;
-    }
-    if (args.onclose) {
-        this.socket.onclose = args.onclose;
-    }
+    return false;
 };
 
 /**
@@ -43,10 +58,14 @@ var VWebSocket = function(args) {
  * 
  * @class VWebSocket
  * @method send
- * @param {Object} JSON Object to send
+ * @param {Object} jsonObject JSON Object to send
  */
 VWebSocket.prototype.send = function(jsonObject) {
-    this.socket.send(JSON.stringify(jsonObject));
+    var self = this;
+    this.open(function() {
+        console.log(jsonObject);
+        self.socket.send(JSON.stringify(jsonObject));
+    });
 };
 
 module.exports = VWebSocket;

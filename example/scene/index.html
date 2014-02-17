@@ -1,0 +1,47 @@
+<html>
+
+<head>
+    <title></title>
+    <script type="text/javascript" src="../js/Vizitown.js"></script>
+	<style>
+		body {
+			margin: 0px;
+			background-color: #000000;
+			overflow: hidden;
+		}
+	</style>
+</head>
+
+<body>
+
+<div id="main_map"></div>
+ 
+<script type="text/javascript">
+
+	var req = new XMLHttpRequest();
+	req.open('GET', "http://localhost:8888/init", false); 
+	req.send(null);
+	if (req.status != 200) {
+	    throw "No scene defined";
+	}
+	
+	var sceneSettings = JSON.parse(req.responseText);
+	
+	var scene = new Scene({
+	    window: window,
+	    document: document,
+	    domId: "main_map",
+	    extent: {
+	        minX: parseFloat(sceneSettings.extent.xMin),
+	        minY: parseFloat(sceneSettings.extent.yMin),
+	        maxX: parseFloat(sceneSettings.extent.xMax),
+	        maxY: parseFloat(sceneSettings.extent.yMax),
+	    },
+		url: "localhost:8888",
+	});
+	
+	console.log(scene);
+	scene.render();
+</script>
+</body>
+</html>

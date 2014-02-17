@@ -6,6 +6,13 @@
 	<script type="text/javascript" src="../js/OrbitControls.js"></script>
     <script type="text/javascript" src="../js/Vizitown.js"></script>
     <script type="text/javascript" src="../js/TrackballControls.js"></script>
+    <style>
+		body {
+			margin: 0px;
+			background-color: #000000;
+			overflow: hidden;
+		}
+	</style>
 </head>
 
 <body>
@@ -18,7 +25,7 @@
     var scene = new THREE.Scene();
 
     // create a camera, which defines where we're looking at.
-    var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
+    var camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 100);
 
     // create a render and set the size
     var renderer = new THREE.WebGLRenderer();
@@ -28,6 +35,7 @@
 
     var axes = new THREE.AxisHelper( 20 );
     scene.add(axes);
+    var clock = new THREE.Clock();
 
     // create the ground plane
     var planeGeometry = new THREE.PlaneGeometry(5,5);
@@ -53,8 +61,16 @@
 
     var extentProvider = new ExtentProvider(camera, renderer.domElement);
     
-    var debugMaterial = new THREE.MeshBasicMaterial({color: 0xff0000, wireframe: true});
+    var debugMaterial = new THREE.MeshBasicMaterial({color: 0xffff00, wireframe:true});
     debugMaterial.side = THREE.DoubleSide;
+    
+    function onWindowResize() {
+		camera.aspect = window.innerWidth / window.innerHeight;
+		camera.updateProjectionMatrix();
+		renderer.setSize( window.innerWidth, window.innerHeight );
+	}
+	
+	window.addEventListener( 'resize', onWindowResize, false );
 
     function render() {
         var delta = clock.getDelta();
@@ -66,7 +82,7 @@
     document.addEventListener('keyup', function(e) {
         var ascii_value = e.keyCode;
         if(String.fromCharCode(ascii_value) == 'K' ) {
-            var array = extentProvider.cameraExtent;
+            var array = extentProvider.cameraExtent();
             var mesh = new THREE.Mesh(array, debugMaterial);
             scene.add(mesh);
         }
