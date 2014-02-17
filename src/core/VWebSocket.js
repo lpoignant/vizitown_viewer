@@ -1,3 +1,4 @@
+/* global EventDispatcher */
 /* exported VWebSocket */
 "use strict";
 
@@ -7,6 +8,7 @@
  * 
  * @class VWebSocket
  * @constructor
+ * @extends EventDispatcher
  * @param {String} args.host String representing the host
  * @param {String} args.port String representing the port number
  * @param {String} args.path String representing the server socket url
@@ -19,13 +21,17 @@ var VWebSocket = function(args) {
     this._host = args.host;
     this._port = args.port;
     this._path = args.path;
-    this._url = "ws://" + args.host + ":" + args.port + args.path;
+    this._url = args.url || "ws://" + args.host + ":" + args.port + args.path;
     if (window.MozWebSocket) {
         window.WebSocket = window.MozWebSocket;
     }
     this.socket = new WebSocket(this._url);
     if (args.onmessage) {
-        this.socket.onmessage = args.onmessage;
+        var self = this;
+        this.socket.onmessage = function(message) {
+            self.onMessage(message);
+            args.onmessage(message);
+        };
     }
     if (args.onopen) {
         this.socket.onopen = args.onopen;
@@ -37,16 +43,40 @@ var VWebSocket = function(args) {
         this.socket.onclose = args.onclose;
     }
 };
+VWebSocket.inheritsFrom(EventDispatcher);
 
 /**
  * Sends a JSON Object to the socket
  * 
  * @class VWebSocket
  * @method send
- * @param {Object} JSON Object to send
+ * @param {Object} jsonObject JSON Object to send
  */
 VWebSocket.prototype.send = function(jsonObject) {
     this.socket.send(JSON.stringify(jsonObject));
+};
+
+/**
+ * @method sendExtent
+ * @param extent
+ */
+VWebSocket.prototype.sendExtent = function(extent) {
+    var ext = {
+        xMin: extent.min.x,
+        yMin: extent.min.y,
+        xMax: extent.max.x,
+        yMax: extent.max.y,
+    };
+    this.send(ext);
+};
+
+/**
+ * @method onMessage
+ * @param {String} message
+ */
+VWebSocket.prototype.onMessage = function(message) {
+    var json = JSON.parse(message);
+    this.dispatch("messageReceived", json);
 };
 
 module.exports = VWebSocket;
