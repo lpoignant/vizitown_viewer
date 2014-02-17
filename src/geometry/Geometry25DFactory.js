@@ -16,6 +16,10 @@
 var Geometry25DFactory = function(args) {
     args = args || {};
     GeometryFactory.call(this, args);
+    this._extrudeSettings = {
+        bevelEnabled: false,
+        steps: 1,
+    };
 };
 Geometry25DFactory.inheritsFrom(GeometryFactory);
 
@@ -35,7 +39,9 @@ Geometry25DFactory.prototype.parseGeometry = function(obj) {
     }
     // Extrude geometry
     var shape = new THREE.Shape(points2D);
-    var geometry = shape.extrude(obj.height);
+    console.log(points2D);
+    this._extrudeSettings.amount = obj.height;
+    var geometry = shape.extrude(this._extrudeSettings);
     return geometry;
 };
 
@@ -47,6 +53,7 @@ Geometry25DFactory.prototype.parseGeometry = function(obj) {
  * @returns {Boolean} True if valid, false otherwise.
  */
 Geometry25DFactory.prototype.isValid = function(obj) {
+    console.log(obj);
     if (!obj || obj.type !== "2.5") {
         return false;
     }

@@ -18,19 +18,19 @@ var GeometryFactory = function(args) {
 
     this._polyhedralMaterial = args.polyhedralMaterial ||
                                new THREE.MeshLambertMaterial({
-                                   color : 0xcc0000,
-                                   wireframe : true
+                                   color: 0xcc0000,
+                                   wireframe: true,
                                });
 
     this._pointMaterial = args.pointMaterial ||
                           new THREE.ParticleSystemMaterial({
-                              color : 0xFFFF00,
-                              size : 5
+                              color: 0xFFFF00,
+                              size: 5
                           });
 
     this._lineMaterial = args.lineMaterial || new THREE.LineBasicMaterial({
-        color : 0x00ee00,
-        lineWidth : 3
+        color: 0x00ee00,
+        lineWidth: 3
     });
 
 };
@@ -46,7 +46,7 @@ GeometryFactory.prototype._centroid = function(geometry) {
     for (var i = 0; i < vertices.length; i++) {
         centroid.add(vertices[i]);
     }
-    centroid.divideByScalar(vertices.length);
+    centroid.divideScalar(vertices.length);
     return centroid;
 };
 
@@ -83,7 +83,7 @@ GeometryFactory.prototype.createFromGeometry = function(geometry) {
     // Center the geometry
     var centroid = this._centroid(geometry);
     var translationMatrix = new THREE.Matrix4();
-    translationMatrix.makeTranslation(-centroid.x, -centroid.y, -centroid.z);
+    translationMatrix.makeTranslation(-centroid.x, -centroid.y, 0);
     geometry.applyMatrix(translationMatrix);
     // Create the mesh
     var mesh;

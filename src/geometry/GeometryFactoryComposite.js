@@ -31,11 +31,11 @@ GeometryFactoryComposite.prototype.create = function(obj) {
 
     switch (obj.type) {
         case "2":
-            return this._geometry2DFactory(obj.geometries);
+            return this._geometry2DFactory.create(obj);
         case "2.5":
-            return this._geometry25DFactory(obj.geometries);
+            return this._geometry25DFactory.create(obj);
         case "3":
-            return this._geometry3DFactory(obj.geometries);
+            return this._geometry3DFactory.create(obj);
         default:
             throw "Invalid geometry container";
     }
