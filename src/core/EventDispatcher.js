@@ -17,7 +17,7 @@ var EventDispatcher = function() {
  * @param {String} event Name of the event to listen
  * @param {Function} listener Function called when event is emitted
  */
-EventDispatcher.prototype.registerEventListener = function(event, listener) {
+EventDispatcher.prototype.addEventListener = function(event, listener) {
     if (!this._events.hasOwnProperty(event)) {
         this._events[event] = [];
     }
@@ -29,7 +29,7 @@ EventDispatcher.prototype.registerEventListener = function(event, listener) {
  * 
  * @method dispatch
  * @param {String} event Event name
- * @param {Object} detail JSON object reprensenting the data of the event
+ * @param {Object} detail JSON object representing the data of the event
  */
 EventDispatcher.prototype.dispatch = function(event, detail) {
     if (!this._events.hasOwnProperty(event)) {
@@ -37,10 +37,7 @@ EventDispatcher.prototype.dispatch = function(event, detail) {
     }
 
     // Respecting Javascript CustomEvent key
-    var customEvent = {
-        name : event,
-        detail : detail
-    };
+    var customEvent = detail;
 
     this._events[event].forEach(function(entry) {
         entry(customEvent);
