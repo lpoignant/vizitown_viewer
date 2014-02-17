@@ -2,7 +2,9 @@
 "use strict";
 
 /**
- * @class Geometry25DFactory This class creates extruded geometries from polygon
+ * This class creates extruded geometries from polygon
+ * 
+ * @class Geometry25DFactory
  * @extends GeometryFactory
  * @constructor
  * @param {Object} args JSON Object containing the arguments
@@ -18,7 +20,9 @@ var Geometry25DFactory = function(args) {
 Geometry25DFactory.inheritsFrom(GeometryFactory);
 
 /**
- * @method parseGeometry Creates an extruded geometry from a JSON object
+ * Creates an extruded geometry from a JSON object
+ * 
+ * @method parseGeometry
  * @param {Object} obj JSON object representing the geometry
  * @return {THREE.Geometry} Extruded geometry
  */
@@ -36,7 +40,9 @@ Geometry25DFactory.prototype.parseGeometry = function(obj) {
 };
 
 /**
- * @method isValid Check if the object containing the geometries is valid
+ * Check if the object containing the geometries is valid
+ * 
+ * @method isValid
  * @param {Object} obj Object to be checked
  * @returns {Boolean} True if valid, false otherwise.
  */

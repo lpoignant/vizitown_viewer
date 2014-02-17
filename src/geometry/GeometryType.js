@@ -1,12 +1,11 @@
 "use strict";
 
 /**
- * @class GeometryType This class provides static methods to detect the geometry
- *        type
+ * Provides static methods to detect the geometry type
+ * 
+ * @class GeometryType
  */
-var GeometryType = function() {
-
-};
+var GeometryType = function() {};
 
 /**
  * @method isPoint Check if the geometry is a point
