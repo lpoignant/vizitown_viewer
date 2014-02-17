@@ -122,9 +122,10 @@ Layer.prototype._index = function(x, y) {
  * @param {THREE.Object3D} mesh Object3D to add to the scene
  */
 Layer.prototype.addToTile = function(mesh) {
-    var tileIndex = this.tileIndexFromCoordinates(mesh.position);
-    var tile = tile(tileIndex.x, tileIndex.y);
-    tile.add(mesh);
+    // var tileIndex = this.tileIndexFromCoordinates(mesh.position);
+    // var tile = this.tile(tileIndex.x, tileIndex.y);
+
+    this._scene.add(mesh);
 };
 
 /**
@@ -194,11 +195,17 @@ Layer.prototype.tile = function(x, y) {
     return tile;
 };
 
-Layer.prototype.forEachTile = function(func) {
+Layer.prototype.forEach = function(func) {
     for (var x = 0; x < this.nbTileX; x++) {
         for (var y = 0; y < this.nbTileY; y++) {
-            var tile = this.tile(x, y);
-            func.call(this, tile, x, y);
+            func.call(this, x, y);
         }
     }
+};
+
+Layer.prototype.forEachTile = function(func) {
+    this.forEach(function(x, y) {
+        var tile = this.tile(x, y);
+        func.call(this, tile, x, y);
+    });
 };

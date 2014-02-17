@@ -40,10 +40,9 @@ ExtentProvider.prototype.extents = function(camera) {
     this._frustum.setFromMatrix(matrixFrustum);
 
     var self = this;
-    this._layer.forEachTile(function(tile, x, y) {
+    this._layer.forEach(function(x, y) {
         // Avoid creating tile if it does not exists
         var box = self._layer.tileBox(x, y);
-        console.log("intersects", x, y);
         if (self._frustum.intersectsBox(box)) {
             extents.push({
                 extent: box,

@@ -1,4 +1,4 @@
-/* global FPSControl, ExtentProvider, Camera, Layer */
+/* global FPSControl, ExtentProvider, Camera, Layer, SceneSocket */
 "use strict";
 
 /**
@@ -43,14 +43,6 @@ var Scene = function(args) {
         tileHeight: 4096,
     });
 
-    var planeGeometry = new THREE.PlaneGeometry(1000, 1000, 10, 10);
-    var planeMaterial = new THREE.MeshBasicMaterial({
-        color: 0xcccccc,
-        wireframe: true
-    });
-    this._grid = new THREE.Mesh(planeGeometry, planeMaterial);
-    this._scene.add(this._grid);
-
     this._control = new FPSControl(this._camera, this._document);
 
     var self = this;
@@ -60,7 +52,7 @@ var Scene = function(args) {
     });
 
     this._socket = new SceneSocket({
-        url: url,
+        url: "ws://" + url,
         scene: this,
     });
 
@@ -84,7 +76,10 @@ Scene.prototype.render = function() {
 Scene.prototype.display = function(extents) {
     var self = this;
     extents.forEach(function(extent) {
-        self._layer.tile(extent.x, extent.y);
+        if (!self._layer.isTileCreated(extent.x, extent.y)) {
+            self._layer.tile(extent.x, extent.y);
+            self._socket.sendExtent(extent.extent);
+        }
     });
 };
 
