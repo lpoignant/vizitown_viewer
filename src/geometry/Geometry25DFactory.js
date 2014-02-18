@@ -68,7 +68,6 @@ Geometry25DFactory.prototype._centroid = function(geometry) {
  * @returns {Boolean} True if valid, false otherwise.
  */
 Geometry25DFactory.prototype.isValid = function(obj) {
-    console.log(obj);
     if (!obj || obj.type !== "2.5") {
         return false;
     }
