@@ -1,4 +1,4 @@
-/* global FPSControl, ExtentProvider, Camera, Layer, SceneSocket */
+/* global FPSControl, Camera, SceneSocket */
 "use strict";
 
 /**
@@ -8,9 +8,9 @@
 var Scene = function(args) {
     args = args || {};
     var url = args.url;
-    var extent = args.extent;
-    var x = extent.minX + ((extent.maxX - extent.minX) / 2);
-    var y = extent.minY + ((extent.maxY - extent.minY) / 2);
+    this.extent = args.extent;
+    var x = this.extent.minX + ((this.extent.maxX - this.extent.minX) / 2);
+    var y = this.extent.minY + ((this.extent.maxY - this.extent.minY) / 2);
 
     this._window = args.window || window;
     this._document = args.document || document;
@@ -27,29 +27,7 @@ var Scene = function(args) {
         y: y,
     });
 
-    this._layer = new Layer({
-        x: extent.minX,
-        y: extent.minY,
-        width: extent.maxX - extent.minX,
-        height: extent.maxY - extent.minY,
-        ortho: '/image/mnt.png',
-        dem: '/image/mnt.png',
-        scene: this._scene,
-        minHeight: 0,
-        maxHeight: 10,
-        xDensity: 8,
-        yDensity: 8,
-        tileWidth: 4096,
-        tileHeight: 4096,
-    });
-
-    this._control = new FPSControl(this._camera, this._document);
-
-    var self = this;
-    this._extent = new ExtentProvider(this._control, this._layer);
-    this._extent.addEventListener("extentChanged", function(extents) {
-        self.display(extents);
-    });
+    this._control = new FPSControl(this._camera, this._document);    
 
     this._socket = new SceneSocket({
         url: "ws://" + url,
@@ -64,6 +42,9 @@ var Scene = function(args) {
  * @method render
  */
 Scene.prototype.render = function() {
+    if (!this._layer) {
+        return;
+    }
     this._window.requestAnimationFrame(this.render.bind(this));
     this._renderer.render(this._scene, this._camera);
     this._control.update();
@@ -74,15 +55,21 @@ Scene.prototype.render = function() {
  * @param extents
  */
 Scene.prototype.display = function(extents) {
+    if (!this._layer) {
+        return;
+    }
     var self = this;
     extents.forEach(function(extent) {
-        if (!self._layer.isTileCreated(extent.x, extent.y)) {
-            self._layer.tile(extent.x, extent.y);
+        if (!self._layer.isTileCreated(self.extent.x, self.extent.y)) {
+            self._layer.tile(self.extent.x, self.extent.y);
             self._socket.sendExtent(extent.extent);
         }
     });
 };
 
 Scene.prototype.add = function(mesh) {
+    if ((!this._layer)) {
+        return;
+    }
     this._layer.addToTile(mesh);
 };

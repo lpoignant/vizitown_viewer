@@ -6,9 +6,9 @@
  * 
  * @class TiledLayer
  * @constructor
- * @param {int} args.x X top left corner of the layer in the layer coordinate
+ * @param {int} args.x X bottom left corner of the layer in the layer coordinate
  *                system
- * @param {int} args.y Y top left corner of the layer in the layer coordinate
+ * @param {int} args.y Y bottom left corner of the layer in the layer coordinate
  *                system
  * @param {int} args.tileSizeWidth Width of a tile in the layer coordinate
  *                system
@@ -94,9 +94,26 @@ Layer.prototype._createTileGeometry = function() {
 };
 
 /**
+ * @method _getRasterUrl Returns correct url to access a raster
+ * @param {String} path Path to the 
+ * @param {Number} x X index of the tile. Starting at the bottom left corner
+ * @param {Number} y Y index of the tile. Starting at the bottom left corner
+ * @returns {String}
+ */
+Layer.prototype._getRasterUrl = function(path, x, y, zoomLevel) {
+    zoomLevel = zoomLevel || 0;
+    var url = path + "/";
+    if (zoomLevel !== 0) {
+        url += zoomLevel + "/";
+    }
+    var elem = path.split("/");
+    url += elem[elem.length - 1] + "_" + x + "_" + y + ".png";
+};
+
+/**
  * @method tileBox Returns the tile geometry at x,y
- * @param {Number} x X index of the tile. Starting at the upper left corner
- * @param {Number} y Y index of the tile. Starting at the upper left corner
+ * @param {Number} x X index of the tile. Starting at the bottom left corner
+ * @param {Number} y Y index of the tile. Starting at the bottom left corner
  * @returns {THREE.Box3} The translated geometry of the tile;
  */
 Layer.prototype.tileBox = function(x, y) {
@@ -159,8 +176,8 @@ Layer.prototype.tileOrigin = function(x, y) {
 
 /**
  * @method tile Returns the tile at the index
- * @param {Number} x X index of the tile. Starting at the upper left corner
- * @param {Number} y Y index of the tile. Starting at the upper left corner
+ * @param {Number} x X index of the tile. Starting at the bottom left corner
+ * @param {Number} y Y index of the tile. Starting at the bottom left corner
  * @returns {THREE.Mesh} Mesh representing the tile
  */
 Layer.prototype.tile = function(x, y) {
