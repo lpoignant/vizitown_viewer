@@ -18,6 +18,8 @@
  * @param {Function} args.onclose Function called when socket is closed
  */
 var VWebSocket = function(args) {
+    EventDispatcher.call(this);
+
     this._host = args.host;
     this._port = args.port;
     this._path = args.path;
@@ -25,31 +27,32 @@ var VWebSocket = function(args) {
     if (window.MozWebSocket) {
         window.WebSocket = window.MozWebSocket;
     }
+    this._buffer = [];
 };
 VWebSocket.inheritsFrom(EventDispatcher);
 
-VWebSocket.prototype._createSocket = function(onopen) {
+VWebSocket.prototype._createSocket = function() {
     this.socket = new WebSocket(this._url);
-    var self = this;
-    this.socket.onmessage = function(event) {
-        var json = JSON.parse(event.data);
-        console.log(json);
-        self.dispatch("messageReceived", json);
-    };
-    this.socket.onopen = onopen;
+    this.socket.onmessage = this.message.bind(this);
+    this.socket.onopen = this.flush.bind(this);
 };
 
-VWebSocket.prototype.open = function(onopen) {
+VWebSocket.prototype.open = function() {
     if (!this.socket) {
-        this._createSocket(onopen);
+        this._createSocket();
         return true;
     }
 
     var state = this.socket.readyState;
     if (state === WebSocket.CLOSED || state === WebSocket.CLOSING) {
-        this._createSocket(onopen);
+        this._createSocket();
         return true;
     }
+
+    if (state !== WebSocket.CONNECTING) {
+        this.flush();
+    }
+
     return false;
 };
 
@@ -61,11 +64,24 @@ VWebSocket.prototype.open = function(onopen) {
  * @param {Object} jsonObject JSON Object to send
  */
 VWebSocket.prototype.send = function(jsonObject) {
-    var self = this;
-    this.open(function() {
-        console.log(jsonObject);
-        self.socket.send(JSON.stringify(jsonObject));
-    });
+    if (jsonObject !== undefined) {
+        this._buffer.push(jsonObject);
+    }
+
+    this.open();
+};
+
+VWebSocket.prototype.flush = function() {
+    var obj = this._buffer.shift();
+    while (obj) {
+        this.socket.send(JSON.stringify(obj));
+        obj = this._buffer.shift();
+    }
+};
+
+VWebSocket.prototype.message = function(event) {
+    var json = JSON.parse(event.data);
+    this.dispatch("messageReceived", json);
 };
 
 module.exports = VWebSocket;
