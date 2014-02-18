@@ -61,6 +61,15 @@ var Scene = function(args) {
 };
 
 /**
+ * @method moveTo Move the camera to a specific location
+ * @param coords A 2D coordinates of the futur location
+ */
+Scene.prototype.moveTo = function(coords) {
+    this._camera.position.set(coords.x, coords.y, this._camera.position.z);
+    this._camera.lookAt(new THREE.Vector3(coords.x, coords.y, this._camera.position.z - 1));
+};
+
+/**
  * @method render
  */
 Scene.prototype.render = function() {

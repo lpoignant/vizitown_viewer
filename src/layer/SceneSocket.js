@@ -25,8 +25,12 @@ var SceneSocket = function(args) {
         });
     });
 
-    this._sockets.sync.addEventListener("messageReceived", function() {
-    // self._scene.move(obj);
+    this._sockets.sync.addEventListener("messageReceived", function(obj) {
+        var extent = JSON.parse(obj);
+	var coords = {};
+	coords.x = extent.Xmin + (extent.Xmax - extent.Xmin) * 0.5;
+	coords.y = extent.Ymin + (extent.Ymax - extent.Ymin) * 0.5;
+        self._scene.moveTo(coords);
     });
 };
 
