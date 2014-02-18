@@ -40,22 +40,6 @@ var SceneSocket = function(args) {
         self._scene.move(obj);
     });
 
-    this._scene._layer = new Layer({
-        x: this._scene.extent.minX,
-        y: this._scene.extent.minY,
-        width: this._scene.extent.maxX - this._scene.extent.minX,
-        height: this._scene.extent.maxY - this._scene.extent.minY,
-        ortho: "http://localhost:8888/rasters/img_GrandLyon2m_L93_RGB_4096_1",
-        dem: "http://localhost:8888/rasters/dem_Mnt_L93_4096_1",
-        scene: this._scene._scene,
-        minHeight: 10,
-        maxHeight: 1000,
-        xDensity: 8,
-        yDensity: 8,
-        tileWidth: 3.995894450904324 * 4096,
-        tileHeight: 3.995894450904324 * 4096,
-    });
-
     this._sockets.tiles.addEventListener("messageReceived", function(obj) {
         // Create scene
         

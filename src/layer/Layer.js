@@ -57,9 +57,9 @@ var Layer = function(args) {
 };
 
 /**
- * 
- * @param url
- * @returns
+ * @method _loadTexture Creates a THREE.Texture of url (image) passed in argument
+ * @param url of the texture
+ * @returns {THREE.Texture} 
  */
 Layer.prototype._loadTexture = function(url) {
     THREE.ImageUtils.crossOrigin = "anonymous";
@@ -96,10 +96,10 @@ Layer.prototype._createTileGeometry = function() {
 
 /**
  * @method _getRasterUrl Returns correct url to access a raster
- * @param {String} path Path to the 
+ * @param {String} path Path to the raster
  * @param {Number} x X index of the tile. Starting at the bottom left corner
  * @param {Number} y Y index of the tile. Starting at the bottom left corner
- * @returns {String}
+ * @returns {String} url to access a raster
  */
 Layer.prototype._rasterUrl = function(path, x, y, zoomLevel) {
     zoomLevel = zoomLevel || 0;
