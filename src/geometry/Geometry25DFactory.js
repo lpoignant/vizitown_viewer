@@ -39,10 +39,25 @@ Geometry25DFactory.prototype.parseGeometry = function(obj) {
     }
     // Extrude geometry
     var shape = new THREE.Shape(points2D);
-    console.log(points2D);
     this._extrudeSettings.amount = obj.height;
     var geometry = shape.extrude(this._extrudeSettings);
     return geometry;
+};
+
+/**
+ * @method _centroid
+ * @param geometry
+ * @returns {THREE.Vector3}
+ */
+Geometry25DFactory.prototype._centroid = function(geometry) {
+    var centroid = new THREE.Vector3();
+    var vertices = geometry.vertices;
+    for (var i = 0; i < vertices.length; i++) {
+        centroid.add(vertices[i]);
+    }
+    centroid.z = 0;
+    centroid.divideScalar(vertices.length);
+    return centroid;
 };
 
 /**

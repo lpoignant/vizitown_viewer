@@ -17,9 +17,9 @@ var GeometryFactory = function(args) {
     args = args || {};
 
     this._polyhedralMaterial = args.polyhedralMaterial ||
-                               new THREE.MeshLambertMaterial({
+                               new THREE.MeshBasicMaterial({
                                    color: 0xcc0000,
-                                   wireframe: true,
+
                                });
 
     this._pointMaterial = args.pointMaterial ||
@@ -83,7 +83,7 @@ GeometryFactory.prototype.createFromGeometry = function(geometry) {
     // Center the geometry
     var centroid = this._centroid(geometry);
     var translationMatrix = new THREE.Matrix4();
-    translationMatrix.makeTranslation(-centroid.x, -centroid.y, 0);
+    translationMatrix.makeTranslation(-centroid.x, -centroid.y, -centroid.z);
     geometry.applyMatrix(translationMatrix);
     // Create the mesh
     var mesh;
