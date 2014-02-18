@@ -8,11 +8,12 @@
 var SceneSocket = function(args) {
     this._scene = args.scene;
     this._factory = new GeometryFactoryComposite();
-
     this._sockets = {};
+
     this._sockets.data = new VWebSocket({
         url: args.url + "/data"
     });
+
     this._sockets.sync = new VWebSocket({
         url: args.url + "/sync"
     });
@@ -22,14 +23,21 @@ var SceneSocket = function(args) {
 
     var self = this;
     this._sockets.data.addEventListener("messageReceived", function(obj) {
+        if(!obj) {
+            return;
+        }
         var meshes = self._factory.create(obj);
+        if(!meshes) {
+            return;
+        }
         meshes.forEach(function(mesh) {
             self._scene.add(mesh);
         });
+        self._scene.render();
     });
 
-    this._sockets.sync.addEventListener("messageReceived", function() {
-    // self._scene.move(obj);
+    this._sockets.sync.addEventListener("messageReceived", function(obj) {
+        self._scene.move(obj);
     });
 
     this._scene._layer = new Layer({
@@ -37,17 +45,16 @@ var SceneSocket = function(args) {
         y: this._scene.extent.minY,
         width: this._scene.extent.maxX - this._scene.extent.minX,
         height: this._scene.extent.maxY - this._scene.extent.minY,
-        ortho: "http://localhost:8888/dem_Mnt_L93_4096_1",
-        dem: "http://localhost:8888/img_GrandLyon2m_L93_RGB_4096_1",
-        scene: this._scene,
-        minHeight: 0,
-        maxHeight: 10,
+        ortho: "http://localhost:8888/rasters/img_GrandLyon2m_L93_RGB_4096_1",
+        dem: "http://localhost:8888/rasters/dem_Mnt_L93_4096_1",
+        scene: this._scene._scene,
+        minHeight: 10,
+        maxHeight: 1000,
         xDensity: 8,
         yDensity: 8,
         tileWidth: 3.995894450904324 * 4096,
         tileHeight: 3.995894450904324 * 4096,
     });
-    console.log(this._scene._layer);
 
     this._sockets.tiles.addEventListener("messageReceived", function(obj) {
         // Create scene

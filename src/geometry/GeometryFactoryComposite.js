@@ -26,7 +26,8 @@ var GeometryFactoryComposite = function() {
  */
 GeometryFactoryComposite.prototype.create = function(obj) {
     if (!obj || !obj.type) {
-        throw "Invalid geometry container";
+        return;
+        //throw "Invalid geometry container";
     }
 
     switch (obj.type) {

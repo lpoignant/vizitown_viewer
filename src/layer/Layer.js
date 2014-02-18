@@ -62,6 +62,7 @@ var Layer = function(args) {
  * @returns
  */
 Layer.prototype._loadTexture = function(url) {
+    THREE.ImageUtils.crossOrigin = "anonymous";
     this._textures[url] = THREE.ImageUtils.loadTexture(url);
     return this._textures[url];
 };
@@ -100,15 +101,14 @@ Layer.prototype._createTileGeometry = function() {
  * @param {Number} y Y index of the tile. Starting at the bottom left corner
  * @returns {String}
  */
-Layer.prototype._getRasterUrl = function(path, x, y, zoomLevel) {
+Layer.prototype._rasterUrl = function(path, x, y, zoomLevel) {
     zoomLevel = zoomLevel || 0;
     var url = path + "/";
     if (zoomLevel !== 0) {
         url += zoomLevel + "/";
     }
     var elem = path.split("/");
-    url += elem[elem.length - 1] + "_" + x + "_" + y + ".png";
-    console.log(url);
+    url += elem[elem.length - 1] + "_" + "merge" + "_" + (x + 1) + "_" + (y + 1) + ".png";
     return url;
 };
 
@@ -141,10 +141,12 @@ Layer.prototype._index = function(x, y) {
  * @param {THREE.Object3D} mesh Object3D to add to the scene
  */
 Layer.prototype.addToTile = function(mesh) {
-    // var tileIndex = this.tileIndexFromCoordinates(mesh.position);
-    // var tile = this.tile(tileIndex.x, tileIndex.y);
-
-    this._scene.add(mesh);
+    var tileIndex = this.tileIndexFromCoordinates(mesh.position);
+    var origin = this.tileOrigin(tileIndex.x, tileIndex.y);
+    mesh.position.x -= origin.x;
+    mesh.position.y -= origin.y;
+    var tile = this.tile(tileIndex.x, tileIndex.y);
+    tile.add(mesh);
 };
 
 /**
@@ -186,11 +188,10 @@ Layer.prototype.tile = function(x, y) {
     if (this.isTileCreated(x, y)) {
         return this._tiles[this._index(x, y)];
     }
-    console.log(x);
-    console.log(y);
+
     // Texture
-    var dem = this._loadTexture(this._getRasterUrl(this._dem, x, y));
-    var ortho = this._loadTexture(this._getRasterUrl(this._ortho, x, y));
+    var dem = this._loadTexture(this._rasterUrl(this._dem, x, y));
+    var ortho = this._loadTexture(this._rasterUrl(this._ortho, x, y));
 
     // Shader properties
     var uniformsTerrain = THREE.UniformsUtils.clone(this._shaderDef.uniforms);
