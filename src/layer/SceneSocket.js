@@ -32,14 +32,31 @@ var SceneSocket = function(args) {
     // self._scene.move(obj);
     });
 
+    this._scene._layer = new Layer({
+        x: this._scene.extent.minX,
+        y: this._scene.extent.minY,
+        width: this._scene.extent.maxX - this._scene.extent.minX,
+        height: this._scene.extent.maxY - this._scene.extent.minY,
+        ortho: "http://localhost:8888/dem_Mnt_L93_4096_1",
+        dem: "http://localhost:8888/img_GrandLyon2m_L93_RGB_4096_1",
+        scene: this._scene,
+        minHeight: 0,
+        maxHeight: 10,
+        xDensity: 8,
+        yDensity: 8,
+        tileWidth: 3.995894450904324 * 4096,
+        tileHeight: 3.995894450904324 * 4096,
+    });
+    console.log(this._scene._layer);
+
     this._sockets.tiles.addEventListener("messageReceived", function(obj) {
         // Create scene
         
         self._scene._layer = new Layer({
             x: self._scene._extent.minX,
             y: self._scene._extent.minY,
-            width: self._scene.extent.maxX - self._scene.extent.minX,
-            height: self._scene.extent.maxY - self._scene.extent.minY,
+            width: self._scene._extent.maxX - self._scene._extent.minX,
+            height: self._scene._extent.maxY - self._scene._extent.minY,
             ortho: obj.texture,
             dem: obj.dem,
             scene: self._scene,

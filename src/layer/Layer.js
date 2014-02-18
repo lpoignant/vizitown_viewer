@@ -108,6 +108,8 @@ Layer.prototype._getRasterUrl = function(path, x, y, zoomLevel) {
     }
     var elem = path.split("/");
     url += elem[elem.length - 1] + "_" + x + "_" + y + ".png";
+    console.log(url);
+    return url;
 };
 
 /**
@@ -184,10 +186,11 @@ Layer.prototype.tile = function(x, y) {
     if (this.isTileCreated(x, y)) {
         return this._tiles[this._index(x, y)];
     }
-
+    console.log(x);
+    console.log(y);
     // Texture
-    var dem = this._textures[this._dem] || this._loadTexture(this._dem);
-    var ortho = this._textures[this._ortho] || this._loadTexture(this._ortho);
+    var dem = this._loadTexture(this._getRasterUrl(this._dem, x, y));
+    var ortho = this._loadTexture(this._getRasterUrl(this._ortho, x, y));
 
     // Shader properties
     var uniformsTerrain = THREE.UniformsUtils.clone(this._shaderDef.uniforms);
