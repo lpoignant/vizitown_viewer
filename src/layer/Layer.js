@@ -122,10 +122,13 @@ Layer.prototype._index = function(x, y) {
  * @param {THREE.Object3D} mesh Object3D to add to the scene
  */
 Layer.prototype.addToTile = function(mesh) {
-    // var tileIndex = this.tileIndexFromCoordinates(mesh.position);
-    // var tile = this.tile(tileIndex.x, tileIndex.y);
+    var tileIndex = this.tileIndexFromCoordinates(mesh.position);
+    var origin = this.tileOrigin(tileIndex.x, tileIndex.y);
+    mesh.position.x -= origin.x;
+    mesh.position.y -= origin.y;
+    var tile = this.tile(tileIndex.x, tileIndex.y);
 
-    this._scene.add(mesh);
+    tile.add(mesh);
 };
 
 /**

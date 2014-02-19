@@ -85,7 +85,8 @@ Scene.prototype.render = function() {
 Scene.prototype.display = function(extents) {
     var self = this;
     extents.forEach(function(extent) {
-        if (!self._layer.isTileCreated(extent.x, extent.y)) {
+        var tileCreated = self._layer.isTileCreated(extent.x, extent.y);
+        if (!tileCreated) {
             self._layer.tile(extent.x, extent.y);
             self._socket.sendExtent(extent.extent);
         }

@@ -15,12 +15,12 @@ var Camera = function(args) {
     this._renderer = args.renderer;
 
     var vFov = args.fov || 45;
-    var far = args.far || 1000;
+    var far = args.far || 2000;
     var ratio = this._window.innerWidth / this._window.innerHeight;
     var x = args.x || 0;
     var y = args.y || 0;
 
-    THREE.PerspectiveCamera.call(this, vFov, ratio, 10, far);
+    THREE.PerspectiveCamera.call(this, vFov, ratio, 100, far);
     this.position = new THREE.Vector3(x, y, far / 10);
     this.lookAt(new THREE.Vector3(x, y, 0));
 
