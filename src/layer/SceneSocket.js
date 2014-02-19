@@ -16,6 +16,10 @@ var SceneSocket = function(args) {
 
     var self = this;
     this._sockets.sync.addEventListener("messageReceived", function(obj) {
-        self._scene.move(obj);
+        var extent = JSON.parse(obj);
+        var coords = {};
+        coords.x = extent.Xmin + (extent.Xmax - extent.Xmin) * 0.5;
+        coords.y = extent.Ymin + (extent.Ymax - extent.Ymin) * 0.5;
+        self._scene.moveTo(coords);
     });
 };
