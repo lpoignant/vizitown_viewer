@@ -20,7 +20,7 @@ var Camera = function(args) {
     var x = args.x || 0;
     var y = args.y || 0;
 
-    THREE.PerspectiveCamera.call(this, vFov, ratio, 100, far);
+    THREE.PerspectiveCamera.call(this, vFov, ratio, 1, far);
     this.position = new THREE.Vector3(x, y, far / 10);
     this.lookAt(new THREE.Vector3(x, y, 0));
 

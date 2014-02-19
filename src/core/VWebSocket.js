@@ -67,13 +67,13 @@ VWebSocket.prototype.send = function(jsonObject) {
     if (jsonObject !== undefined) {
         this._buffer.push(jsonObject);
     }
-
     this.open();
 };
 
 VWebSocket.prototype.flush = function() {
     var obj = this._buffer.shift();
     while (obj) {
+        console.log(obj);
         this.socket.send(JSON.stringify(obj));
         obj = this._buffer.shift();
     }
@@ -81,6 +81,7 @@ VWebSocket.prototype.flush = function() {
 
 VWebSocket.prototype.message = function(event) {
     var json = JSON.parse(event.data);
+    console.log(json);
     this.dispatch("messageReceived", json);
 };
 
