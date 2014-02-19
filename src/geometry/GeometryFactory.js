@@ -17,9 +17,8 @@ var GeometryFactory = function(args) {
     args = args || {};
 
     this._polyhedralMaterial = args.polyhedralMaterial ||
-                               new THREE.MeshBasicMaterial({
-                                   color: 0xcc0000,
-
+                               new THREE.MeshLambertMaterial({
+                                   color: 0xcccccc,
                                });
 
     this._pointMaterial = args.pointMaterial ||
@@ -76,7 +75,7 @@ GeometryFactory.prototype.isValid = function() {
  * Creates an Object3D based on a geometry and its type.
  * 
  * @method createFromGeometry
- * @param geometry
+ * @param {THREE.Geometry} geometry
  * @returns {THREE.Object3D} The Object 3D representing the geometry
  */
 GeometryFactory.prototype.createFromGeometry = function(geometry) {
