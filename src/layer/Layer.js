@@ -29,8 +29,8 @@ var Layer = function(args) {
     this._tileHalfSize = this._tileSize * 0.5;
     this._gridDensity = args.gridDensity || 1;
 
-    this.nbTileX = Math.ceil(this._layerWidth / this._tileSize);
-    this.nbTileY = Math.ceil(this._layerHeight / this._tileSize);
+    this.nbTileX = ~~((this._layerWidth / this._tileSize) + 1);
+    this.nbTileY = ~~((this._layerHeight / this._tileSize) + 1);
 
     this._material = args.material || new THREE.MeshLambertMaterial({
         color: 0x666666,
@@ -143,8 +143,8 @@ Layer.prototype.tileIndex = function(coords) {
     if (coords.y > this._origY + this._layerHeight) {
         return;
     }
-    var x = Math.floor((coords.x - this.position.x) / this._tileSize);
-    var y = Math.floor((coords.y - this.position.y) / this._tileSize);
+    var x = ~~((coords.x - this.position.x) / this._tileSize);
+    var y = ~~((coords.y - this.position.y) / this._tileSize);
     return new THREE.Vector2(x, y);
 };
 
@@ -160,6 +160,13 @@ Layer.prototype.tileCoordinates = function(position) {
     tileCoords.x -= origin.x;
     tileCoords.y -= origin.y;
     return tileCoords;
+};
+
+Layer.prototype.worldCoordinates = function(x, y, position) {
+    var pos = this.tileOrigin(x, y);
+    pos.x += position.x;
+    pos.y += position.y;
+    return position;
 };
 
 /**

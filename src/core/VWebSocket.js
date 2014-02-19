@@ -28,6 +28,8 @@ var VWebSocket = function(args) {
         window.WebSocket = window.MozWebSocket;
     }
     this._buffer = [];
+
+    this._createSocket();
 };
 VWebSocket.inheritsFrom(EventDispatcher);
 

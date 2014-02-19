@@ -6,14 +6,6 @@
  * @class CanvasTile
  * @constructor
  * @param {Object} args JSON Object containing arguments
- * @param {int} args.x X top left corner of the canvas in the canvas coordinate
- *                system
- * @param {int} args.y Y top left corner of the canvas in the canvas coordinate
- *                system
- * @param {int} args.tileSizeWidth Width of a tile in the canvas coordinate
- *                system
- * @param {int} args.tileSizeHeight Height of a tile in the canvas coordinate
- *                system
  */
 var CanvasTile = function(url) {
     this._url = url;

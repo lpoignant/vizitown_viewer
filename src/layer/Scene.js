@@ -10,6 +10,10 @@ var Scene = function(args) {
     var url = args.url;
 
     var extent = args.extent;
+
+    this._originX = extent.minX;
+    this._originY = extent.minY;
+
     var x = (extent.maxX - extent.minX) / 2;
     var y = (extent.maxY - extent.minY) / 2;
 
@@ -35,18 +39,17 @@ var Scene = function(args) {
 
     this._vectorLayer = new WebSocketLayer({
         url: "ws://" + url,
-        x: extent.minX,
-        y: extent.minY,
+        x: this._originX,
+        y: this._originY,
         width: extent.maxX - extent.minX,
         height: extent.maxY - extent.minY,
-        tileWidth: 1000,
-        tileHeight: 1000,
+        tileSize: 1000,
     });
     this._scene.add(this._vectorLayer);
 
     this._terrainLayer = new TerrainLayer({
-        x: extent.minX,
-        y: extent.minY,
+        x: this._originX,
+        y: this._originY,
         width: extent.maxX - extent.minX,
         height: extent.maxY - extent.minY,
         ortho: "http://localhost:8888/rasters/img_GrandLyon2m_L93_RGB_4096_1",
@@ -80,8 +83,12 @@ var Scene = function(args) {
  * @param coords A 2D coordinates of the futur location
  */
 Scene.prototype.moveTo = function(coords) {
-    this._camera.position.set(coords.x, coords.y, this._camera.position.z);
-    this._camera.lookAt(new THREE.Vector3(coords.x, coords.y, this._camera.position.z - 1));
+    var x = coords.x - this._originX;
+    var y = coords.y - this._originY;
+    this._camera.position.x = x;
+    this._camera.position.y = y;
+    var lookPoint = new THREE.Vector3(x, y, this._camera.position.z - 1);
+    this._camera.lookAt(lookPoint);
 };
 
 /**
