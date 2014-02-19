@@ -33,6 +33,8 @@ var TerrainLayer = function(args) {
     this._material = new THREE.ShaderMaterial({
         vertexShader: this._shaderDef.vertexShader,
         fragmentShader: this._shaderDef.fragmentShader,
+        transparent: true,
+        fog: true,
     });
 
     this._demTextures = [];

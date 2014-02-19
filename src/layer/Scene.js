@@ -21,11 +21,8 @@ var Scene = function(args) {
     this._document = args.document || document;
 
     this._renderer = new THREE.WebGLRenderer();
+    this._renderer.setClearColor(0xdbdbdb, 1);
     this._renderer.setSize(window.innerWidth, window.innerHeight);
-
-    this._scene = new THREE.Scene();
-    var hemiLight = new THREE.HemisphereLight(0x999999, 0xffffff, 1);
-    this._scene.add(hemiLight);
 
     this._camera = new Camera({
         window: this._window,
@@ -34,6 +31,11 @@ var Scene = function(args) {
         y: y,
     });
     this._control = new FPSControl(this._camera, this._document);
+
+    this._scene = new THREE.Scene();
+    this._scene.fog = new THREE.Fog(0xdbdbdb, this._camera.far / 2, this._camera.far);
+    var hemiLight = new THREE.HemisphereLight(0x999999, 0xffffff, 1);
+    this._scene.add(hemiLight);
 
     this._vectorLayer = new WebSocketLayer({
         url: "ws://" + url,
