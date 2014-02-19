@@ -25,12 +25,12 @@ var GeometryFactoryComposite = function() {
  * @returns {Array} An array containing the newly created mesh
  */
 GeometryFactoryComposite.prototype.create = function(obj) {
-    if (!obj || !obj.type) {
+    if (!obj || !obj.dim) {
         return;
         //throw "Invalid geometry container";
     }
 
-    switch (obj.type) {
+    switch (obj.dim) {
         case "2":
             return this._geometry2DFactory.create(obj);
         case "2.5":
