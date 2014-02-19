@@ -16,9 +16,8 @@ var Scene = function(args) {
     this._document = args.document || document;
 
     this._renderer = new THREE.WebGLRenderer();
+    this._renderer.setClearColor(0xdbdbdb, 1);
     this._renderer.setSize(window.innerWidth, window.innerHeight);
-
-    this._scene = new THREE.Scene();
 
     this._camera = new Camera({
         window: this._window,
@@ -27,13 +26,16 @@ var Scene = function(args) {
         y: y,
     });
 
+    this._scene = new THREE.Scene();
+    this._scene.fog = new THREE.Fog(0xdbdbdb, 800, 3 * this._camera.far / 4);
+
     this._layer = new Layer({
         x: extent.minX,
         y: extent.minY,
         width: extent.maxX - extent.minX,
         height: extent.maxY - extent.minY,
-        ortho: '/image/mnt.png',
-        dem: '/image/mnt.png',
+        ortho: '/app/mnt.png',
+        dem: '/app/mnt.png',
         scene: this._scene,
         minHeight: 0,
         maxHeight: 10,

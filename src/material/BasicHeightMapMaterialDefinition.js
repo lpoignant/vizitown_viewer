@@ -10,32 +10,41 @@ var BasicHeightMapMaterialDefinition = {
      * with "lights: true" material option)
      * -------------------------------------------------------------------------
      */
-
-    uniforms : {
-        ortho : {
-            type : "t",
-            value : 0
+    uniforms : THREE.UniformsUtils.merge([
+        {
+            ortho : {
+                type : "t",
+                value : 0
+            },
+            dem : {
+                type : "t",
+                value : 0
+            },
+            minHeight : {
+                type : "f",
+                value : 0
+            },
+            maxHeight : {
+                type : "f",
+                value : 255
+            }
         },
-        dem : {
-            type : "t",
-            value : 0
-        },
-        minHeight : {
-            type : "f",
-            value : 0
-        },
-        maxHeight : {
-            type : "f",
-            value : 255
-        }
-    },
+        THREE.UniformsLib.fog,
+    ]),
 
-    fragmentShader : [ "varying float vAmount;", "varying vec2 vUv;",
-
-    "uniform sampler2D ortho;",
-
-    "void main() {", "	vec4 color = texture2D( ortho, vUv );",
-            "   color.a = 1.0;", "   gl_FragColor = color;", "}", ].join("\n"),
+    fragmentShader : [
+        "varying float vAmount;",
+        "varying vec2 vUv;",
+        "uniform sampler2D ortho;",
+        THREE.ShaderChunk.fog_pars_fragment,
+    
+        "void main() {",
+	"   vec4 color = texture2D( ortho, vUv );",
+        "   color.a = 1.0;",
+	"   gl_FragColor = color;",
+            THREE.ShaderChunk.fog_fragment,	
+	"}", 
+    ].join("\n"),
 
     vertexShader : [
             "uniform sampler2D dem;",
@@ -55,5 +64,6 @@ var BasicHeightMapMaterialDefinition = {
             "	newPosition.z = minHeight + ((maxHeight - minHeight) * vAmount);",
             // move the position along the normal
             "	gl_Position = projectionMatrix * modelViewMatrix * vec4( newPosition, 1.0 );",
-            "}", ].join("\n")
+            "}", 
+    ].join("\n")
 };
