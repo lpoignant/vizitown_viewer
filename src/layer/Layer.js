@@ -44,10 +44,10 @@ var Layer = function(args) {
         var minY = this._tileSize * y;
         var maxX = minX + this._tileSize;
         var maxY = minY + this._tileSize;
-        extents.push([ minX, minY, maxX, maxY, {
+        extents.push([minX, minY, maxX, maxY, {
             x: x,
             y: y
-        } ]);
+        }]);
     });
 
     this._spatialIndex = rbush(8);
@@ -120,7 +120,7 @@ Layer.prototype._index = function(x, y) {
  * Add a mesh to the correct tile
  * 
  * @method addToTile Add an object to a tile
- * @param {THREE.Object3D}
+ * @param {THREE.Object3D} mesh
  */
 Layer.prototype.addToTile = function(mesh) {
     var coordinates = this.tileCoordinates(mesh.position);
@@ -248,9 +248,10 @@ Layer.prototype.forEach = function(func) {
 };
 
 Layer.prototype.forEachTileCreatedInExtent = function(extent, func) {
-    var tileIndexes = this._spatialIndex.search([ extent.min.x - this.originX,
-            extent.min.y - this.originY, extent.max.x - this.originX,
-            extent.max.y - this.originY ]);
+    var tileIndexes = this._spatialIndex.search([extent.min.x - this.originX,
+                                                 extent.min.y - this.originY,
+                                                 extent.max.x - this.originX,
+                                                 extent.max.y - this.originY]);
     var self = this;
     tileIndexes.forEach(function(tileIndex) {
         var x = tileIndex[4].x;
@@ -283,8 +284,10 @@ Layer.prototype.display = function(camera) {
     this._frustum.setFromMatrix(matrixFrustum);
 
     var position = camera.position;
-    var extent = [ position.x - camera.far, position.y - camera.far,
-            position.x + camera.far, position.y + camera.far ];
+    var extent = [position.x - camera.far,
+                  position.y - camera.far,
+                  position.x + camera.far,
+                  position.y + camera.far];
     var tileIndexes = this._spatialIndex.search(extent);
 
     var tileExtent = new THREE.Box3();
