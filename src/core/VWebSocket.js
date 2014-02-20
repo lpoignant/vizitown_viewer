@@ -28,6 +28,8 @@ var VWebSocket = function(args) {
         window.WebSocket = window.MozWebSocket;
     }
     this._buffer = [];
+
+    this._createSocket();
 };
 VWebSocket.inheritsFrom(EventDispatcher);
 
@@ -67,7 +69,6 @@ VWebSocket.prototype.send = function(jsonObject) {
     if (jsonObject !== undefined) {
         this._buffer.push(jsonObject);
     }
-
     this.open();
 };
 

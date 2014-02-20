@@ -28,7 +28,7 @@ Geometry3DFactory.inheritsFrom(GeometryFactory);
  * @returns {Boolean} True if valid, false otherwise.
  */
 Geometry3DFactory.prototype.isValid = function(obj) {
-    if (!obj || obj.type !== "3") {
+    if (!obj || obj.dim !== "3") {
         return false;
     }
     return true;
@@ -43,5 +43,7 @@ Geometry3DFactory.prototype.isValid = function(obj) {
  * @return {THREE.Geometry} Created geometry
  */
 Geometry3DFactory.prototype.parseGeometry = function(geometry) {
-    return this._loader.parse(geometry);
+    // THREE.JSONLoader() returns an object containing the geometry
+    var object = this._loader.parse(geometry);
+    return object.geometry;
 };

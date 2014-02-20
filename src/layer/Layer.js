@@ -1,4 +1,4 @@
-/* global BasicHeightMapMaterialDefinition:false */
+/* global rbush */
 "use strict";
 
 /**
@@ -6,66 +6,57 @@
  * 
  * @class TiledLayer
  * @constructor
- * @param {int} args.x X bottom left corner of the layer in the layer coordinate
+ * @param {int} args.x X top left corner of the layer in the layer coordinate
  *                system
- * @param {int} args.y Y bottom left corner of the layer in the layer coordinate
+ * @param {int} args.y Y top left corner of the layer in the layer coordinate
  *                system
  * @param {int} args.tileSizeWidth Width of a tile in the layer coordinate
  *                system
  * @param {int} args.tileSizeHeight Height of a tile in the layer coordinate
  *                system
- * @param {String} args.ortho URL to get the ortho
- * @param {String} args.dem URL to get the dem raster
- * @param {int} args.xDensity Number of on the x axis
- * @param {int} args.yDensity Number of line on the y axis
+ * @param {int} args.gridDensity Number of lines on the x and y axis
  */
 var Layer = function(args) {
-    this._origX = args.x || 0;
-    this._origY = args.y || 0;
+    THREE.Object3D.call(this);
+    args = args || {};
+    this.originX = args.x || 0;
+    this.originY = args.y || 0;
 
     this._layerWidth = args.width;
     this._layerHeight = args.height;
 
-    this._tileWidth = args.tileWidth || 512;
-    this._tileHeight = args.tileHeight || 512;
-    this._halfTileWidth = this._tileWidth * 0.5;
-    this._halfTileHeight = this._tileHeight * 0.5;
+    this._tileSize = args.tileSize || 1000;
+    this._tileHalfSize = this._tileSize * 0.5;
+    this._gridDensity = args.gridDensity || 1;
 
-    this.nbTileX = Math.ceil(this._layerWidth / this._tileWidth);
-    this.nbTileY = Math.ceil(this._layerHeight / this._tileHeight);
+    this.nbTileX = ~~((this._layerWidth / this._tileSize) + 1);
+    this.nbTileY = ~~((this._layerHeight / this._tileSize) + 1);
 
-    this._xTileGridDensity = args.xDensity || 8;
-    this._yTileGridDensity = args.yDensity || 8;
-
-    this._ortho = args.ortho || false;
-    this._dem = args.dem || false;
-    this._scene = args.scene || false;
-
-    this._minDEMElevation = args.minHeight || 0;
-    this._maxDEMElevation = args.maxHeight || 100;
-
-    this._shaderDef = args.shaderDef || BasicHeightMapMaterialDefinition;
-
-    Layer._heightmapMaterial = new THREE.ShaderMaterial({
-        vertexShader: this._shaderDef.vertexShader,
-        fragmentShader: this._shaderDef.fragmentShader,
-        transparent: true,
+    this._material = args.material || new THREE.MeshLambertMaterial({
+        color: 0x666666,
+        emissive: 0xaaaaaa,
+        ambient: 0xffffff,
     });
 
-    this._tiles = [];
-    this._textures = {};
-};
+    var extents = [];
+    this.forEach(function(x, y) {
+        var minX = this._tileSize * x;
+        var minY = this._tileSize * y;
+        var maxX = minX + this._tileSize;
+        var maxY = minY + this._tileSize;
+        extents.push([ minX, minY, maxX, maxY, {
+            x: x,
+            y: y
+        } ]);
+    });
 
-/**
- * @method _loadTexture Creates a THREE.Texture of url (image) passed in argument
- * @param url of the texture
- * @returns {THREE.Texture} 
- */
-Layer.prototype._loadTexture = function(url) {
-    THREE.ImageUtils.crossOrigin = "anonymous";
-    this._textures[url] = THREE.ImageUtils.loadTexture(url);
-    return this._textures[url];
+    this._spatialIndex = rbush(8);
+    this._spatialIndex.load(extents);
+
+    this._tiles = [];
+    this._frustum = new THREE.Frustum();
 };
+Layer.inheritsFrom(THREE.Object3D);
 
 /**
  * @method isTileCreated Returns if a tile exists at index
@@ -84,45 +75,34 @@ Layer.prototype.isTileCreated = function(x, y) {
  * @param {Number} y Y index of the tile. Starting at the upper left corner
  * @returns {THREE.PlaneGeometry} The tile geometry translated
  */
-Layer.prototype._createTileGeometry = function() {
-    var geometry = new THREE.PlaneGeometry(this._tileWidth, this._tileHeight,
-                                           this._xTileGridDensity,
-                                           this._yTileGridDensity);
+Layer.prototype._createGeometry = function() {
+    var geometry = new THREE.PlaneGeometry(this._tileSize, this._tileSize,
+                                           this._gridDensity, this._gridDensity);
     var position = new THREE.Matrix4();
-    position.makeTranslation(this._halfTileWidth, this._halfTileHeight, 0);
+    position.makeTranslation(this._tileHalfSize, this._tileHalfSize, 0);
     geometry.applyMatrix(position);
     return geometry;
 };
 
 /**
- * @method _getRasterUrl Returns correct url to access a raster
- * @param {String} path Path to the raster
- * @param {Number} x X index of the tile. Starting at the bottom left corner
- * @param {Number} y Y index of the tile. Starting at the bottom left corner
- * @returns {String} url to access a raster
+ * 
+ * @returns {THREE.MeshLambertMaterial}
  */
-Layer.prototype._rasterUrl = function(path, x, y, zoomLevel) {
-    zoomLevel = zoomLevel || 0;
-    var url = path + "/";
-    if (zoomLevel !== 0) {
-        url += zoomLevel + "/";
-    }
-    var elem = path.split("/");
-    url += elem[elem.length - 1] + "_" + "merge" + "_" + (x + 1) + "_" + (y + 1) + ".png";
-    return url;
+Layer.prototype._createMaterial = function() {
+    return this._material;
 };
 
 /**
  * @method tileBox Returns the tile geometry at x,y
- * @param {Number} x X index of the tile. Starting at the bottom left corner
- * @param {Number} y Y index of the tile. Starting at the bottom left corner
+ * @param {Number} x X index of the tile. Starting at the upper left corner
+ * @param {Number} y Y index of the tile. Starting at the upper left corner
  * @returns {THREE.Box3} The translated geometry of the tile;
  */
-Layer.prototype.tileBox = function(x, y) {
+Layer.prototype.tileExtent = function(x, y) {
     var origin = this.tileOrigin(x, y);
     var min = new THREE.Vector3(origin.x, origin.y, 0);
-    var max = new THREE.Vector3(origin.x + this._tileWidth, origin.y +
-                                                            this._tileWidth, 0);
+    var max = new THREE.Vector3(origin.x + this._tileSize, origin.y +
+                                                           this._tileSize, 0);
     return new THREE.Box3(min, max);
 };
 
@@ -137,15 +117,24 @@ Layer.prototype._index = function(x, y) {
 };
 
 /**
- * @method Add an object to a tile
- * @param {THREE.Object3D} mesh Object3D to add to the scene
+ * Add a mesh to the correct tile
+ * 
+ * @method addToTile Add an object to a tile
+ * @param {THREE.Object3D}
  */
 Layer.prototype.addToTile = function(mesh) {
-    var tileIndex = this.tileIndexFromCoordinates(mesh.position);
-    var origin = this.tileOrigin(tileIndex.x, tileIndex.y);
-    mesh.position.x -= origin.x;
-    mesh.position.y -= origin.y;
+    var coordinates = this.tileCoordinates(mesh.position);
+    var tileIndex = this.tileIndex(mesh.position);
     var tile = this.tile(tileIndex.x, tileIndex.y);
+
+    if (this.dem) {
+        var height = this.dem.height(mesh.position);
+        if (height) {
+            coordinates.z = height;
+        }
+    }
+
+    mesh.position = coordinates;
     tile.add(mesh);
 };
 
@@ -154,16 +143,49 @@ Layer.prototype.addToTile = function(mesh) {
  * @param coords
  * @returns {THREE.Vector2}
  */
-Layer.prototype.tileIndexFromCoordinates = function(coords) {
-    if (coords.x > this._origX + this._layerWidth) {
+Layer.prototype.tileIndex = function(coords) {
+    if (coords.x > this.originX + this._layerWidth) {
         return;
     }
-    if (coords.y > this._origY + this._layerHeight) {
+    if (coords.y > this.originY + this._layerHeight) {
         return;
     }
-    var x = Math.floor((coords.x - this._origX) / this._tileWidth);
-    var y = Math.floor((coords.y - this._origY) / this._tileHeight);
+    var x = ~~((coords.x - this.originX) / this._tileSize);
+    var y = ~~((coords.y - this.originY) / this._tileSize);
     return new THREE.Vector2(x, y);
+};
+
+/**
+ * 
+ * @param position
+ * @returns
+ */
+Layer.prototype.tileCoordinates = function(position) {
+    var tileIndex = this.tileIndex(position);
+    var origin = this.tileOrigin(tileIndex.x, tileIndex.y);
+    var tileCoords = position.clone();
+    tileCoords.x -= origin.x;
+    tileCoords.y -= origin.y;
+    return tileCoords;
+};
+
+Layer.prototype.worldCoordinates = function(x, y, position) {
+    var pos = this.tileOrigin(x, y);
+    pos.x += position.x;
+    pos.y += position.y;
+    return position;
+};
+
+/**
+ * 
+ * @param x
+ * @param y
+ * @returns
+ */
+Layer.prototype._tileRelativeOrigin = function(x, y) {
+    var dx = this._tileSize * x;
+    var dy = this._tileSize * y;
+    return new THREE.Vector2(dx, dy);
 };
 
 /**
@@ -173,49 +195,50 @@ Layer.prototype.tileIndexFromCoordinates = function(coords) {
  * @returns
  */
 Layer.prototype.tileOrigin = function(x, y) {
-    var dx = (this._tileWidth * x) + this._origX;
-    var dy = (this._tileHeight * y) + this._origY;
-    return new THREE.Vector2(dx, dy);
+    var origin = this._tileRelativeOrigin(x, y);
+    origin.x += this.originX;
+    origin.y += this.originY;
+    return origin;
 };
 
 /**
- * @method tile Returns the tile at the index
- * @param {Number} x X index of the tile. Starting at the bottom left corner
- * @param {Number} y Y index of the tile. Starting at the bottom left corner
- * @returns {THREE.Mesh} Mesh representing the tile
+ * 
+ * @param x
+ * @param y
+ * @returns {THREE.Mesh}
  */
-Layer.prototype.tile = function(x, y) {
-    if (this.isTileCreated(x, y)) {
-        return this._tiles[this._index(x, y)];
-    }
-
-    // Texture
-    var dem = this._loadTexture(this._rasterUrl(this._dem, x, y));
-    var ortho = this._loadTexture(this._rasterUrl(this._ortho, x, y));
-
-    // Shader properties
-    var uniformsTerrain = THREE.UniformsUtils.clone(this._shaderDef.uniforms);
-    uniformsTerrain.dem.value = dem;
-    uniformsTerrain.ortho.value = ortho;
-    uniformsTerrain.minHeight.value = this._minDEMElevation;
-    uniformsTerrain.maxHeight.value = this._maxDEMElevation;
-
-    var heightMapMaterial = Layer._heightmapMaterial.clone();
-    heightMapMaterial.uniforms = uniformsTerrain;
-
-    var geometry = this._createTileGeometry(x, y);
-    var tile = new THREE.Mesh(geometry, heightMapMaterial);
+Layer.prototype._createTile = function(x, y) {
+    var geometry = this._createGeometry(x, y);
+    var material = this._createMaterial(x, y);
+    var tile = new THREE.Mesh(geometry, material);
 
     // Tile origin
-    var origin = this.tileOrigin(x, y);
+    var origin = this._tileRelativeOrigin(x, y);
     tile.translateX(origin.x);
     tile.translateY(origin.y);
 
     this._tiles[this._index(x, y)] = tile;
-    this._scene.add(tile);
+    this.add(tile);
     return tile;
 };
 
+/**
+ * @method tile Returns the tile at the index
+ * @param {Number} x X index of the tile. Starting at the upper left corner
+ * @param {Number} y Y index of the tile. Starting at the upper left corner
+ * @returns {THREE.Mesh} Mesh representing the tile
+ */
+Layer.prototype.tile = function(x, y) {
+    if (!this.isTileCreated(x, y)) {
+        return this._createTile(x, y);
+    }
+    return this._tiles[this._index(x, y)];
+};
+
+/**
+ * 
+ * @param func
+ */
 Layer.prototype.forEach = function(func) {
     for (var x = 0; x < this.nbTileX; x++) {
         for (var y = 0; y < this.nbTileY; y++) {
@@ -224,9 +247,62 @@ Layer.prototype.forEach = function(func) {
     }
 };
 
-Layer.prototype.forEachTile = function(func) {
-    this.forEach(function(x, y) {
-        var tile = this.tile(x, y);
-        func.call(this, tile, x, y);
+Layer.prototype.forEachTileCreatedInExtent = function(extent, func) {
+    var tileIndexes = this._spatialIndex.search([ extent.min.x - this.originX,
+            extent.min.y - this.originY, extent.max.x - this.originX,
+            extent.max.y - this.originY ]);
+    var self = this;
+    tileIndexes.forEach(function(tileIndex) {
+        var x = tileIndex[4].x;
+        var y = tileIndex[4].y;
+        if (self.isTileCreated(x, y)) {
+            var tile = self.tile(x, y);
+            var tileOrigin = self.tileOrigin(x, y);
+            func(tile, tileOrigin);
+        }
+    });
+};
+
+/**
+ * 
+ * @param {Array} tileIndex
+ */
+Layer.prototype._loadData = function() {
+    return;
+};
+
+Layer.prototype.display = function(camera) {
+
+    camera.updateMatrix();
+    camera.updateMatrixWorld();
+    camera.matrixWorldInverse.getInverse(camera.matrixWorld);
+
+    // Create frustum from camera
+    var matrixFrustum = camera.projectionMatrix.clone();
+    matrixFrustum.multiply(camera.matrixWorldInverse);
+    this._frustum.setFromMatrix(matrixFrustum);
+
+    var position = camera.position;
+    var extent = [ position.x - camera.far, position.y - camera.far,
+            position.x + camera.far, position.y + camera.far ];
+    var tileIndexes = this._spatialIndex.search(extent);
+
+    var tileExtent = new THREE.Box3();
+    tileExtent.min.z = 0;
+    tileExtent.max.z = 0;
+
+    var self = this;
+    tileIndexes.forEach(function(tileIndex) {
+        tileExtent.min.x = tileIndex[0];
+        tileExtent.min.y = tileIndex[1];
+        tileExtent.max.x = tileIndex[2];
+        tileExtent.max.y = tileIndex[3];
+        var index = tileIndex[4];
+        if (!self.isTileCreated(index.x, index.y)) {
+            if (self._frustum.intersectsBox(tileExtent)) {
+                self.tile(index.x, index.y);
+                self._loadData(tileIndex);
+            }
+        }
     });
 };
