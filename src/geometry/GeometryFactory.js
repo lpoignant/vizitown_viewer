@@ -17,13 +17,10 @@ var GeometryFactory = function(args) {
     args = args || {};
 
     this._polyhedralMaterial = args.polyhedralMaterial ||
-                               new THREE.MeshLambertMaterial({
-                                   color: 0xcccccc,
-                               });
+                               new THREE.MeshLambertMaterial();
 
     this._pointMaterial = args.pointMaterial ||
                           new THREE.ParticleSystemMaterial({
-                              color: 0xFFFF00,
                               size: 5
                           });
 
@@ -76,9 +73,10 @@ GeometryFactory.prototype.isValid = function() {
  * 
  * @method createFromGeometry
  * @param {THREE.Geometry} geometry
+ * @param {THREE.Material} materials Container for all the type of materials
  * @returns {THREE.Object3D} The Object 3D representing the geometry
  */
-GeometryFactory.prototype.createFromGeometry = function(geometry) {
+GeometryFactory.prototype.createFromGeometry = function(geometry, materials) {
     // Center the geometry
     var centroid = this._centroid(geometry);
     var translationMatrix = new THREE.Matrix4();
@@ -87,13 +85,13 @@ GeometryFactory.prototype.createFromGeometry = function(geometry) {
     // Create the mesh
     var mesh;
     if (GeometryType.isPoint(geometry)) {
-        mesh = new THREE.ParticleSystem(geometry, this._pointMaterial);
+        mesh = new THREE.ParticleSystem(geometry, materials.point);
     }
     else if (GeometryType.isLine(geometry)) {
-        mesh = new THREE.Line(geometry, this._lineMaterial);
+        mesh = new THREE.Line(geometry, materials.line);
     }
     else {
-        mesh = new THREE.Mesh(geometry, this._polyhedralMaterial);
+        mesh = new THREE.Mesh(geometry, materials.polyhedral);
     }
     mesh.position = centroid;
     return mesh;
@@ -112,12 +110,23 @@ GeometryFactory.prototype.create = function(obj) {
     if (!this.isValid(obj)) {
         throw "Invalid geometry container";
     }
+
+    var materials = {
+        polyhedral: this._polyhedralMaterial.clone(),
+        point: this._pointMaterial.clone(),
+        line: this._lineMaterial.clone(),
+    };
+
+    var color = new THREE.Color(parseInt(obj.color.substring(1), 16));
+    materials.polyhedral.color = color;
+    materials.point.color = color;
+    materials.line.color = color;
+
     var self = this;
     var meshes = [];
-    var geometryType = obj.type;
     obj.geometries.forEach(function(element) {
-        var geometry = self.parseGeometry(element, geometryType);
-        var mesh = self.createFromGeometry(geometry);
+        var geometry = self.parseGeometry(element);
+        var mesh = self.createFromGeometry(geometry, materials);
         meshes.push(mesh);
     });
 
