@@ -28,8 +28,8 @@ var GeometryFactory = function(args) {
                           });
 
     this._lineMaterial = args.lineMaterial || new THREE.LineBasicMaterial({
-        color: 0x00ee00,
-        lineWidth: 3
+        color: 0x00ee22,
+        linewidth: 3
     });
 
 };
@@ -112,11 +112,11 @@ GeometryFactory.prototype.create = function(obj) {
     if (!this.isValid(obj)) {
         throw "Invalid geometry container";
     }
-
     var self = this;
     var meshes = [];
+    var geometryType = obj.type;
     obj.geometries.forEach(function(element) {
-        var geometry = self.parseGeometry(element);
+        var geometry = self.parseGeometry(element, geometryType);
         var mesh = self.createFromGeometry(geometry);
         meshes.push(mesh);
     });

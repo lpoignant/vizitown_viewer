@@ -30,18 +30,30 @@ Geometry25DFactory.inheritsFrom(GeometryFactory);
  * @param {Object} obj JSON object representing the geometry
  * @return {THREE.Geometry} Extruded geometry
  */
-Geometry25DFactory.prototype.parseGeometry = function(obj) {
+Geometry25DFactory.prototype.parseGeometry = function(obj, geometryType) {
     var points = obj.coordinates;
-    var points2D = []; // List of 2D vector representing points
+    var points3D = []; // List of 2D vector representing points
     // Each coordinate of the geometry
     for (var i = 0; i < points.length; i = i + 2) {
-        points2D.push(new THREE.Vector2(points[i], points[i + 1]));
+        points3D.push(new THREE.Vector3(points[i], points[i + 1], obj.height));
     }
-    // Extrude geometry
-    var shape = new THREE.Shape(points2D);
-    this._extrudeSettings.amount = obj.height;
-    var geometry = shape.extrude(this._extrudeSettings);
-    return geometry;
+
+    if(geometryType === "POINT" ||
+        geometryType === "LINESTRING" ||
+        geometryType === "MULTILINESTRING") {
+
+        var geom = new THREE.Geometry();
+        points3D.forEach(function(point) {
+            geom.vertices.push(point);
+        });
+        return geom;
+    } else {
+        // Extrude geometry
+        var shape = new THREE.Shape(points3D);
+        this._extrudeSettings.amount = obj.height;
+        var geometry = shape.extrude(this._extrudeSettings);
+        return geometry;
+    }
 };
 
 /**
@@ -68,7 +80,7 @@ Geometry25DFactory.prototype._centroid = function(geometry) {
  * @returns {Boolean} True if valid, false otherwise.
  */
 Geometry25DFactory.prototype.isValid = function(obj) {
-    if (!obj || obj.type !== "2.5") {
+    if (!obj || obj.dim !== "2.5") {
         return false;
     }
     return true;
