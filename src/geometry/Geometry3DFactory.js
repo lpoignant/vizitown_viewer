@@ -43,7 +43,7 @@ Geometry3DFactory.prototype.isValid = function(obj) {
  * @return {THREE.Geometry} Created geometry
  */
 Geometry3DFactory.prototype.parseGeometry = function(geometry) {
-    // THREE.JSONLoader()
+    // THREE.JSONLoader() returns an object containing the geometry
     var object = this._loader.parse(geometry);
     return object.geometry;
 };

@@ -70,10 +70,8 @@ TerrainLayer.prototype._loadDEM = function(x, y) {
         var canvasTile = new CanvasTile(url, x, y);
         canvasTile.addEventListener("demLoaded", this.levelLayers.bind(this));
         this._demTextures[index] = canvasTile;
-        // this._demTextures[index] = THREE.ImageUtils.loadTexture(url);
     }
     return this._demTextures[index].texture;
-    // return this._demTextures[index];
 };
 
 TerrainLayer.prototype._loadOrtho = function(x, y) {
@@ -119,7 +117,6 @@ TerrainLayer.prototype.height = function(position) {
     var pixelValue = dem.value(new THREE.Vector2(xPixel, yPixel));
     var height = this._minDEMElevation +
                  ((this._maxDEMElevation - this._minDEMElevation) * pixelValue);
-    console.log(this);
     return height;
 };
 

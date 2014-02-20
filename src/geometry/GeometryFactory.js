@@ -125,7 +125,7 @@ GeometryFactory.prototype.create = function(obj) {
     var self = this;
     var meshes = [];
     obj.geometries.forEach(function(element) {
-        var geometry = self.parseGeometry(element);
+        var geometry = self.parseGeometry(element, obj.type);
         var mesh = self.createFromGeometry(geometry, materials);
         meshes.push(mesh);
     });
