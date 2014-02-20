@@ -41,5 +41,5 @@ WebSocketLayer.prototype.addToTile = function(mesh) {
     if (!this.isTileCreated(tileIndex.x, tileIndex.y)) {
         return;
     }
-    this.ancestor.addToTile(mesh);
+    Layer.prototype.addToTile.call(this, mesh);
 };

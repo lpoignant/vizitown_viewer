@@ -19,7 +19,7 @@ describe('Function', function() {
 
     Mammal.inheritsFrom(LivingThing);
     Mammal.prototype.haveABaby = function() {
-        this.ancestor.beBorn.call(this);
+        LivingThing.beBorn.call(this);
         var newBaby = new this.constructor("Baby " + this.name);
         this.offspring.push(newBaby);
         return newBaby;
@@ -31,7 +31,7 @@ describe('Function', function() {
     Cat.inheritsFrom(Mammal);
 
     Cat.prototype.haveABaby = function() {
-        var theKitten = this.ancestor.haveABaby.call(this);
+        var theKitten = Mammal.prototype.haveABaby.call(this);
         return theKitten;
     };
 
