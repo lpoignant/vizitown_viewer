@@ -33,10 +33,10 @@ var TerrainLayer = function(args) {
     this._material = new THREE.ShaderMaterial({
         vertexShader: this._shaderDef.vertexShader,
         fragmentShader: this._shaderDef.fragmentShader,
-        transparent: true,
         fog: true,
     });
 
+    this._layersToLevel = [];
     this._demTextures = [];
     this._orthoTextures = [];
 };
@@ -50,7 +50,7 @@ TerrainLayer.inheritsFrom(Layer);
  * @param {Number} zoomLevel Level of zoom required
  * @returns {String}
  */
-Layer.prototype._rasterUrl = function(path, x, y, zoomLevel) {
+TerrainLayer.prototype._rasterUrl = function(path, x, y, zoomLevel) {
     zoomLevel = zoomLevel || 0;
     var url = path + "/";
     if (zoomLevel !== 0) {
@@ -65,10 +65,15 @@ Layer.prototype._rasterUrl = function(path, x, y, zoomLevel) {
 TerrainLayer.prototype._loadDEM = function(x, y) {
     var index = this._index(x, y);
     if (!this._demTextures[index]) {
+        THREE.ImageUtils.crossOrigin = "anonymous";
         var url = this._rasterUrl(this._dem, x, y, this._zoom);
-        this._demTextures[index] = new CanvasTile(url);
+        var canvasTile = new CanvasTile(url, x, y);
+        canvasTile.addEventListener("demLoaded", this.levelLayers.bind(this));
+        this._demTextures[index] = canvasTile;
+        // this._demTextures[index] = THREE.ImageUtils.loadTexture(url);
     }
     return this._demTextures[index].texture;
+    // return this._demTextures[index];
 };
 
 TerrainLayer.prototype._loadOrtho = function(x, y) {
@@ -111,5 +116,29 @@ TerrainLayer.prototype.height = function(position) {
 
     var xPixel = rPos.x * demSize.x / tileSize;
     var yPixel = demSize.y - (rPos.y * demSize.y / tileSize);
-    return dem.value(new THREE.Vector2(xPixel, yPixel));
+    var pixelValue = dem.value(new THREE.Vector2(xPixel, yPixel));
+    var height = this._minDEMElevation +
+                 ((this._maxDEMElevation - this._minDEMElevation) * pixelValue);
+    console.log(this);
+    return height;
+};
+
+TerrainLayer.prototype.addLayerToLevel = function(layer) {
+    this._layersToLevel.push(layer);
+    layer.dem = this;
+};
+
+TerrainLayer.prototype.levelLayers = function(tileIndex) {
+    var extent = this.tileExtent(tileIndex.x, tileIndex.y);
+    var self = this;
+    this._layersToLevel.forEach(function(layer) {
+        layer.forEachTileCreatedInExtent(extent, function(tile, tileOrigin) {
+            tile.children.forEach(function(mesh) {
+                var point = mesh.position.clone();
+                point.x += tileOrigin.x;
+                point.y += tileOrigin.y;
+                mesh.position.z = self.height(point);
+            });
+        });
+    });
 };

@@ -33,7 +33,8 @@ var Scene = function(args) {
     this._control = new FPSControl(this._camera, this._document);
 
     this._scene = new THREE.Scene();
-    this._scene.fog = new THREE.Fog(0xdbdbdb, this._camera.far / 2, this._camera.far);
+    this._scene.fog = new THREE.Fog(0xdbdbdb, this._camera.far / 2,
+                                    this._camera.far);
     var hemiLight = new THREE.HemisphereLight(0x999999, 0xffffff, 1);
     this._scene.add(hemiLight);
 
@@ -54,13 +55,13 @@ var Scene = function(args) {
         height: extent.maxY - extent.minY,
         ortho: "http://localhost:8888/rasters/img_GrandLyon2m_L93_RGB_4096_1",
         dem: "http://localhost:8888/rasters/dem_Mnt_L93_4096_1",
+        // ortho: "http://localhost:8888/rasters/dem_Mnt_L93_4096_1",
         minHeight: 10,
-        maxHeight: 1000,
-        xDensity: 8,
-        yDensity: 8,
-        tileWidth: 3.995894450904324 * 4096,
-        tileHeight: 3.995894450904324 * 4096,
+        maxHeight: 100,
+        gridDensity: 64,
+        tileSize: 3.995894450904324 * 4096,
     });
+    this._terrainLayer.addLayerToLevel(this._vectorLayer);
     this._scene.add(this._terrainLayer);
 
     var self = this;

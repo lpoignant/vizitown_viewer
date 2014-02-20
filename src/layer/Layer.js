@@ -127,6 +127,13 @@ Layer.prototype.addToTile = function(mesh) {
     var tileIndex = this.tileIndex(mesh.position);
     var tile = this.tile(tileIndex.x, tileIndex.y);
 
+    if (this.dem) {
+        var height = this.dem.height(mesh.position);
+        if (height) {
+            coordinates.z = height;
+        }
+    }
+
     mesh.position = coordinates;
     tile.add(mesh);
 };
@@ -137,14 +144,14 @@ Layer.prototype.addToTile = function(mesh) {
  * @returns {THREE.Vector2}
  */
 Layer.prototype.tileIndex = function(coords) {
-    if (coords.x > this._origX + this._layerWidth) {
+    if (coords.x > this.originX + this._layerWidth) {
         return;
     }
-    if (coords.y > this._origY + this._layerHeight) {
+    if (coords.y > this.originY + this._layerHeight) {
         return;
     }
-    var x = ~~((coords.x - this.position.x) / this._tileSize);
-    var y = ~~((coords.y - this.position.y) / this._tileSize);
+    var x = ~~((coords.x - this.originX) / this._tileSize);
+    var y = ~~((coords.y - this.originY) / this._tileSize);
     return new THREE.Vector2(x, y);
 };
 
@@ -238,6 +245,22 @@ Layer.prototype.forEach = function(func) {
             func.call(this, x, y);
         }
     }
+};
+
+Layer.prototype.forEachTileCreatedInExtent = function(extent, func) {
+    var tileIndexes = this._spatialIndex.search([ extent.min.x - this.originX,
+            extent.min.y - this.originY, extent.max.x - this.originX,
+            extent.max.y - this.originY ]);
+    var self = this;
+    tileIndexes.forEach(function(tileIndex) {
+        var x = tileIndex[4].x;
+        var y = tileIndex[4].y;
+        if (self.isTileCreated(x, y)) {
+            var tile = self.tile(x, y);
+            var tileOrigin = self.tileOrigin(x, y);
+            func(tile, tileOrigin);
+        }
+    });
 };
 
 /**
