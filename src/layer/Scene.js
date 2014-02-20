@@ -61,8 +61,8 @@ var Scene = function(args) {
         gridDensity: 64,
         tileSize: 3.995894450904324 * 4096,
     });
-    this._terrainLayer.addLayerToLevel(this._vectorLayer);
-    this._scene.add(this._terrainLayer);
+    // this._terrainLayer.addLayerToLevel(this._vectorLayer);
+    // this._scene.add(this._terrainLayer);
 
     var self = this;
     this._control.addEventListener("moved", function(args) {
