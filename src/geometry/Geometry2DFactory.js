@@ -16,6 +16,11 @@
 var Geometry2DFactory = function(args) {
     args = args || {};
     GeometryFactory.call(this, args);
+
+    this._polyhedralMaterial = args.polyhedralMaterial ||
+                               new THREE.MeshLambertMaterial({
+                                   color: 0x0000cc,
+                               });
 };
 Geometry2DFactory.inheritsFrom(GeometryFactory);
 
@@ -27,7 +32,7 @@ Geometry2DFactory.inheritsFrom(GeometryFactory);
  * @returns {Boolean} True if valid, false otherwise.
  */
 Geometry2DFactory.prototype.isValid = function(obj) {
-    if (!obj || obj.type !== "2") {
+    if (!obj || obj.dim !== "2") {
         return false;
     }
     return true;
@@ -36,16 +41,27 @@ Geometry2DFactory.prototype.isValid = function(obj) {
 /**
  * @method parseGeometry Creates an extruded geometry from a JSON object
  * @param {Object} obj JSON object representing the geometry
- * @return {THREE.Geometry} Extruded geometry
+ * @return {THREE.Geometry} 2D Geometry
  */
-Geometry2DFactory.prototype.parseGeometry = function(obj) {
+Geometry2DFactory.prototype.parseGeometry = function(obj, geometryType) {
     var points = obj.coordinates;
-    var points2D = []; // List of 2D vector representing points
+    var points3D = []; // List of 2D vector representing points
     // Each coordinate of the geometry
     for (var i = 0; i < points.length; i = i + 2) {
-        points2D.push(new THREE.Vector2(points[i], points[i + 1]));
+        points3D.push(new THREE.Vector3(points[i], points[i + 1], 0));
     }
     // Extrude geometry
-    var shape = new THREE.Shape(points2D);
-    return shape.makeGeometry();
+    if(geometryType === "POINT" ||
+        geometryType === "LINESTRING" ||
+        geometryType === "MULTILINESTRING") {
+
+        var geometry = new THREE.Geometry();
+        points3D.forEach(function(point) {
+            geometry.vertices.push(point);
+        });
+        return geometry;
+    } else {
+        var shape = new THREE.Shape(points3D);
+        return shape.makeGeometry();
+    }
 };
