@@ -29,3 +29,17 @@ WebSocketLayer.prototype._loadData = function(extent) {
     };
     this._socket.send(ext);
 };
+
+/**
+ * Add a mesh to the correct tile
+ * 
+ * @method addToTile Add an object to a tile
+ * @param {THREE.Object3D} mesh
+ */
+WebSocketLayer.prototype.addToTile = function(mesh) {
+    var tileIndex = this.tileIndex(mesh.position);
+    if (!this.isTileCreated(tileIndex.x, tileIndex.y)) {
+        return;
+    }
+    Layer.prototype.addToTile.call(this, mesh);
+};

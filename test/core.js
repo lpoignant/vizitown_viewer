@@ -7,7 +7,7 @@ var assert = require("assert");
 
 describe('Function', function() {
     var LivingThing = {
-        beBorn : function() {
+        beBorn: function() {
             this.alive = true;
         }
     };
@@ -19,7 +19,7 @@ describe('Function', function() {
 
     Mammal.inheritsFrom(LivingThing);
     Mammal.prototype.haveABaby = function() {
-        this.parent.beBorn.call(this);
+        LivingThing.beBorn.call(this);
         var newBaby = new this.constructor("Baby " + this.name);
         this.offspring.push(newBaby);
         return newBaby;
@@ -31,7 +31,7 @@ describe('Function', function() {
     Cat.inheritsFrom(Mammal);
 
     Cat.prototype.haveABaby = function() {
-        var theKitten = this.parent.haveABaby.call(this);
+        var theKitten = Mammal.prototype.haveABaby.call(this);
         return theKitten;
     };
 
@@ -97,7 +97,7 @@ describe('EventDispatcher', function() {
             };
             p2.addEventListener(event2, f2);
             p2.dispatch(event2, {
-                message : echo
+                message: echo
             });
             p2.removeEventListener(event2, f2);
             assert.equal(false, p2._hasEventListener(event2, f2));
