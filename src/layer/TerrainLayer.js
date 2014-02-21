@@ -54,7 +54,7 @@ TerrainLayer.prototype._rasterUrl = function(path, x, y, zoomLevel) {
     zoomLevel = zoomLevel || 0;
     var url = path + "/";
     var elem = path.split("/");
-    url += elem[elem.length - 1] + "_" + zoomLevel + "_" + y + "_" + x + ".tiff.png";
+    url += elem[elem.length - 1] + "_" + zoomLevel + "_" + x + "_" + y + ".tiff.png";
     console.log(url);
     return url;
 };
