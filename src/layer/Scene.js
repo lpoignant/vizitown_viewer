@@ -115,3 +115,9 @@ Scene.prototype.displayVector = function(extents) {
         }
     });
 };
+
+Scene.prototype.zoom = function(zoomPercent) {
+    var zoomMin = 100;
+    var zoomMax = 0;
+    this._camera.position.z = (zoomMin - zoomMax) * 100/ zoomPercent;
+};
