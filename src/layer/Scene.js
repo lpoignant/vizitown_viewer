@@ -44,7 +44,7 @@ var Scene = function(args) {
         y: this._originY,
         width: extent.maxX - extent.minX,
         height: extent.maxY - extent.minY,
-        tileSize: 1000,
+        tileSize: 256,
     });
     this._scene.add(this._vectorLayer);
 
@@ -53,16 +53,15 @@ var Scene = function(args) {
         y: this._originY,
         width: extent.maxX - extent.minX,
         height: extent.maxY - extent.minY,
-        ortho: "http://localhost:8888/rasters/img_GrandLyon2m_L93_RGB_4096_1",
-        dem: "http://localhost:8888/rasters/dem_Mnt_L93_4096_1",
-        // ortho: "http://localhost:8888/rasters/dem_Mnt_L93_4096_1",
-        minHeight: 10,
-        maxHeight: 100,
+        ortho: "http://localhost:8888/rasters/GrandLyon2m_L93_RGB.tif",
+        dem: "http://localhost:8888/rasters/Mnt_L93.tiff",
+        minHeight: 0,
+        maxHeight: 179,
         gridDensity: 64,
-        tileSize: 3.995894450904324 * 4096,
+        tileSize: 2 * 1024,
     });
-    // this._terrainLayer.addLayerToLevel(this._vectorLayer);
-    // this._scene.add(this._terrainLayer);
+    this._terrainLayer.addLayerToLevel(this._vectorLayer);
+    this._scene.add(this._terrainLayer);
 
     var self = this;
     this._control.addEventListener("moved", function(args) {
@@ -114,4 +113,10 @@ Scene.prototype.displayVector = function(extents) {
             self._socket.sendExtent(extent.extent);
         }
     });
+};
+
+Scene.prototype.zoom = function(zoomPercent) {
+    var zoomMin = 100;
+    var zoomMax = 0;
+    this._camera.position.z = (zoomMin - zoomMax) * 100/ zoomPercent;
 };

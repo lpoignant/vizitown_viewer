@@ -38,6 +38,9 @@ WebSocketLayer.prototype._loadData = function(extent) {
  */
 WebSocketLayer.prototype.addToTile = function(mesh) {
     var tileIndex = this.tileIndex(mesh.position);
+    if(!tileIndex) {
+        return;
+    }
     if (!this.isTileCreated(tileIndex.x, tileIndex.y)) {
         return;
     }

@@ -53,12 +53,9 @@ TerrainLayer.inheritsFrom(Layer);
 TerrainLayer.prototype._rasterUrl = function(path, x, y, zoomLevel) {
     zoomLevel = zoomLevel || 0;
     var url = path + "/";
-    if (zoomLevel !== 0) {
-        url += zoomLevel + "/";
-    }
     var elem = path.split("/");
-    url += elem[elem.length - 1] + "_" + "merge" + "_" + (x + 1) + "_" +
-           (y + 1) + ".png";
+    url += elem[elem.length - 1] + "_" + zoomLevel + "_" + x + "_" + y + ".tiff.png";
+    console.log(url);
     return url;
 };
 
