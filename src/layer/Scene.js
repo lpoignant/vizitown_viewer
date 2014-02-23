@@ -1,4 +1,4 @@
-/* global FPSControl, WebSocketLayer, Camera, SceneSocket, TerrainLayer */
+/* global FPSControl, WebSocketLayer, Camera, SceneSocket, TerrainLayer, VWebSocket */
 "use strict";
 
 /**
@@ -42,23 +42,31 @@ var Scene = function(args) {
     });
     this._scene.add(this._vectorLayer);
 
-    this._terrainLayer = new TerrainLayer({
-        x: extent.minX,
-        y: extent.minY,
-        width: extent.maxX - extent.minX,
-        height: extent.maxY - extent.minY,
-        ortho: "http://localhost:8888/rasters/img_GrandLyon2m_L93_RGB_4096_1",
-        dem: "http://localhost:8888/rasters/dem_Mnt_L93_4096_1",
-        minHeight: 10,
-        maxHeight: 1000,
-        xDensity: 8,
-        yDensity: 8,
-        tileWidth: 3.995894450904324 * 4096,
-        tileHeight: 3.995894450904324 * 4096,
+    this._socketTile = new VWebSocket({
+        url: "ws://" + url + "/tiles_info"
     });
-    this._scene.add(this._terrainLayer);
 
     var self = this;
+    this._socketTile.addEventListener("messageReceived", function(obj) {
+            console.log(obj);
+
+            self._terrainLayer = new TerrainLayer({
+            x: self._originX,
+            y: self._originY,
+            width: extent.maxX - extent.minX,
+            height: extent.maxY - extent.minY,
+            ortho: "http://localhost:8888/rasters/GrandLyon2m_L93_RGB.tif",
+            dem: "http://localhost:8888/rasters/Mnt_L93.tiff",
+            minHeight: 0,
+            maxHeight: 179,
+            gridDensity: 64,
+            tileSize: 2 * 1024,
+        });
+        self._terrainLayer.addLayerToLevel(self._vectorLayer);
+        self._scene.add(self._terrainLayer);                    
+
+    });
+
     this._control.addEventListener("moved", function(args) {
         self._vectorLayer.display(args.camera);
         self._terrainLayer.display(args.camera);
