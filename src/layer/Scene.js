@@ -21,6 +21,7 @@ var Scene = function(args) {
     this._document = args.document || document;
 
     this._renderer = new THREE.WebGLRenderer();
+    this._renderer.sortObjects = false;
     this._renderer.setClearColor(0xdbdbdb, 1);
     this._renderer.setSize(window.innerWidth, window.innerHeight);
 

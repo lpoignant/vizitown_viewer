@@ -18,13 +18,32 @@ body {
 	left: 2%;
 } 
 
-#slider-vertical {
+#verticalslider {
 	position:absolute;
 	top: 15%;
 	right: 2%;
 	height: 50%;
 }
 
+input[type=range].vertical {
+    writing-mode: bt-lr; /* IE */
+    -webkit-appearance: slider-vertical; /* WebKit */
+    width: 8px;
+    height: 200px;
+    padding: 0 5px;
+}
+
 .row {
 	margin:2%;
+}
+
+#overlay {
+    visibility: hidden;
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    width:100%;
+    height:100%;
+    text-align:center;
+    z-index: 1000;
 }
