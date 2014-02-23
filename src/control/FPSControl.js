@@ -49,7 +49,9 @@ FPSControl.prototype.onMouseDown = function(event) {
     }
     event.preventDefault();
     event.stopPropagation();
-    this.mouseDragOn = true;
+    if (event.screenX < 95 * window.innerWidth / 100) {
+        this.mouseDragOn = true;
+    }
 };
 
 /**

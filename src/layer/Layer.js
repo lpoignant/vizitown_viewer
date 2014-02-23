@@ -29,8 +29,8 @@ var Layer = function(args) {
     this._tileHalfSize = this._tileSize * 0.5;
     this._gridDensity = args.gridDensity || 1;
 
-    this.nbTileX = Math.ceil(this._layerWidth / this._tileSize);
-    this.nbTileY = Math.ceil(this._layerHeight / this._tileSize);
+    this.nbTileX = Math.ceil((this._layerWidth / this._tileSize));
+    this.nbTileY = Math.ceil((this._layerHeight / this._tileSize));
 
     this._material = args.material || new THREE.MeshLambertMaterial({
         color: 0x666666,
@@ -44,10 +44,10 @@ var Layer = function(args) {
         var minY = this._tileSize * y;
         var maxX = minX + this._tileSize;
         var maxY = minY + this._tileSize;
-        extents.push([ minX, minY, maxX, maxY, {
+        extents.push([minX, minY, maxX, maxY, {
             x: x,
             y: y
-        } ]);
+        }]);
     });
 
     this._spatialIndex = rbush(8);
@@ -120,12 +120,19 @@ Layer.prototype._index = function(x, y) {
  * Add a mesh to the correct tile
  * 
  * @method addToTile Add an object to a tile
- * @param {THREE.Object3D}
+ * @param {THREE.Object3D} mesh
  */
 Layer.prototype.addToTile = function(mesh) {
     var coordinates = this.tileCoordinates(mesh.position);
     var tileIndex = this.tileIndex(mesh.position);
     var tile = this.tile(tileIndex.x, tileIndex.y);
+
+    if (this.dem) {
+        var height = this.dem.height(mesh.position);
+        if (height) {
+            coordinates.z = height;
+        }
+    }
 
     mesh.position = coordinates;
     tile.add(mesh);
@@ -137,14 +144,14 @@ Layer.prototype.addToTile = function(mesh) {
  * @returns {THREE.Vector2}
  */
 Layer.prototype.tileIndex = function(coords) {
-    if (coords.x > this._origX + this._layerWidth) {
+    if (coords.x > this.originX + this._layerWidth) {
         return;
     }
-    if (coords.y > this._origY + this._layerHeight) {
+    if (coords.y > this.originY + this._layerHeight) {
         return;
     }
-    var x = Math.floor((coords.x - this.position.x) / this._tileSize);
-    var y = Math.floor((coords.y - this.position.y) / this._tileSize);
+    var x = Math.floor((coords.x - this.originX) / this._tileSize);
+    var y = Math.floor((coords.y - this.originY) / this._tileSize);
     return new THREE.Vector2(x, y);
 };
 
@@ -160,6 +167,13 @@ Layer.prototype.tileCoordinates = function(position) {
     tileCoords.x -= origin.x;
     tileCoords.y -= origin.y;
     return tileCoords;
+};
+
+Layer.prototype.worldCoordinates = function(x, y, position) {
+    var pos = this.tileOrigin(x, y);
+    pos.x += position.x;
+    pos.y += position.y;
+    return position;
 };
 
 /**
@@ -233,6 +247,23 @@ Layer.prototype.forEach = function(func) {
     }
 };
 
+Layer.prototype.forEachTileCreatedInExtent = function(extent, func) {
+    var tileIndexes = this._spatialIndex.search([extent.min.x - this.originX,
+                                                 extent.min.y - this.originY,
+                                                 extent.max.x - this.originX,
+                                                 extent.max.y - this.originY]);
+    var self = this;
+    tileIndexes.forEach(function(tileIndex) {
+        var x = tileIndex[4].x;
+        var y = tileIndex[4].y;
+        if (self.isTileCreated(x, y)) {
+            var tile = self.tile(x, y);
+            var tileOrigin = self.tileOrigin(x, y);
+            func(tile, tileOrigin);
+        }
+    });
+};
+
 /**
  * 
  * @param {Array} tileIndex
@@ -253,8 +284,10 @@ Layer.prototype.display = function(camera) {
     this._frustum.setFromMatrix(matrixFrustum);
 
     var position = camera.position;
-    var extent = [ position.x - camera.far, position.y - camera.far,
-            position.x + camera.far, position.y + camera.far ];
+    var extent = [position.x - camera.far,
+                  position.y - camera.far,
+                  position.x + camera.far,
+                  position.y + camera.far];
     var tileIndexes = this._spatialIndex.search(extent);
 
     var tileExtent = new THREE.Box3();

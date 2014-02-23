@@ -15,7 +15,11 @@ var SceneSocket = function(args) {
     });
 
     var self = this;
-    this._sockets.sync.addEventListener("messageReceived", function(obj) {
-        self._scene.move(obj);
+
+    this._sockets.sync.addEventListener("messageReceived", function(extent) {
+        var coords = {};
+        coords.x = ((extent.Xmax - extent.Xmin) * 0.5) + extent.Xmin;
+        coords.y = ((extent.Ymax - extent.Ymin) * 0.5) + extent.Ymin;
+        self._scene.moveTo(coords);
     });
 };

@@ -10,6 +10,10 @@ var Scene = function(args) {
     var url = args.url;
 
     var extent = args.extent;
+
+    this._originX = extent.minX;
+    this._originY = extent.minY;
+
     var x = (extent.maxX - extent.minX) / 2;
     var y = (extent.maxY - extent.minY) / 2;
 
@@ -17,11 +21,8 @@ var Scene = function(args) {
     this._document = args.document || document;
 
     this._renderer = new THREE.WebGLRenderer();
+    this._renderer.setClearColor(0xdbdbdb, 1);
     this._renderer.setSize(window.innerWidth, window.innerHeight);
-
-    this._scene = new THREE.Scene();
-    var hemiLight = new THREE.HemisphereLight(0x999999, 0xffffff, 1);
-    this._scene.add(hemiLight);
 
     this._camera = new Camera({
         window: this._window,
@@ -31,14 +32,19 @@ var Scene = function(args) {
     });
     this._control = new FPSControl(this._camera, this._document);
 
+    this._scene = new THREE.Scene();
+    this._scene.fog = new THREE.Fog(0xdbdbdb, this._camera.far / 2,
+                                    this._camera.far);
+    var hemiLight = new THREE.HemisphereLight(0x999999, 0xffffff, 1);
+    this._scene.add(hemiLight);
+
     this._vectorLayer = new WebSocketLayer({
         url: "ws://" + url,
-        x: extent.minX,
-        y: extent.minY,
+        x: this._originX,
+        y: this._originY,
         width: extent.maxX - extent.minX,
         height: extent.maxY - extent.minY,
-        tileWidth: 1000,
-        tileHeight: 1000,
+        tileSize: 256,
     });
     this._scene.add(this._vectorLayer);
 
@@ -82,6 +88,19 @@ var Scene = function(args) {
 };
 
 /**
+ * @method moveTo Move the camera to a specific location
+ * @param coords A 2D coordinates of the futur location
+ */
+Scene.prototype.moveTo = function(coords) {
+    var x = coords.x - this._originX;
+    var y = coords.y - this._originY;
+    this._camera.position.x = x;
+    this._camera.position.y = y;
+    var lookPoint = new THREE.Vector3(x, y, this._camera.position.z - 1);
+    this._camera.lookAt(lookPoint);
+};
+
+/**
  * @method render
  */
 Scene.prototype.render = function() {
@@ -104,3 +123,12 @@ Scene.prototype.displayVector = function(extents) {
         }
     });
 };
+<<<<<<< HEAD
+=======
+
+Scene.prototype.zoom = function(zoomPercent) {
+    var zoomMin = 100;
+    var zoomMax = 0;
+    this._camera.position.z = (zoomMin - zoomMax) * 100/ zoomPercent;
+};
+>>>>>>> master

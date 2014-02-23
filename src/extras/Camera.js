@@ -15,7 +15,7 @@ var Camera = function(args) {
     this._renderer = args.renderer;
 
     var vFov = args.fov || 45;
-    var far = args.far || 2000;
+    var far = args.far || 5000;
     var ratio = this._window.innerWidth / this._window.innerHeight;
     var x = args.x || 0;
     var y = args.y || 0;
