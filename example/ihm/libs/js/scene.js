@@ -17,6 +17,7 @@ var scene = new Scene({
         maxY: parseFloat(sceneSettings.extent.yMax),
     },
 	url: "localhost:8888",
+    hasRaster: sceneSettings.hasRaster,
 });
 
 var changeZoomLevel = function(value) {
