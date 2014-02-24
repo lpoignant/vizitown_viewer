@@ -24,7 +24,6 @@ var VWebSocket = function(args) {
     this._port = args.port;
     this._path = args.path;
     this._url = args.url || "ws://" + args.host + ":" + args.port + args.path;
-    console.log(this._url);
     if (window.MozWebSocket) {
         window.WebSocket = window.MozWebSocket;
     }
