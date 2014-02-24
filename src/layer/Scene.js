@@ -25,6 +25,8 @@ var Scene = function(args) {
     this._renderer.setClearColor(0xdbdbdb, 1);
     this._renderer.setSize(window.innerWidth, window.innerHeight);
 
+    this._hasRaster = args.hasRaster || false;
+
     this._camera = new Camera({
         window: this._window,
         renderer: this._renderer,
@@ -49,34 +51,40 @@ var Scene = function(args) {
     });
     this._scene.add(this._vectorLayer);
 
-    this._socketTile = new VWebSocket({
-        url: "ws://" + url + "/tiles_info"
-    });
-
     var self = this;
-    this._socketTile.addEventListener("messageReceived", function(obj) {
-            console.log(obj);
 
-            self._terrainLayer = new TerrainLayer({
-            x: self._originX,
-            y: self._originY,
-            width: extent.maxX - extent.minX,
-            height: extent.maxY - extent.minY,
-            ortho: "http://localhost:8888/rasters/GrandLyon2m_L93_RGB.tif",
-            dem: "http://localhost:8888/rasters/Mnt_L93.tiff",
-            minHeight: 0,
-            maxHeight: 179,
-            gridDensity: 64,
-            tileSize: 2 * 1024,
+    if(this._hasRaster) {
+        this._socketTile = new VWebSocket({
+            url: "ws://" + url + "/tiles_info"
         });
-        self._terrainLayer.addLayerToLevel(self._vectorLayer);
-        self._scene.add(self._terrainLayer);                    
 
-    });
+        this._socketTile.addEventListener("messageReceived", function(obj) {
+                self._terrainLayer = new TerrainLayer({
+                x: self._originX,
+                y: self._originY,
+                width: extent.maxX - extent.minX,
+                height: extent.maxY - extent.minY,
+                ortho: obj.texture,
+                dem: obj.dem,
+                minHeight: obj.minHeight,
+                maxHeight: obj.maxHeight,
+                gridDensity: 64,
+                tileSize: obj.demPixelSize * obj.tileSize,
+            });
+            self._terrainLayer.addLayerToLevel(self._vectorLayer);
+            self._scene.add(self._terrainLayer);                    
+
+        });
+    }
+
 
     this._control.addEventListener("moved", function(args) {
-        self._vectorLayer.display(args.camera);
-        self._terrainLayer.display(args.camera);
+        if(self._vectorLayer) {
+            self._vectorLayer.display(args.camera);
+        }
+        if(self._terrainLayer) {
+            self._terrainLayer.display(args.camera);    
+        }
     });
 
     this._socket = new SceneSocket({
@@ -124,12 +132,9 @@ Scene.prototype.displayVector = function(extents) {
         }
     });
 };
-<<<<<<< HEAD
-=======
 
 Scene.prototype.zoom = function(zoomPercent) {
     var zoomMin = 100;
     var zoomMax = 0;
     this._camera.position.z = (zoomMin - zoomMax) * 100/ zoomPercent;
 };
->>>>>>> master
