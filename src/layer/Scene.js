@@ -50,6 +50,7 @@ var Scene = function(args) {
         height: extent.maxY - extent.minY,
         tileSize: 256,
         qgisVectors: args.vectors,
+        scene: this._scene,
     });
     this._scene.add(this._vectorLayer);
 

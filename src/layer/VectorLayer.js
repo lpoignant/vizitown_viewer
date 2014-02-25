@@ -51,6 +51,20 @@ VectorLayer.prototype.isTileCreated = function(x, y) {
     return (this._isTileCreated[this._index(x, y)] !== undefined);
 };
 
+VectorLayer.prototype.isDirty = function(x, y, uuid) {
+    return (this._qgisLayers[uuid].dirty[this._index(x, y)] !== undefined);
+};
+
+VectorLayer.prototype.createIfNot = function(x, y) {
+    if (!this.isTileCreated(x, y)) {
+        this._isTileCreated[this._index(x, y)] = 1;
+        var self = this;
+	for (var uuid in this._qgisLayers) {
+            self._qgisLayers[uuid].tiles[this._index(x, y)] = self._createTile(x, y);
+        }
+    }
+};
+
 /**
  * @method tile Returns the tile at the index
  * @param {Number} x X index of the tile. Starting at the upper left corner
@@ -58,16 +72,7 @@ VectorLayer.prototype.isTileCreated = function(x, y) {
  * @returns {THREE.Mesh} Mesh representing the tile
  */
 VectorLayer.prototype.tile = function(x, y, uuid) {
-    if (!this.isTileCreated(x, y)) {
-        this._isTileCreated[this._index(x, y)] = 1;
-        var self = this;
-	for (var key in this._qgisLayers) {
-            self._qgisLayers[key].tiles[this._index(x, y)] = self._createTile(x, y);
-        }
-    }
-    if (uuid !== undefined) {
-        return this._qgisLayers[uuid].tiles[this._index(x, y)];
-    }
+    return this._qgisLayers[uuid].tiles[this._index(x, y)];
 };
 
 /**
@@ -85,6 +90,7 @@ VectorLayer.prototype.addToTile = function(mesh, uuid) {
         return;
     }
     var coordinates = this.tileCoordinates(mesh.position);
+    this.createIfNot(tileIndex.x, tileIndex.y);
     var tile = this.tile(tileIndex.x, tileIndex.y, uuid);
 
     if (this.dem) {
@@ -106,5 +112,54 @@ VectorLayer.prototype.refresh = function(uuid) {
     var self = this;
     this._qgisLayers[uuid].tiles.forEach(function(tile, _index) {
         self._qgisLayers[uuid].dirty[_index] = 1;
+    });
+};
+
+VectorLayer.prototype.display = function(camera) {
+
+    camera.updateMatrix();
+    camera.updateMatrixWorld();
+    camera.matrixWorldInverse.getInverse(camera.matrixWorld);
+
+    // Create frustum from camera
+    var matrixFrustum = camera.projectionMatrix.clone();
+    matrixFrustum.multiply(camera.matrixWorldInverse);
+    this._frustum.setFromMatrix(matrixFrustum);
+
+    var position = camera.position;
+    var extent = [position.x - camera.far,
+                  position.y - camera.far,
+                  position.x + camera.far,
+                  position.y + camera.far];
+    var tileIndexes = this._spatialIndex.search(extent);
+
+    var tileExtent = new THREE.Box3();
+    tileExtent.min.z = 0;
+    tileExtent.max.z = 0;
+
+    var self = this;
+    tileIndexes.forEach(function(tileIndex) {
+        tileExtent.min.x = tileIndex[0];
+        tileExtent.min.y = tileIndex[1];
+        tileExtent.max.x = tileIndex[2];
+        tileExtent.max.y = tileIndex[3];
+        var index = tileIndex[4];
+        if (!self.isTileCreated(index.x, index.y)) {
+            if (self._frustum.intersectsBox(tileExtent)) {
+                self.createIfNot(index.x, index.y);
+                self._loadData(tileIndex);
+            }
+        } else {
+            for (var uuid in self._qgisLayers) {
+                if (self.isDirty(index.x, index.y, uuid)) {
+                    var tile = self.tile(index.x, index.y, uuid);
+                    self._scene.remove(tile);
+                    delete self._qgisLayers[uuid].tiles[self._index(index.x, index.y)];
+                    delete self._qgisLayers[uuid].dirty[self._index(index.x, index.y)];
+                    delete self._isTileCreated[self._index(index.x, index.y)];
+                }
+            }
+            self._loadData(tileIndex);
+        }
     });
 };

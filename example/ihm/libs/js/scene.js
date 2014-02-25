@@ -38,6 +38,7 @@ var refreshLayers = function() {
         var checkbox = li.children[0];
         if (checkbox.checked) {
 	     checkbox.checked = false;
+	     scene.refreshLayer(checkbox.value);
         }
     });
 };

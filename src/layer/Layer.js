@@ -22,6 +22,8 @@ var Layer = function(args) {
     this.originX = args.x || 0;
     this.originY = args.y || 0;
 
+    this._scene = args.scene;
+
     this._layerWidth = args.width;
     this._layerHeight = args.height;
 
