@@ -13,6 +13,9 @@ var WebSocketLayer = function WebSocketLayer(args) {
     var self = this;
     this._socket.addEventListener("messageReceived", function(obj) {
         var meshes = self._factory.create(obj);
+        if(!meshes) {
+            return;
+        }
         meshes.forEach(function(mesh) {
             self.addToTile(mesh);
         });
