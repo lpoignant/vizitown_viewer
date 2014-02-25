@@ -1,4 +1,4 @@
-/* global FPSControl, WebSocketLayer, Camera, SceneSocket, TerrainLayer, VWebSocket */
+/* global FPSControl, VectorLayer, Camera, SceneSocket, TerrainLayer, VWebSocket */
 "use strict";
 
 /**
@@ -7,7 +7,8 @@
  */
 var Scene = function(args) {
     args = args || {};
-    var url = args.url;
+
+    var url = args.url || location.host;
 
     var extent = args.extent;
 
@@ -25,7 +26,7 @@ var Scene = function(args) {
     this._renderer.setClearColor(0xdbdbdb, 1);
     this._renderer.setSize(window.innerWidth, window.innerHeight);
 
-    this._hasRaster = args.hasRaster || false;
+    this._hasRaster = args.hasRaster;
 
     this._camera = new Camera({
         window: this._window,
@@ -41,13 +42,14 @@ var Scene = function(args) {
     var hemiLight = new THREE.HemisphereLight(0x999999, 0xffffff, 1);
     this._scene.add(hemiLight);
 
-    this._vectorLayer = new WebSocketLayer({
+    this._vectorLayer = new VectorLayer({
         url: "ws://" + url,
         x: this._originX,
         y: this._originY,
         width: extent.maxX - extent.minX,
         height: extent.maxY - extent.minY,
         tileSize: 256,
+        qgisVectors: args.vectors,
     });
     this._scene.add(this._vectorLayer);
 
@@ -137,4 +139,9 @@ Scene.prototype.zoom = function(zoomPercent) {
     var zoomMin = 100;
     var zoomMax = 0;
     this._camera.position.z = (zoomMin - zoomMax) * 100/ zoomPercent;
+};
+
+Scene.prototype.refreshLayer = function(uuid) {
+    console.log('refresh for ' + uuid);
+    this._vectorLayer.refresh(uuid);
 };

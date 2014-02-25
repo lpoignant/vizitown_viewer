@@ -1,5 +1,5 @@
 window.addEventListener("load", function(){
-	var slider = document.getElementById('verticalslider');
+	var slider = document.getElementById('vertical-slider');
 	slider.addEventListener('mousedown', function(event){
 		event.stopPropagation();
 	}, true);

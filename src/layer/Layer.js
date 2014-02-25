@@ -208,18 +208,21 @@ Layer.prototype.tileOrigin = function(x, y) {
  * @returns {THREE.Mesh}
  */
 Layer.prototype._createTile = function(x, y) {
-    var geometry = this._createGeometry(x, y);
-    var material = this._createMaterial(x, y);
+    var geometry = this._createGeometry();
+    var material = this._createMaterial();
+    var container = new THREE.Object3D();
     var tile = new THREE.Mesh(geometry, material);
+    tile.position.z = -10;
+    container.add(tile);
 
     // Tile origin
     var origin = this._tileRelativeOrigin(x, y);
-    tile.translateX(origin.x);
-    tile.translateY(origin.y);
+    container.translateX(origin.x);
+    container.translateY(origin.y);
 
-    this._tiles[this._index(x, y)] = tile;
-    this.add(tile);
-    return tile;
+    this._tiles[this._index(x, y)] = container;
+    this.add(container);
+    return container;
 };
 
 /**
@@ -308,4 +311,8 @@ Layer.prototype.display = function(camera) {
             }
         }
     });
+};
+
+Layer.prototype.refresh = function(uuid) {
+    return uuid;
 };

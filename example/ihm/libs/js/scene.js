@@ -9,17 +9,38 @@ var sceneSettings = JSON.parse(req.responseText);
 var scene = new Scene({
     window: window,
     document: document,
-    domId: "main_map",
+    domId: "container",
     extent: {
         minX: parseFloat(sceneSettings.extent.xMin),
         minY: parseFloat(sceneSettings.extent.yMin),
         maxX: parseFloat(sceneSettings.extent.xMax),
         maxY: parseFloat(sceneSettings.extent.yMax),
     },
-	url: "localhost:8888",
     hasRaster: sceneSettings.hasRaster,
+    url: 'localhost:8888',
+    vectors: sceneSettings.vectors,
 });
 
+var checkbox = document.createElement('input');
+checkbox.setAttribute('type', 'checkbox');
+sceneSettings.vectors.forEach(function(v) {
+    var entry = document.createElement('li');
+    var txt = document.createTextNode(v);
+    checkbox.setAttribute('value', v);
+    entry.appendChild(checkbox);
+    entry.appendChild(txt);
+    document.getElementById("layer-list").appendChild(entry);
+});
+
+var refreshLayers = function() {
+    var children = [].slice.call(document.getElementById('layer-list').children);
+    children.forEach(function(li) {
+        var checkbox = li.children[0];
+        if (checkbox.checked) {
+	     checkbox.checked = false;
+        }
+    });
+};
 var changeZoomLevel = function(value) {
     scene.zoom(value);
 };

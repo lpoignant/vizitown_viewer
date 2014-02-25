@@ -9,14 +9,20 @@
 
 <body>
 
-<div id="main_map">
+<div id="container">
 </div>
 
-<input id="verticalslider" type="range" class="vertical" orient="vertical"/>
+<div id="layers-column">
+	<ol id="layer-list">
+	</ol>
+	<a class="call-modal" href="#!" onclick="refreshLayers()">Refresh</a>
 
-<div id="settingsButton">
-	<a class="call-modal" href="#modal-text">^</a>
+	<div id="settings-button">
+		<a class="call-modal" href="#modal-text">^</a>
+	</div>
 </div>
+
+<input id="vertical-slider" type="range" class="vertical" orient="vertical"/>
 <section class="semantic-content" id="modal-text" tabindex="-1"
         role="dialog" aria-labelledby="modal-label" aria-hidden="true">
 
