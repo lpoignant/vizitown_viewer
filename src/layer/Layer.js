@@ -36,6 +36,7 @@ var Layer = function(args) {
         color: 0x666666,
         emissive: 0xaaaaaa,
         ambient: 0xffffff,
+        wireframe: true,
     });
 
     var extents = [];
