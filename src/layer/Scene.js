@@ -47,7 +47,7 @@ var Scene = function(args) {
         y: this._originY,
         width: extent.maxX - extent.minX,
         height: extent.maxY - extent.minY,
-        tileSize: 256,
+        tileSize: 512,
     });
     this._scene.add(this._vectorLayer);
 
@@ -64,20 +64,18 @@ var Scene = function(args) {
                 y: self._originY,
                 width: extent.maxX - extent.minX,
                 height: extent.maxY - extent.minY,
-                ortho: obj.texture,
-                dem: obj.dem,
+                ortho: obj.texture || obj.dem,
+                dem: obj.dem || undefined,
                 minHeight: obj.minHeight,
                 maxHeight: obj.maxHeight,
                 gridDensity: 64,
-                tileSize: obj.demPixelSize * obj.tileSize,
+                tileSize: obj.pixelSize * obj.tileSize,
             });
             self._terrainLayer.addLayerToLevel(self._vectorLayer);
             self._scene.add(self._terrainLayer);                    
 
         });
     }
-
-
     this._control.addEventListener("moved", function(args) {
         if(self._vectorLayer) {
             self._vectorLayer.display(args.camera);
