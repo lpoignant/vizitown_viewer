@@ -13,11 +13,12 @@ var VectorLayer = function VectorLayer(args) {
     var self = this;
     var qgisVectors = args.qgisVectors || [];
     this._qgisLayers = {};
-    qgisVectors.forEach(function(uuid) {
-        self._qgisLayers[uuid] = {
-            tiles: [],
-            dirty: [],
-        };
+    qgisVectors.forEach(function(uuid, i) {
+        self._qgisLayers[uuid] = new THREE.Object3D();
+        self._getQgisLayer(uuid).position.z += i + 1;
+	self._getQgisLayer(uuid).tiles = [];
+	self._getQgisLayer(uuid).dirty = [];
+	self.add(self._getQgisLayer(uuid));
     });
     this._isTileCreated = [];
 
@@ -28,17 +29,27 @@ var VectorLayer = function VectorLayer(args) {
             self.addToTile(mesh, uuid);
         });
     });
+
+    this._createPlan();
 };
 VectorLayer.inheritsFrom(Layer);
 
-VectorLayer.prototype._loadData = function(extent) {
-    var ext = {
-        Xmin: extent[0] + this.originX,
-        Ymin: extent[1] + this.originY,
-        Xmax: extent[2] + this.originX,
-        Ymax: extent[3] + this.originY,
-    };
-    this._socket.send(ext);
+VectorLayer.prototype._createPlan = function() {
+    var geometry = new THREE.PlaneGeometry(this._layerWidth, this._layerHeight,
+                                           this._gridDensity, this._gridDensity);
+    var position = new THREE.Matrix4();
+    var layerHalfWidth = this._layerWidth * 0.5;
+    var layerHalfHeight = this._layerHeight * 0.5;
+    position.makeTranslation(layerHalfWidth, layerHalfHeight, 0);
+    geometry.applyMatrix(position);
+    
+    var material = this._material;
+    var plan = new THREE.Mesh(geometry, material);
+    this.add(plan);
+};
+
+VectorLayer.prototype._getQgisLayer = function(uuid) {
+    return this._qgisLayers[uuid];
 };
 
 /**
@@ -52,7 +63,39 @@ VectorLayer.prototype.isTileCreated = function(x, y) {
 };
 
 VectorLayer.prototype.isDirty = function(x, y, uuid) {
-    return (this._qgisLayers[uuid].dirty[this._index(x, y)] !== undefined);
+    return (this._getQgisLayer(uuid).dirty[this._index(x, y)] !== undefined);
+};
+
+VectorLayer.prototype._loadData = function(extent, uuid) {
+    var ext = {
+        Xmin: extent[0] + this.originX,
+        Ymin: extent[1] + this.originY,
+        Xmax: extent[2] + this.originX,
+        Ymax: extent[3] + this.originY,
+    };
+
+    if (uuid) {
+        ext.uuid = uuid;
+    }
+    this._socket.send(ext);
+};
+
+/**
+ * 
+ * @param x
+ * @param y
+ * @returns {THREE.Mesh}
+ */
+VectorLayer.prototype._createTile = function(x, y, uuid) {
+    var container = new THREE.Object3D();
+
+    // Tile origin
+    var origin = this._tileRelativeOrigin(x, y);
+    container.translateX(origin.x);
+    container.translateY(origin.y);
+
+    this._getQgisLayer(uuid).add(container);
+    return container;
 };
 
 VectorLayer.prototype.createIfNot = function(x, y) {
@@ -60,7 +103,7 @@ VectorLayer.prototype.createIfNot = function(x, y) {
         this._isTileCreated[this._index(x, y)] = 1;
         var self = this;
 	for (var uuid in this._qgisLayers) {
-            self._qgisLayers[uuid].tiles[this._index(x, y)] = self._createTile(x, y);
+            self._getQgisLayer(uuid).tiles[this._index(x, y)] = self._createTile(x, y, uuid);
         }
     }
 };
@@ -72,7 +115,7 @@ VectorLayer.prototype.createIfNot = function(x, y) {
  * @returns {THREE.Mesh} Mesh representing the tile
  */
 VectorLayer.prototype.tile = function(x, y, uuid) {
-    return this._qgisLayers[uuid].tiles[this._index(x, y)];
+    return this._getQgisLayer(uuid).tiles[this._index(x, y)];
 };
 
 /**
@@ -110,8 +153,8 @@ VectorLayer.prototype.addToTile = function(mesh, uuid) {
  */
 VectorLayer.prototype.refresh = function(uuid) {
     var self = this;
-    this._qgisLayers[uuid].tiles.forEach(function(tile, _index) {
-        self._qgisLayers[uuid].dirty[_index] = 1;
+    this._getQgisLayer(uuid).tiles.forEach(function(tile, _index) {
+        self._getQgisLayer(uuid).dirty[_index] = 1;
     });
 };
 
@@ -150,16 +193,23 @@ VectorLayer.prototype.display = function(camera) {
                 self._loadData(tileIndex);
             }
         } else {
+            var removeChild = function(child) {
+                if(child.geometry !== undefined) {
+                    child.geometry.dispose();
+                    child.material.dispose();
+                }
+            };
             for (var uuid in self._qgisLayers) {
                 if (self.isDirty(index.x, index.y, uuid)) {
                     var tile = self.tile(index.x, index.y, uuid);
-                    self._scene.remove(tile);
-                    delete self._qgisLayers[uuid].tiles[self._index(index.x, index.y)];
-                    delete self._qgisLayers[uuid].dirty[self._index(index.x, index.y)];
+                    self._getQgisLayer(uuid).remove(tile);
+                    tile.traverse(removeChild);
+                    delete self._getQgisLayer(uuid).tiles[self._index(index.x, index.y)];
+                    delete self._getQgisLayer(uuid).dirty[self._index(index.x, index.y)];
                     delete self._isTileCreated[self._index(index.x, index.y)];
+                    self._loadData(tileIndex, uuid);
                 }
             }
-            self._loadData(tileIndex);
         }
     });
 };
