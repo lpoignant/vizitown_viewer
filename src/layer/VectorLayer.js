@@ -24,6 +24,9 @@ var VectorLayer = function VectorLayer(args) {
 
     this._socket.addEventListener("messageReceived", function(obj) {
         var meshes = self._factory.create(obj);
+        if(!meshes) {
+            return;
+        }
         var uuid = obj.uuid;
         meshes.forEach(function(mesh) {
             self.addToTile(mesh, uuid);
@@ -213,3 +216,23 @@ VectorLayer.prototype.display = function(camera) {
         }
     });
 };
+
+VectorLayer.prototype.forEachTileCreatedInExtent = function(extent, func) {
+    var tileIndexes = this._spatialIndex.search([extent.min.x - this.originX,
+                                                 extent.min.y - this.originY,
+                                                 extent.max.x - this.originX,
+                                                 extent.max.y - this.originY]);
+    var self = this;
+    tileIndexes.forEach(function(tileIndex) {
+        var x = tileIndex[4].x;
+        var y = tileIndex[4].y;
+        if (self.isTileCreated(x, y)) {
+            var tileOrigin = self.tileOrigin(x, y);
+            for (var uuid in self._qgisLayers) {
+                var tile = self.tile(x, y, uuid);
+                func(tile, tileOrigin);
+            }
+        }
+    });
+};
+

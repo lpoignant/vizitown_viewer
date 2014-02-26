@@ -38,6 +38,7 @@ var Layer = function(args) {
         color: 0x666666,
         emissive: 0xaaaaaa,
         ambient: 0xffffff,
+        wireframe: true,
     });
 
     var extents = [];
@@ -210,8 +211,8 @@ Layer.prototype.tileOrigin = function(x, y) {
  * @returns {THREE.Mesh}
  */
 Layer.prototype._createTile = function(x, y) {
-    var geometry = this._createGeometry();
-    var material = this._createMaterial();
+    var geometry = this._createGeometry(x, y);
+    var material = this._createMaterial(x, y);
     var container = new THREE.Object3D();
     var tile = new THREE.Mesh(geometry, material);
     tile.position.z = -10;

@@ -53,13 +53,15 @@ TerrainLayer.inheritsFrom(Layer);
 TerrainLayer.prototype._rasterUrl = function(path, x, y, zoomLevel) {
     zoomLevel = zoomLevel || 0;
     var url = path + "/";
-    var elem = path.split("/");
-    url += elem[elem.length - 1] + "_" + zoomLevel + "_" + x + "_" + y + ".tiff.png";
-    console.log(url);
+    var elem = String(path).split("/");
+    url += elem[elem.length - 1] + "_" + zoomLevel + "_" + x + "_" + y + ".png";
     return url;
 };
 
 TerrainLayer.prototype._loadDEM = function(x, y) {
+    if(!this._dem) {
+        return;
+    }
     var index = this._index(x, y);
     if (!this._demTextures[index]) {
         THREE.ImageUtils.crossOrigin = "anonymous";
@@ -72,6 +74,9 @@ TerrainLayer.prototype._loadDEM = function(x, y) {
 };
 
 TerrainLayer.prototype._loadOrtho = function(x, y) {
+    if(!this._ortho) {
+        return;
+    }
     var index = this._index(x, y);
     if (!this._orthoTextures[index]) {
         THREE.ImageUtils.crossOrigin = "anonymous";

@@ -21,9 +21,9 @@ var scene = new Scene({
     vectors: sceneSettings.vectors,
 });
 
-var checkbox = document.createElement('input');
-checkbox.setAttribute('type', 'checkbox');
 sceneSettings.vectors.forEach(function(v) {
+    var checkbox = document.createElement('input');
+    checkbox.setAttribute('type', 'checkbox');
     var entry = document.createElement('li');
     var txt = document.createTextNode(v);
     checkbox.setAttribute('value', v);
