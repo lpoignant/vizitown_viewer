@@ -2,7 +2,7 @@
 "use strict";
 
 /**
- * This class creates extruded geometries from polygon
+ * This create a Flat Object3D from a polygon
  * 
  * @class Geometry25DFactory
  * @extends GeometryFactory
@@ -16,6 +16,7 @@
 var Geometry25DFactory = function(args) {
     args = args || {};
     GeometryFactory.call(this, args);
+
     this._extrudeSettings = {
         bevelEnabled: false,
         steps: 1,
@@ -23,65 +24,30 @@ var Geometry25DFactory = function(args) {
 };
 Geometry25DFactory.inheritsFrom(GeometryFactory);
 
-/**
- * Creates an extruded geometry from a JSON object
- * 
- * @method parseGeometry
- * @param {Object} obj JSON object representing the geometry
- * @return {THREE.Geometry} Extruded geometry
- */
-Geometry25DFactory.prototype.parseGeometry = function(obj, geometryType) {
+Geometry25DFactory.prototype._parsePoint = function(obj) {
+    var point = obj.coordinates[0];
+    var height = obj.height || 0;
+    return new THREE.Vector3(point[i], point[i + 1], height);
+};
+
+Geometry25DFactory.prototype._parseLine = function(obj) {
     var points = obj.coordinates;
-    var points3D = []; // List of 2D vector representing points
-    // Each coordinate of the geometry
+    var height = obj.height || 0;
+    var geometry = new THREE.Geometry();
     for (var i = 0; i < points.length; i = i + 2) {
-        points3D.push(new THREE.Vector3(points[i], points[i + 1], obj.height));
+        var coords = new THREE.Vector3(points[i], points[i + 1], height);
+        geometry.vertices.push(coords);
     }
-
-    if(geometryType === "POINT" ||
-        geometryType === "LINESTRING" ||
-        geometryType === "MULTILINESTRING") {
-
-        var geom = new THREE.Geometry();
-        points3D.forEach(function(point) {
-            geom.vertices.push(point);
-        });
-        return geom;
-    } else {
-        // Extrude geometry
-        var shape = new THREE.Shape(points3D);
-        this._extrudeSettings.amount = obj.height;
-        var geometry = shape.extrude(this._extrudeSettings);
-        return geometry;
-    }
+    return geometry;
 };
 
-/**
- * @method _centroid
- * @param geometry
- * @returns {THREE.Vector3}
- */
-Geometry25DFactory.prototype._centroid = function(geometry) {
-    var centroid = new THREE.Vector3();
-    var vertices = geometry.vertices;
-    for (var i = 0; i < vertices.length; i++) {
-        centroid.add(vertices[i]);
+Geometry25DFactory.prototype._parsePolygon = function(obj) {
+    var points = obj.coordinates;
+    var shape = new THREE.Shape();
+    for (var i = 0; i < points.length; i = i + 2) {
+        shape.moveTo(points[i], points[i + 1]);
     }
-    centroid.z = 0;
-    centroid.divideScalar(vertices.length);
-    return centroid;
-};
-
-/**
- * Check if the object containing the geometries is valid
- * 
- * @method isValid
- * @param {Object} obj Object to be checked
- * @returns {Boolean} True if valid, false otherwise.
- */
-Geometry25DFactory.prototype.isValid = function(obj) {
-    if (!obj || obj.dim !== "2.5") {
-        return false;
-    }
-    return true;
+    this._extrudeSettings.amount = obj.height;
+    var geometry = shape.extrude(this._extrudeSettings);
+    return geometry;
 };

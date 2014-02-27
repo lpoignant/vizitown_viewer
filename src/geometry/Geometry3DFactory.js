@@ -20,18 +20,16 @@ var Geometry3DFactory = function(args) {
 };
 Geometry3DFactory.inheritsFrom(GeometryFactory);
 
-/**
- * Check if the object containing the geometries is valid
- * 
- * @method isValid
- * @param {Object} obj Object to be checked
- * @returns {Boolean} True if valid, false otherwise.
- */
-Geometry3DFactory.prototype.isValid = function(obj) {
-    if (!obj || obj.dim !== "3") {
-        return false;
-    }
-    return true;
+Geometry3DFactory.prototype._parsePoint = function(obj) {
+    return this._parseGeometry(obj);
+};
+
+Geometry3DFactory.prototype._parseLine = function(obj) {
+    return this._parseGeometry(obj);
+};
+
+Geometry3DFactory.prototype._parsePolygon = function(obj) {
+    return this._parseGeometry(obj);
 };
 
 /**
@@ -42,8 +40,8 @@ Geometry3DFactory.prototype.isValid = function(obj) {
  *                geometry
  * @return {THREE.Geometry} Created geometry
  */
-Geometry3DFactory.prototype.parseGeometry = function(geometry) {
+Geometry3DFactory.prototype._parseGeometry = function(obj) {
     // THREE.JSONLoader() returns an object containing the geometry
-    var object = this._loader.parse(geometry);
-    return object.geometry;
+    var parsedObject = this._loader.parse(obj);
+    return parsedObject.geometry;
 };
