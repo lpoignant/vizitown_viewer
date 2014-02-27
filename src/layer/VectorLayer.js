@@ -8,7 +8,7 @@ var VectorLayer = function VectorLayer(args) {
         url: args.url + "/data"
     });
 
-    this._factory = new GeometryFactoryComposite();
+    this._factory = new GeometryFactoryComposite(this);
 
     var self = this;
     var qgisVectors = args.qgisVectors || [];
@@ -23,14 +23,7 @@ var VectorLayer = function VectorLayer(args) {
     this._isTileCreated = [];
 
     this._socket.addEventListener("messageReceived", function(obj) {
-        var meshes = self._factory.create(obj);
-        if(!meshes) {
-            return;
-        }
-        var uuid = obj.uuid;
-        meshes.forEach(function(mesh) {
-            self.addToTile(mesh, uuid);
-        });
+        self._factory.create(obj);
     });
 
     this._createPlan();

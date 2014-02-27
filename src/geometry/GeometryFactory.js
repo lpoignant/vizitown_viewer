@@ -21,7 +21,7 @@ var GeometryFactory = function(args) {
 
     this._pointMaterial = args.pointMaterial ||
                           new THREE.ParticleSystemMaterial({
-                              size: 5
+                              size: 50
                           });
 
     this._lineMaterial = args.lineMaterial || new THREE.LineBasicMaterial({
@@ -29,6 +29,7 @@ var GeometryFactory = function(args) {
         linewidth: 3
     });
 
+    this._layer = args.layer;
 };
 
 /**
@@ -127,8 +128,7 @@ GeometryFactory.prototype.create = function(obj) {
     obj.geometries.forEach(function(element) {
         var geometry = self.parseGeometry(element, obj.type);
         var mesh = self.createFromGeometry(geometry, materials);
-        meshes.push(mesh);
+	self._layer.addToTile(mesh, obj.uuid);
     });
-
     return meshes;
 };

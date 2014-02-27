@@ -8,10 +8,13 @@
  * @class GeometryFactoryComposite
  * @constructor
  */
-var GeometryFactoryComposite = function() {
-    this._geometry2DFactory = new Geometry2DFactory();
-    this._geometry25DFactory = new Geometry25DFactory();
-    this._geometry3DFactory = new Geometry3DFactory();
+var GeometryFactoryComposite = function(layer) {
+    var self = this;
+    this._interval = setInterval(function() {self._create(self._objects.shift());}, 300);
+    this._geometry2DFactory = new Geometry2DFactory({layer: layer});
+    this._geometry25DFactory = new Geometry25DFactory({layer: layer});
+    this._geometry3DFactory = new Geometry3DFactory({layer: layer});
+    this._objects = [];
 };
 
 /**
@@ -24,7 +27,7 @@ var GeometryFactoryComposite = function() {
  * @param {Array} obj.geometries Array of JSON object representing the geometry
  * @returns {Array} An array containing the newly created mesh
  */
-GeometryFactoryComposite.prototype.create = function(obj) {
+GeometryFactoryComposite.prototype._create = function(obj) {
     if (!obj || !obj.dim) {
         return;
         //throw "Invalid geometry container";
@@ -32,12 +35,19 @@ GeometryFactoryComposite.prototype.create = function(obj) {
 
     switch (obj.dim) {
         case "2":
-            return this._geometry2DFactory.create(obj);
+            this._geometry2DFactory.create(obj);
+            break;
         case "2.5":
-            return this._geometry25DFactory.create(obj);
+            this._geometry25DFactory.create(obj);
+            break;
         case "3":
-            return this._geometry3DFactory.create(obj);
+            this._geometry3DFactory.create(obj);
+            break;
         default:
             throw "Invalid geometry container";
     }
+};
+
+GeometryFactoryComposite.prototype.create = function(obj) {
+    this._objects.push(obj);
 };
