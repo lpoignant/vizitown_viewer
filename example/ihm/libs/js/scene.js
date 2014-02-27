@@ -44,7 +44,7 @@ var refreshLayer = function(uuid) {
             var refreshIntervalId = setInterval(function() {scene.refreshLayer(uuid);}, timer.value * 1000);
             intervalIds.uuid = refreshIntervalId;
             btnRefresh.setAttribute('value', btnRefreshValues.unabled);
-            timer.setAttribute('disabled');
+            timer.setAttribute('disabled', true);
         } else {
             clearInterval(intervalIds.uuid);
             delete intervalIds.uuid;
