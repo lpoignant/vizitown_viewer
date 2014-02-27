@@ -36,7 +36,16 @@ VWebSocket.inheritsFrom(EventDispatcher);
 VWebSocket.prototype._createSocket = function() {
     this.socket = new WebSocket(this._url);
     this.socket.onmessage = this.message.bind(this);
-    this.socket.onopen = this.flush.bind(this);
+    var self = this;
+    this.socket.onopen = function() {
+        if (self.interval) {
+            clearInterval(self.interval);
+        }
+        self.interval = setInterval(function(){
+            self.socket.send("ping");
+        }, 5000);
+        self.flush.bind(self);
+    };
 };
 
 VWebSocket.prototype.open = function() {
@@ -81,6 +90,9 @@ VWebSocket.prototype.flush = function() {
 };
 
 VWebSocket.prototype.message = function(event) {
+    if (event.data === "pong") {
+        return;
+    }
     var json = JSON.parse(event.data);
     this.dispatch("messageReceived", json);
 };

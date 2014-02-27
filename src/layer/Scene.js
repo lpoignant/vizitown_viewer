@@ -1,4 +1,4 @@
-/* global FPSControl, WebSocketLayer, Camera, SceneSocket, TerrainLayer */
+/* global FPSControl, VectorLayer, Camera, SceneSocket, TerrainLayer, VWebSocket */
 "use strict";
 
 /**
@@ -7,7 +7,8 @@
  */
 var Scene = function(args) {
     args = args || {};
-    var url = args.url;
+
+    var url = args.url || location.host;
 
     var extent = args.extent;
 
@@ -21,8 +22,11 @@ var Scene = function(args) {
     this._document = args.document || document;
 
     this._renderer = new THREE.WebGLRenderer();
+    this._renderer.sortObjects = false;
     this._renderer.setClearColor(0xdbdbdb, 1);
     this._renderer.setSize(window.innerWidth, window.innerHeight);
+
+    this._hasRaster = args.hasRaster;
 
     this._camera = new Camera({
         window: this._window,
@@ -38,35 +42,50 @@ var Scene = function(args) {
     var hemiLight = new THREE.HemisphereLight(0x999999, 0xffffff, 1);
     this._scene.add(hemiLight);
 
-    this._vectorLayer = new WebSocketLayer({
+    this._vectorLayer = new VectorLayer({
         url: "ws://" + url,
         x: this._originX,
         y: this._originY,
         width: extent.maxX - extent.minX,
         height: extent.maxY - extent.minY,
-        tileSize: 256,
+        tileSize: 512,
+        qgisVectors: args.vectors,
+        scene: this._scene,
     });
     this._scene.add(this._vectorLayer);
 
-    this._terrainLayer = new TerrainLayer({
-        x: this._originX,
-        y: this._originY,
-        width: extent.maxX - extent.minX,
-        height: extent.maxY - extent.minY,
-        ortho: "http://localhost:8888/rasters/GrandLyon2m_L93_RGB.tif",
-        dem: "http://localhost:8888/rasters/Mnt_L93.tiff",
-        minHeight: 0,
-        maxHeight: 179,
-        gridDensity: 64,
-        tileSize: 2 * 1024,
-    });
-    this._terrainLayer.addLayerToLevel(this._vectorLayer);
-    this._scene.add(this._terrainLayer);
-
     var self = this;
+
+    if(this._hasRaster) {
+        this._socketTile = new VWebSocket({
+            url: "ws://" + url + "/tiles_info"
+        });
+
+        this._socketTile.addEventListener("messageReceived", function(obj) {
+                self._terrainLayer = new TerrainLayer({
+                x: self._originX,
+                y: self._originY,
+                width: extent.maxX - extent.minX,
+                height: extent.maxY - extent.minY,
+                ortho: obj.texture || obj.dem,
+                dem: obj.dem || undefined,
+                minHeight: obj.minHeight,
+                maxHeight: obj.maxHeight,
+                gridDensity: 64,
+                tileSize: obj.pixelSize * obj.tileSize,
+            });
+            self._terrainLayer.addLayerToLevel(self._vectorLayer);
+            self._scene.add(self._terrainLayer);                    
+
+        });
+    }
     this._control.addEventListener("moved", function(args) {
-        self._vectorLayer.display(args.camera);
-        self._terrainLayer.display(args.camera);
+        if(self._vectorLayer) {
+            self._vectorLayer.display(args.camera);
+        }
+        if(self._terrainLayer) {
+            self._terrainLayer.display(args.camera);    
+        }
     });
 
     this._socket = new SceneSocket({
@@ -119,4 +138,9 @@ Scene.prototype.zoom = function(zoomPercent) {
     var zoomMin = 100;
     var zoomMax = 0;
     this._camera.position.z = (zoomMin - zoomMax) * 100/ zoomPercent;
+};
+
+Scene.prototype.refreshLayer = function(uuid) {
+    console.log('refresh for ' + uuid);
+    this._vectorLayer.refresh(uuid);
 };

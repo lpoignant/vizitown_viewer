@@ -22,6 +22,8 @@ var Layer = function(args) {
     this.originX = args.x || 0;
     this.originY = args.y || 0;
 
+    this._scene = args.scene;
+
     this._layerWidth = args.width;
     this._layerHeight = args.height;
 
@@ -36,6 +38,7 @@ var Layer = function(args) {
         color: 0x666666,
         emissive: 0xaaaaaa,
         ambient: 0xffffff,
+        wireframe: true,
     });
 
     var extents = [];
@@ -210,16 +213,19 @@ Layer.prototype.tileOrigin = function(x, y) {
 Layer.prototype._createTile = function(x, y) {
     var geometry = this._createGeometry(x, y);
     var material = this._createMaterial(x, y);
+    var container = new THREE.Object3D();
     var tile = new THREE.Mesh(geometry, material);
+    tile.position.z = -10;
+    container.add(tile);
 
     // Tile origin
     var origin = this._tileRelativeOrigin(x, y);
-    tile.translateX(origin.x);
-    tile.translateY(origin.y);
+    container.translateX(origin.x);
+    container.translateY(origin.y);
 
-    this._tiles[this._index(x, y)] = tile;
-    this.add(tile);
-    return tile;
+    this._tiles[this._index(x, y)] = container;
+    this.add(container);
+    return container;
 };
 
 /**
@@ -308,4 +314,8 @@ Layer.prototype.display = function(camera) {
             }
         }
     });
+};
+
+Layer.prototype.refresh = function(uuid) {
+    return uuid;
 };
