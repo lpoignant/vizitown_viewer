@@ -90,15 +90,15 @@ VectorLayer.prototype._loadData = function(extent, uuid) {
  * @returns {THREE.Mesh}
  */
 VectorLayer.prototype._createTile = function(x, y, uuid) {
-    var container = new THREE.Object3D();
+    var tile = new THREE.Object3D();
 
     // Tile origin
     var origin = this._tileRelativeOrigin(x, y);
-    container.translateX(origin.x);
-    container.translateY(origin.y);
+    tile.translateX(origin.x);
+    tile.translateY(origin.y);
 
-    this._getQgisLayer(uuid).add(container);
-    return container;
+    this._getQgisLayer(uuid).add(tile);
+    return tile;
 };
 
 VectorLayer.prototype.createIfNot = function(x, y) {
@@ -136,7 +136,6 @@ VectorLayer.prototype.addToTile = function(mesh, uuid) {
         return;
     }
     var coordinates = this.tileCoordinates(mesh.position);
-    this.createIfNot(tileIndex.x, tileIndex.y);
     var tile = this.tile(tileIndex.x, tileIndex.y, uuid);
 
     if (this.dem) {
@@ -202,14 +201,15 @@ VectorLayer.prototype.display = function(camera) {
                     child.material.dispose();
                 }
             };
+            var _index = self._index(index.x, index.y);
             for (var uuid in self._qgisLayers) {
                 if (self.isDirty(index.x, index.y, uuid)) {
                     var tile = self.tile(index.x, index.y, uuid);
                     self._getQgisLayer(uuid).remove(tile);
                     tile.traverse(removeChild);
-                    delete self._getQgisLayer(uuid).tiles[self._index(index.x, index.y)];
-                    delete self._getQgisLayer(uuid).dirty[self._index(index.x, index.y)];
-                    delete self._isTileCreated[self._index(index.x, index.y)];
+                    delete self._getQgisLayer(uuid).tiles[_index];
+                    delete self._getQgisLayer(uuid).dirty[_index];
+                    self._getQgisLayer(uuid).tiles[_index] = self._createTile(index.x, index.y, uuid);
                     self._loadData(tileIndex, uuid);
                 }
             }
