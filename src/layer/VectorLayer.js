@@ -13,12 +13,12 @@ var VectorLayer = function VectorLayer(args) {
     var self = this;
     var qgisVectors = args.qgisVectors || [];
     this._qgisLayers = {};
-    qgisVectors.forEach(function(uuid, i) {
-        self._qgisLayers[uuid] = new THREE.Object3D();
-        self._getQgisLayer(uuid).position.z += i + 1;
-	self._getQgisLayer(uuid).tiles = [];
-	self._getQgisLayer(uuid).dirty = [];
-	self.add(self._getQgisLayer(uuid));
+    qgisVectors.forEach(function(vector, i) {
+        self._qgisLayers[vector.uuid] = new THREE.Object3D();
+        self._getQgisLayer(vector.uuid).position.z += i + 1;
+	self._getQgisLayer(vector.uuid).tiles = [];
+	self._getQgisLayer(vector.uuid).dirty = [];
+	self.add(self._getQgisLayer(vector.uuid));
     });
     this._isTileCreated = [];
 

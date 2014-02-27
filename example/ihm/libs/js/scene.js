@@ -21,12 +21,12 @@ var scene = new Scene({
     vectors: sceneSettings.vectors,
 });
 
-sceneSettings.vectors.forEach(function(v) {
+sceneSettings.vectors.forEach(function(vector) {
     var checkbox = document.createElement('input');
     checkbox.setAttribute('type', 'checkbox');
     var entry = document.createElement('li');
-    var txt = document.createTextNode(v);
-    checkbox.setAttribute('value', v);
+    var txt = document.createTextNode(vector.name);
+    checkbox.setAttribute('value', vector.uuid);
     entry.appendChild(checkbox);
     entry.appendChild(txt);
     document.getElementById("layer-list").appendChild(entry);
