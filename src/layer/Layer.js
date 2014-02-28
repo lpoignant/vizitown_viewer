@@ -17,7 +17,7 @@
  * @param {int} args.gridDensity Number of lines on the x and y axis
  */
 var Layer = function(args) {
-    THREE.Object3D.call(this);
+    THREE.Scene.call(this);
     args = args || {};
     this.originX = args.x || 0;
     this.originY = args.y || 0;
@@ -57,9 +57,8 @@ var Layer = function(args) {
     this._spatialIndex.load(extents);
 
     this._tiles = [];
-    this._frustum = new THREE.Frustum();
 };
-Layer.inheritsFrom(THREE.Object3D);
+Layer.inheritsFrom(THREE.Scene);
 
 /**
  * @method isTileCreated Returns if a tile exists at index
@@ -147,12 +146,11 @@ Layer.prototype.addToTile = function(mesh) {
  * @returns {THREE.Vector2}
  */
 Layer.prototype.tileIndex = function(coords) {
-    if (coords.x > this.originX + this._layerWidth) {
-        return;
-    }
-    if (coords.y > this.originY + this._layerHeight) {
-        return;
-    }
+    /*
+     * if (coords.x > this.originX + this._layerWidth) { console.log("out of
+     * bounds x", coords); return; } if (coords.y > this.originY +
+     * this._layerHeight) { console.log("out of bounds x", coords); return; }
+     */
     var x = Math.floor((coords.x - this.originX) / this._tileSize);
     var y = Math.floor((coords.y - this.originY) / this._tileSize);
     return new THREE.Vector2(x, y);
@@ -280,20 +278,8 @@ Layer.prototype._loadData = function() {
 
 Layer.prototype.display = function(camera) {
 
-    camera.updateMatrix();
-    camera.updateMatrixWorld();
-    camera.matrixWorldInverse.getInverse(camera.matrixWorld);
-
-    // Create frustum from camera
-    var matrixFrustum = camera.projectionMatrix.clone();
-    matrixFrustum.multiply(camera.matrixWorldInverse);
-    this._frustum.setFromMatrix(matrixFrustum);
-
-    var position = camera.position;
-    var extent = [position.x - camera.far,
-                  position.y - camera.far,
-                  position.x + camera.far,
-                  position.y + camera.far];
+    var frustum = camera.frustum();
+    var extent = camera.extent();
     var tileIndexes = this._spatialIndex.search(extent);
 
     var tileExtent = new THREE.Box3();
@@ -308,14 +294,10 @@ Layer.prototype.display = function(camera) {
         tileExtent.max.y = tileIndex[3];
         var index = tileIndex[4];
         if (!self.isTileCreated(index.x, index.y)) {
-            if (self._frustum.intersectsBox(tileExtent)) {
+            if (frustum.intersectsBox(tileExtent)) {
                 self.tile(index.x, index.y);
                 self._loadData(tileIndex);
             }
         }
     });
-};
-
-Layer.prototype.refresh = function(uuid) {
-    return uuid;
 };

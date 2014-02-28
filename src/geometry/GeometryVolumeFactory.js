@@ -69,15 +69,15 @@ GeometryVolumeFactory.prototype._parsePolygon = function(obj) {
     for (var i = 0; i < points.length; i = i + 2) {
         shape.moveTo(points[i], points[i + 1]);
     }
-    shape.extrude(this._extrudeSettings);
-    return shape.makeGeometry();
+    // console.log("not extruded", shape);
+    var geometry = shape.extrude(this._extrudeSettings);
+    return geometry;
 };
 
-GeometryFactory.prototype._createLines = function(geometries, color) {
+GeometryVolumeFactory.prototype._createLines = function(uuid, geometries, color) {
     var material = this._lineMaterial.clone();
     material.color = color;
 
-    var meshes = [geometries.length];
     var self = this;
     geometries.forEach(function(element) {
         // Line geometry
@@ -89,19 +89,19 @@ GeometryFactory.prototype._createLines = function(geometries, color) {
         var mesh = new THREE.Line(geometry, material);
         mesh.position = centroid;
 
-        meshes.push(mesh);
+        this._layer.addToTile(mesh, uuid);
     });
-    return meshes;
 };
 
-GeometryFactory.prototype._createPolygons = function(geometries, color) {
+GeometryVolumeFactory.prototype._createPolygons = function(uuid, geometries,
+                                                           color) {
     var material = this._polyhedralMaterial.clone();
     material.color = color;
 
     var self = this;
     var geomBuffer = new THREE.Geometry();
     // Buffering all polygon geometries
-    obj.geometries.forEach(function(element) {
+    geometries.forEach(function(element) {
         // Polygon geometry
         var geometry = self._parsePolygon(element);
         // Do not center since we are using buffering
@@ -110,8 +110,8 @@ GeometryFactory.prototype._createPolygons = function(geometries, color) {
     });
 
     // Translate mesh to geometries centroid
-    var centroid = this._centerGeometry(geometry);
-    var mesh = new THREE.Mesh(geometry, material);
+    var centroid = this._centerGeometry(geomBuffer);
+    var mesh = new THREE.Mesh(geomBuffer, material);
     mesh.position = centroid;
-    return [mesh];
+    this._layer.addToVolume(mesh, uuid);
 };

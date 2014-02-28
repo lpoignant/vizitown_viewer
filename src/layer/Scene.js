@@ -8,93 +8,62 @@
 var Scene = function(args) {
     args = args || {};
 
-    var url = args.url || location.host;
-
     var extent = args.extent;
 
+    // Init
+    this._url = args.url || location.host;
     this._originX = extent.minX;
     this._originY = extent.minY;
-
-    var x = (extent.maxX - extent.minX) / 2;
-    var y = (extent.maxY - extent.minY) / 2;
-
+    this._width = extent.maxX - extent.minX;
+    this._height = extent.maxY - extent.minY;
     this._window = args.window || window;
     this._document = args.document || document;
 
+    // Renderer
     this._renderer = new THREE.WebGLRenderer();
-    this._renderer.sortObjects = false;
-    this._renderer.setClearColor(0xdbdbdb, 1);
-    this._renderer.setSize(window.innerWidth, window.innerHeight);
+    this._renderer.setClearColor(0xdbdbdb, 0);
+    this._renderer.setSize(this._window.innerWidth, this._window.innerHeight);
+    this._renderer.autoClear = false;
 
-    this._hasRaster = args.hasRaster;
-
+    // Camera
+    var camX = this._width * 0.5;
+    var camY = this._height * 0.5;
     this._camera = new Camera({
         window: this._window,
         renderer: this._renderer,
-        x: x,
-        y: y,
+        x: camX,
+        y: camY,
     });
-    this._control = new FPSControl(this._camera, this._document);
 
-    this._scene = new THREE.Scene();
-    this._scene.fog = new THREE.Fog(0xdbdbdb, this._camera.far / 2,
-                                    this._camera.far);
-    var hemiLight = new THREE.HemisphereLight(0x999999, 0xffffff, 1);
-    this._scene.add(hemiLight);
-
-    this._vectorLayer = new VectorLayer({
-        url: "ws://" + url,
-        x: this._originX,
-        y: this._originY,
-        width: extent.maxX - extent.minX,
-        height: extent.maxY - extent.minY,
-        tileSize: 512,
-        qgisVectors: args.vectors,
-        scene: this._scene,
-    });
-    this._scene.add(this._vectorLayer);
-
-    var self = this;
-
-    if(this._hasRaster) {
-        this._socketTile = new VWebSocket({
-            url: "ws://" + url + "/tiles_info"
-        });
-
-        this._socketTile.addEventListener("messageReceived", function(obj) {
-                self._terrainLayer = new TerrainLayer({
-                x: self._originX,
-                y: self._originY,
-                width: extent.maxX - extent.minX,
-                height: extent.maxY - extent.minY,
-                ortho: obj.texture || obj.dem,
-                dem: obj.dem || undefined,
-                minHeight: obj.minHeight,
-                maxHeight: obj.maxHeight,
-                gridDensity: 64,
-                tileSize: obj.pixelSize * obj.tileSize,
-            });
-            self._terrainLayer.addLayerToLevel(self._vectorLayer);
-            self._scene.add(self._terrainLayer);                    
-
-        });
+    // Layers
+    this._createVectorLayer(args.layers);
+    if (args.hasRaster) {
+        this._createRasterLayer();
     }
-    this._control.addEventListener("moved", function(args) {
-        if(self._vectorLayer) {
-            self._vectorLayer.display(args.camera);
-        }
-        if(self._terrainLayer) {
-            self._terrainLayer.display(args.camera);    
-        }
-    });
 
+    // Control
+    this._control = new FPSControl(this._camera, this._document);
+    this._control.addEventListener("moved", this.refreshLayers.bind(this));
+
+    // Sync
     this._socket = new SceneSocket({
-        url: "ws://" + url,
+        url: "ws://" + this._url,
         scene: this,
     });
 
-    this._document.getElementById(args.domId)
-            .appendChild(this._renderer.domElement);
+    this._document.getElementById(args.domId).appendChild(this._renderer.domElement);
+
+    this._createPasses();
+    this.refreshLayers();
+};
+
+Scene.prototype.refreshLayers = function() {
+    if (this._vectorLayer) {
+        this._vectorLayer.display(this._camera);
+    }
+    if (this._terrainLayer) {
+        this._terrainLayer.display(this._camera);
+    }
 };
 
 /**
@@ -115,7 +84,28 @@ Scene.prototype.moveTo = function(coords) {
  */
 Scene.prototype.render = function() {
     this._window.requestAnimationFrame(this.render.bind(this));
-    this._renderer.render(this._scene, this._camera);
+
+    var delta = 0.01;
+    var maskActive = false;
+    this._renderer.clear();
+    // this._composer.render();
+    // if (this._terrainRender) {
+    // this._terrainRender.render(this._renderer, this._target, this._target,
+    // delta, maskActive);
+    // this._vectorLayer.forEachVolume(this._camera, this._volumeDrapping
+    // .bind(this));
+    // this._clearMask.render(this._renderer, this._target, this._target,
+    // delta, maskActive);
+    // }
+    // this._vectorRender.render(this._renderer, this._target, this._target,
+    // delta, maskActive);
+    // this._finalRender.render(this._renderer, this._target, this._target,
+    // delta,
+    // maskActive);
+    if (this._terrainLayer) {
+        this._renderer.render(this._terrainLayer, this._camera);
+    }
+    this._renderer.render(this._vectorLayer, this._camera);
     this._control.update();
 };
 
@@ -137,10 +127,125 @@ Scene.prototype.displayVector = function(extents) {
 Scene.prototype.zoom = function(zoomPercent) {
     var zoomMin = 100;
     var zoomMax = 0;
-    this._camera.position.z = (zoomMin - zoomMax) * 100/ zoomPercent;
+    this._camera.position.z = (zoomMin - zoomMax) * 100 / zoomPercent;
 };
 
 Scene.prototype.refreshLayer = function(uuid) {
-    console.log('refresh for ' + uuid);
     this._vectorLayer.refresh(uuid);
+};
+
+Scene.prototype._createVectorLayer = function(layers) {
+    // Light
+    var hemiLight = new THREE.HemisphereLight(0x999999, 0xffffff, 1);
+
+    this._vectorLayer = VectorLayer.create({
+        url: "ws://" + this._url + "/data",
+        x: this._originX,
+        y: this._originY,
+        width: this._width,
+        height: this._height,
+        qgisLayers: layers,
+        scene: this._scene,
+    });
+
+    this._vectorLayer.add(hemiLight);
+};
+
+Scene.prototype._createRasterLayer = function() {
+    var socket = new VWebSocket({
+        url: "ws://" + this._url + "/tiles_info"
+    });
+
+    var self = this;
+    socket.addEventListener("messageReceived", function(obj) {
+        self._terrainLayer = new TerrainLayer({
+            x: self._originX,
+            y: self._originY,
+            width: self._width,
+            height: self._height,
+            ortho: obj.texture || obj.dem,
+            dem: obj.dem,
+            minHeight: obj.minHeight,
+            maxHeight: obj.maxHeight,
+            gridDensity: 64,
+            tileSize: obj.pixelSize * obj.tileSize,
+        });
+
+        // self._terrainLayer.fog = new THREE.Fog(0xdbdbdb,
+        // self._camera.far / 2,
+        // self._camera.far);
+        self._vectorLayer.setDEM(self._terrainLayer);
+
+        self._terrainRender = new THREE.RenderPass(self._terrainLayer, self._camera);
+
+        self._composer.insertPass(0, self._terrainRender);
+        self._vectorRender.clear = false;
+
+        self.refreshLayers();
+    });
+
+};
+
+Scene.prototype._createPasses = function() {
+    var renderTargetParameters = {
+        minFilter: THREE.LinearFilter,
+        magFilter: THREE.LinearFilter,
+        format: THREE.RGBAFormat,
+        stencilBuffer: true
+    };
+
+    this._target = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight, renderTargetParameters);
+
+    this._clearMask = new THREE.ClearMaskPass();
+    this._clearMask.clear = false;
+
+    this._vectorRender = new THREE.RenderPass(this._vectorLayer, this._camera);
+    // this._vectorRender.clear = false;
+
+    this._finalRender = new THREE.ShaderPass(THREE.CopyShader);
+    this._finalRender.clear = false;
+    this._finalRender.renderToScreen = true;
+
+    this._composer = new THREE.EffectComposer(this._renderer, this._target);
+    this._composer.addPass(this._clearMask);
+    this._composer.addPass(this._vectorRender);
+    this._composer.addPass(this._finalRender);
+};
+
+Scene.prototype._volumeDrapping = function(scene) {
+    console.log(scene);
+    var context = this._renderer.context;
+
+    // don't update color or depth
+    context.colorMask(false, false, false, false);
+    context.depthMask(false);
+
+    context.enable(context.DEPTH_TEST);
+    context.enable(context.STENCIL_TEST);
+    context.stencilFunc(context.ALWAYS, 1, 0xFF); // draw if == 1
+    context.stencilOpSeparate(context.FRONT, context.KEEP, context.KEEP, context.INCR_WRAP);
+    context.stencilOpSeparate(context.BACK, context.KEEP, context.KEEP, context.DECR_WRAP);
+    context.clearStencil(0);
+
+    // We can't do one pass using THREE.CullFaceBackAndFront ?!
+    this._renderer.setFaceCulling(THREE.CullFaceBack, THREE.FrontFaceDirectionCCW);
+    this._renderer.render(scene, this._camera, this._target, false);
+    this._renderer.setFaceCulling(THREE.CullFaceFront, THREE.FrontFaceDirectionCW);
+    this._renderer.render(scene, this._camera, this._target, false);
+
+    // Default value
+    this._renderer.setFaceCulling(THREE.CullFaceBack, THREE.FrontFaceDirectionCCW);
+
+    // re-enable update of color and depth
+    context.colorMask(true, true, true, true);
+    context.depthMask(true);
+
+    // only render where stencil is not set to 0
+    context.enable(context.STENCIL_TEST);
+    context.stencilFunc(context.NOTEQUAL, 0, 0xffffffff); // draw if == 1
+    context.stencilOp(context.ZERO, context.ZERO, context.ZERO);
+
+    this._renderer.render(scene, this._camera, this._target, false);
+    context.clearStencil(0);
+    context.disable(context.STENCIL_TEST);
 };

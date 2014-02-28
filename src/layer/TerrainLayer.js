@@ -25,8 +25,9 @@ var TerrainLayer = function(args) {
     this._ortho = args.ortho || false;
     this._dem = args.dem || false;
 
-    this._minDEMElevation = args.minHeight || 0;
-    this._maxDEMElevation = args.maxHeight || 100;
+    console.log("dem", args.minHeight, args.maxHeight);
+    this.minHeight = args.minHeight || 0;
+    this.maxHeight = args.maxHeight || 100;
 
     this._shaderDef = args.shaderDef || BasicHeightMapMaterialDefinition;
 
@@ -59,7 +60,7 @@ TerrainLayer.prototype._rasterUrl = function(path, x, y, zoomLevel) {
 };
 
 TerrainLayer.prototype._loadDEM = function(x, y) {
-    if(!this._dem) {
+    if (!this._dem) {
         return;
     }
     var index = this._index(x, y);
@@ -67,14 +68,21 @@ TerrainLayer.prototype._loadDEM = function(x, y) {
         THREE.ImageUtils.crossOrigin = "anonymous";
         var url = this._rasterUrl(this._dem, x, y, this._zoom);
         var canvasTile = new CanvasTile(url, x, y);
-        canvasTile.addEventListener("demLoaded", this.levelLayers.bind(this));
+        var self = this;
+        canvasTile.addEventListener("demLoaded", function() {
+            var box = self.tileExtent(x, y);
+            self.dispatchEvent({
+                type: "demLoaded",
+                data: [box.min.x, box.min.y, box.max.x, box.max.y]
+            });
+        });
         this._demTextures[index] = canvasTile;
     }
     return this._demTextures[index].texture;
 };
 
 TerrainLayer.prototype._loadOrtho = function(x, y) {
-    if(!this._ortho) {
+    if (!this._ortho) {
         return;
     }
     var index = this._index(x, y);
@@ -94,8 +102,8 @@ TerrainLayer.prototype._createMaterial = function(x, y) {
     var uniformsTerrain = THREE.UniformsUtils.clone(this._shaderDef.uniforms);
     uniformsTerrain.dem.value = dem;
     uniformsTerrain.ortho.value = ortho;
-    uniformsTerrain.minHeight.value = this._minDEMElevation;
-    uniformsTerrain.maxHeight.value = this._maxDEMElevation;
+    uniformsTerrain.minHeight.value = this.minHeight;
+    uniformsTerrain.maxHeight.value = this.maxHeight;
 
     var material = this._material.clone();
     material.uniforms = uniformsTerrain;
@@ -117,14 +125,9 @@ TerrainLayer.prototype.height = function(position) {
     var xPixel = rPos.x * demSize.x / tileSize;
     var yPixel = demSize.y - (rPos.y * demSize.y / tileSize);
     var pixelValue = dem.value(new THREE.Vector2(xPixel, yPixel));
-    var height = this._minDEMElevation +
-                 ((this._maxDEMElevation - this._minDEMElevation) * pixelValue);
+    var height = this.minHeight +
+                 ((this.maxHeight - this.minHeight) * pixelValue);
     return height;
-};
-
-TerrainLayer.prototype.addLayerToLevel = function(layer) {
-    this._layersToLevel.push(layer);
-    layer.dem = this;
 };
 
 TerrainLayer.prototype.levelLayers = function(tileIndex) {

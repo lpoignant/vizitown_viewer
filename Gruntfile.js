@@ -11,15 +11,20 @@ module.exports = function(grunt) {
                         separator: "\n"
                     },
                     dist: {
-                        src: [ 'vendors/**/*.js', 'src/core/**/*.js',
-                                'src/material/**/*.js', 'src/control/**/*.js',
-                                'src/geometry/GeometryType.js',
-                                'src/geometry/GeometryFactory.js',
-                                'src/geometry/Geometry2DFactory.js',
-                                'src/geometry/Geometry25DFactory.js',
-                                'src/geometry/Geometry3DFactory.js',
-                                'src/geometry/GeometryFactoryComposite.js',
-                                'src/layer/**/*.js', 'src/extras/**/*.js', ],
+                        src: ['vendors/**/*.js',
+                              'src/core/**/*.js',
+                              'src/material/**/*.js',
+                              'src/control/**/*.js',
+                              'src/geometry/GeometryType.js',
+                              'src/geometry/GeometryFactory.js',
+                              'src/geometry/Geometry2DFactory.js',
+                              'src/geometry/Geometry25DFactory.js',
+                              'src/geometry/Geometry3DFactory.js',
+                              'src/geometry/GeometryVolumeFactory.js',
+                              'src/geometry/GeometryFactoryComposite.js',
+                              'src/layer/**/*.js',
+                              'src/extras/**/*.js',
+                        ],
                         dest: 'dist/<%= pkg.name %>.js'
                     }
                 },
@@ -30,14 +35,16 @@ module.exports = function(grunt) {
                     },
                     dist: {
                         files: {
-                            'dist/<%= pkg.name %>.min.js': [ '<%= concat.dist.dest %>' ]
+                            'dist/<%= pkg.name %>.min.js': ['<%= concat.dist.dest %>']
                         }
                     }
                 },
 
                 jshint: {
-                    files: [ 'Gruntfile.js', 'src/**/*.js', 'test/**/*.js',
-                            '!test/vendor/**' ],
+                    files: ['Gruntfile.js',
+                            'src/**/*.js',
+                            'test/**/*.js',
+                            '!test/vendor/**'],
                     options: {
                         // options here to override JSHint defaults
                         globals: {
@@ -76,8 +83,8 @@ module.exports = function(grunt) {
                 },
 
                 watch: {
-                    files: [ '<%= jshint.files %>' ],
-                    tasks: [ 'jshint' ]
+                    files: ['<%= jshint.files %>'],
+                    tasks: ['jshint']
                 },
 
                 simplemocha: {
@@ -88,7 +95,7 @@ module.exports = function(grunt) {
                     },
 
                     all: {
-                        src: [ 'test/core.js', 'test/layer.js' ]
+                        src: ['test/core.js', 'test/layer.js']
                     }
                 },
 
@@ -118,9 +125,12 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-simple-mocha');
     grunt.loadNpmTasks('grunt-contrib-yuidoc');
 
-    grunt.registerTask('test', [ 'jshint' ]);
-    grunt.registerTask('default', [ 'jshint', 'concat', 'simplemocha', 'copy',
-            'yuidoc' ]);
-    grunt.registerTask('release', [ 'jshint', 'concat', 'uglify' ]);
+    grunt.registerTask('test', ['jshint']);
+    grunt.registerTask('default', ['jshint',
+                                   'concat',
+                                   'simplemocha',
+                                   'copy',
+                                   'yuidoc']);
+    grunt.registerTask('release', ['jshint', 'concat', 'uglify']);
 
 };
