@@ -1,24 +1,8 @@
-var req = new XMLHttpRequest();
-req.open('GET', "http://localhost:8888/init", false); 
-req.send(null);
-if (req.status != 200) {
-    throw "No scene defined";
-}
-
-var sceneSettings = JSON.parse(req.responseText);
 var scene = new Scene({
     window: window,
     document: document,
     domId: "container",
-    extent: {
-        minX: parseFloat(sceneSettings.extent.xMin),
-        minY: parseFloat(sceneSettings.extent.yMin),
-        maxX: parseFloat(sceneSettings.extent.xMax),
-        maxY: parseFloat(sceneSettings.extent.yMax),
-    },
-    hasRaster: sceneSettings.hasRaster,
     url: 'localhost:8888',
-    vectors: sceneSettings.vectors,
 });
 
 var btnRefreshValues = {
@@ -56,7 +40,7 @@ var refreshLayer = function(uuid) {
     }
 };
 
-sceneSettings.vectors.forEach(function(vector) {
+scene.vectors.forEach(function(vector) {
     var entry = document.createElement('li');
     var btnRefresh = document.createElement('input');
     var inputTimer = document.createElement('input');

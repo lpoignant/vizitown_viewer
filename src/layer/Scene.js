@@ -10,7 +10,20 @@ var Scene = function(args) {
 
     var url = args.url || location.host;
 
-    var extent = args.extent;
+    var req = new XMLHttpRequest();
+    req.open('GET', "http://" + url + "/init", false); 
+    req.send(null);
+    if (req.status !== 200) {
+        throw "No scene defined";
+    }
+    var sceneSettings = JSON.parse(req.responseText);
+
+    var extent = args.extent || {
+        minX: parseFloat(sceneSettings.extent.xMin),
+        minY: parseFloat(sceneSettings.extent.yMin),
+        maxX: parseFloat(sceneSettings.extent.xMax),
+        maxY: parseFloat(sceneSettings.extent.yMax),
+    };
 
     this._originX = extent.minX;
     this._originY = extent.minY;
@@ -26,7 +39,7 @@ var Scene = function(args) {
     this._renderer.setClearColor(0xdbdbdb, 1);
     this._renderer.setSize(window.innerWidth, window.innerHeight);
 
-    this._hasRaster = args.hasRaster;
+    this._hasRaster = args.hasRaster || sceneSettings.hasRaster;
 
     this._camera = new Camera({
         window: this._window,
@@ -42,6 +55,8 @@ var Scene = function(args) {
     var hemiLight = new THREE.HemisphereLight(0x999999, 0xffffff, 1);
     this._scene.add(hemiLight);
 
+    this.vectors = args.vectors || sceneSettings.vectors;
+
     this._vectorLayer = new VectorLayer({
         url: "ws://" + url,
         x: this._originX,
@@ -49,7 +64,7 @@ var Scene = function(args) {
         width: extent.maxX - extent.minX,
         height: extent.maxY - extent.minY,
         tileSize: 512,
-        qgisVectors: args.vectors,
+        qgisVectors: this.vectors,
         scene: this._scene,
         loadingListener: this._document,
     });
