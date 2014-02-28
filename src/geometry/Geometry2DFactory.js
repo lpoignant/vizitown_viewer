@@ -51,9 +51,8 @@ Geometry2DFactory.prototype.parseGeometry = function(obj, geometryType) {
         points3D.push(new THREE.Vector3(points[i], points[i + 1], 0));
     }
     // Extrude geometry
-    if(geometryType === "POINT" ||
-        geometryType === "LINESTRING" ||
-        geometryType === "MULTILINESTRING") {
+    if(geometryType === "point" ||
+        geometryType === "line") {
 
         var geometry = new THREE.Geometry();
         points3D.forEach(function(point) {
