@@ -10,7 +10,15 @@
  */
 var GeometryFactoryComposite = function(layer) {
     var self = this;
-    this._interval = setInterval(function() {self._create(self._objects.shift());}, 300);
+    this._interval = setInterval(function() {
+         var _object = self._objects.shift();
+         if (_object === undefined) {
+             layer.loadingListener.dispatchEvent(new CustomEvent('loading', {'detail': false}));
+         } else {
+             layer.loadingListener.dispatchEvent(new CustomEvent('loading', {'detail': true}));
+         }
+         self._create(_object);
+    }, 300);
     this._geometry2DFactory = new Geometry2DFactory({layer: layer});
     this._geometry25DFactory = new Geometry25DFactory({layer: layer});
     this._geometry3DFactory = new Geometry3DFactory({layer: layer});

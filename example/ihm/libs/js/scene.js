@@ -85,7 +85,6 @@ sceneSettings.vectors.forEach(function(vector) {
 var changeZoomLevel = function(value) {
     scene.zoom(value);
 };
-console.log(scene);
 scene.render();
 
 var saveParameters = function() {
@@ -97,3 +96,11 @@ var saveParameters = function() {
 document.getElementById('angleInput').value = scene._camera.fov;
 document.getElementById('deepInput').value = scene._camera.far;
 document.getElementById('deepInput').value = scene._scene.fog.far;
+
+document.addEventListener("loading", function(event) {
+    if(event.detail) {
+        document.getElementById("spinner").style.display = 'block';
+    } else {
+        document.getElementById("spinner").style.display = 'none';
+    }
+}, false);

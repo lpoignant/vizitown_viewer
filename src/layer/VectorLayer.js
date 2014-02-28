@@ -8,6 +8,8 @@ var VectorLayer = function VectorLayer(args) {
         url: args.url + "/data"
     });
 
+    this.loadingListener = args.loadingListener || {};
+
     this._factory = new GeometryFactoryComposite(this);
 
     var self = this;

@@ -51,6 +51,7 @@ var Scene = function(args) {
         tileSize: 512,
         qgisVectors: args.vectors,
         scene: this._scene,
+        loadingListener: this._document,
     });
     this._scene.add(this._vectorLayer);
 
