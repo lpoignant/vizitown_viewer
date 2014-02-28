@@ -8,7 +8,22 @@
 var Scene = function(args) {
     args = args || {};
 
-    var extent = args.extent;
+    var url = args.url || location.host;
+
+    var req = new XMLHttpRequest();
+    req.open('GET', "http://" + url + "/init", false); 
+    req.send(null);
+    if (req.status !== 200) {
+        throw "No scene defined";
+    }
+    var sceneSettings = JSON.parse(req.responseText);
+
+    var extent = args.extent || {
+        minX: parseFloat(sceneSettings.extent.xMin),
+        minY: parseFloat(sceneSettings.extent.yMin),
+        maxX: parseFloat(sceneSettings.extent.xMax),
+        maxY: parseFloat(sceneSettings.extent.yMax),
+    };
 
     // Init
     this._url = args.url || location.host;
@@ -18,12 +33,14 @@ var Scene = function(args) {
     this._height = extent.maxY - extent.minY;
     this._window = args.window || window;
     this._document = args.document || document;
+    this._hasRaster = args.hasRaster || sceneSettings.hasRaster;
 
     // Renderer
     this._renderer = new THREE.WebGLRenderer();
     this._renderer.setClearColor(0xdbdbdb, 0);
     this._renderer.setSize(this._window.innerWidth, this._window.innerHeight);
     this._renderer.autoClear = false;
+
 
     // Camera
     var camX = this._width * 0.5;
@@ -35,9 +52,10 @@ var Scene = function(args) {
         y: camY,
     });
 
+    this.layers = args.layers || sceneSettings.vectors;
     // Layers
-    this._createVectorLayer(args.layers);
-    if (args.hasRaster) {
+    this._createVectorLayer(this.layers);
+    if (this._hasRaster) {
         this._createRasterLayer();
     }
 
@@ -85,8 +103,8 @@ Scene.prototype.moveTo = function(coords) {
 Scene.prototype.render = function() {
     this._window.requestAnimationFrame(this.render.bind(this));
 
-    var delta = 0.01;
-    var maskActive = false;
+    // var delta = 0.01;
+    // var maskActive = false;
     this._renderer.clear();
     // this._composer.render();
     // if (this._terrainRender) {
@@ -131,6 +149,7 @@ Scene.prototype.zoom = function(zoomPercent) {
 };
 
 Scene.prototype.refreshLayer = function(uuid) {
+    console.log('refresh of the layer: ' + uuid);
     this._vectorLayer.refresh(uuid);
 };
 
@@ -146,6 +165,7 @@ Scene.prototype._createVectorLayer = function(layers) {
         height: this._height,
         qgisLayers: layers,
         scene: this._scene,
+        loadingListener: this._document,
     });
 
     this._vectorLayer.add(hemiLight);

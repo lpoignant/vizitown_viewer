@@ -31,6 +31,7 @@ var GeometryFactory = function(args) {
         transparent: true,
     });
 
+    this._layer = args.layer;
 };
 
 /**
@@ -107,7 +108,7 @@ GeometryFactory.prototype._createLines = function(uuid, geometries, color) {
         var mesh = new THREE.Line(geometry, material);
         mesh.position = centroid;
 
-        this._layer.addToTile(mesh, uuid);
+        self._layer.addToTile(mesh, uuid);
     });
 };
 

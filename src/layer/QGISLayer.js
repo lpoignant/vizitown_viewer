@@ -24,7 +24,7 @@ QGISLayer.prototype.isDirty = function(index) {
 };
 
 QGISLayer.prototype.refresh = function(index) {
-    if (index) {
+    if (index !== undefined) {
         this._dirty[index] = true;
         return;
     }

@@ -12,6 +12,8 @@ var VectorLayer = function VectorLayer(args) {
     this._volumes = [];
     this._qgisLayers = {};
 
+    this.loadingListener = args.loadingListener || {};
+
     var qgisLayers = args.qgisLayers || [];
     var self = this;
     qgisLayers.forEach(function(layer, i) {
@@ -226,6 +228,7 @@ VectorLayer.prototype.refresh = function(uuid) {
     else {
         this.qgisLayer(uuid).refresh();
     }
+    this._scene.refreshLayers();
 };
 
 VectorLayer.prototype.refreshExtent = function(extent) {
@@ -310,10 +313,10 @@ VectorLayer.prototype.display = function(camera) {
         }
 
         // Need to refresh ?
-        var arrayIndex = self._index(index.x, index.y);
+        var _index = self._index(index.x, index.y);
         for ( var uuid in self._qgisLayers) {
             var layer = self.qgisLayer(uuid);
-            if (layer.isDirty(arrayIndex)) {
+            if (layer.isDirty(_index)) {
                 self._createTile(index.x, index.y, uuid);
                 self._loadData(tileIndex, uuid);
             }
