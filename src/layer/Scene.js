@@ -164,7 +164,7 @@ Scene.prototype._createVectorLayer = function(layers) {
         width: this._width,
         height: this._height,
         qgisLayers: layers,
-        scene: this._scene,
+        scene: this,
         loadingListener: this._document,
     });
 
