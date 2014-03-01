@@ -16,9 +16,8 @@ var VectorLayer = function VectorLayer(args) {
 
     var qgisLayers = args.qgisLayers || [];
     var self = this;
-    qgisLayers.forEach(function(layer, i) {
+    qgisLayers.forEach(function(layer) {
         var qgisLayer = new QGISLayer(layer.uuid);
-        qgisLayer.position.z += i + 1;
 
         self._qgisLayers[layer.uuid] = qgisLayer;
         self.add(qgisLayer);
