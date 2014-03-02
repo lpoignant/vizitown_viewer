@@ -16,19 +16,14 @@ var GeometryFactory = function(args) {
     args = args || {};
     this._layer = args.layer;
 
-    this._polyhedralMaterial = args.polyhedralMaterial || new THREE.MeshLambertMaterial({
-        transparent: true,
-    });
+    this._polyhedralMaterial = args.polyhedralMaterial || new THREE.MeshLambertMaterial({});
 
     this._pointMaterial = args.pointMaterial || new THREE.ParticleBasicMaterial({
         size: 5,
-        transparent: true,
     });
 
     this._lineMaterial = args.lineMaterial || new THREE.LineBasicMaterial({
-        color: 0x00ee22,
         linewidth: 3,
-        transparent: true,
     });
 
 };

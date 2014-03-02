@@ -39,13 +39,10 @@ QGISLayer.prototype.tile = function(index) {
 };
 
 QGISLayer.prototype.volume = function(index) {
-    var volume = this._volumes[index];
-    if (!volume && this.isTileCreated(index)) {
-        volume = new THREE.Scene();
-        this._volumes[index] = volume;
-        volume.position = this.tile(index).position;
+    if (!this.isVolumeCreated(index)) {
+        this._volumes[index] = [];
     }
-    return volume;
+    return this._volumes[index];
 };
 
 QGISLayer.prototype.createTile = function(index) {
