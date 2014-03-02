@@ -142,6 +142,16 @@ Scene.prototype.displayVector = function(extents) {
     });
 };
 
+Scene.prototype.updateFar = function(far) {
+    this._camera.far = parseInt(far);
+    this._camera.updateProjectionMatrix();
+};
+
+Scene.prototype.updateFov = function(fov) {
+    this._camera.fov = parseInt(fov);
+    this._camera.updateProjectionMatrix();
+};
+
 Scene.prototype.zoom = function(zoomPercent) {
     var zoomMin = 100;
     var zoomMax = 0;
