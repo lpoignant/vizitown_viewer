@@ -219,12 +219,12 @@ VectorLayer.prototype.addToVolume = function(mesh, uuid) {
     var coordinates = this.tileCoordinates(mesh.position);
     mesh.position = coordinates;
 
-	//Create an array of scenes for the volumes of this tile
+    // Create an array of scenes for the volumes of this tile
     var volumeContainer = this.volume(tileIndex.x, tileIndex.y, uuid);
     var meshes = volumeContainer[0];
     var bbs = volumeContainer[1];
 
-	//TODO scenes should be in the volume and the volume in qgsLayer
+    // TODO scenes should be in the volume and the volume in qgsLayer
     var volume = new Volume(mesh);
     meshes.add(volume.mesh);
     bbs.add(volume.bb);
@@ -243,8 +243,8 @@ VectorLayer.prototype.refresh = function(uuid) {
     else {
         this.qgisLayer(uuid).refresh();
     }
-    //We sure should explain why i should do that
-    //this._scene.refreshLayers();
+    // We sure should explain why i should do that
+    // this._scene.refreshLayers();
 };
 
 VectorLayer.prototype.refreshExtent = function(extent) {
@@ -271,17 +271,17 @@ VectorLayer.prototype.forEachVolume = function(camera, callback) {
             return;
         }
         var arrayIndex = self._index(index.x, index.y);
-        //Each layer
+        // Each layer
         for ( var uuid in self._qgisLayers) {
             var layer = self.qgisLayer(uuid);
             if (layer.isVolumeCreated(arrayIndex)) {
-                //Array of volume for this layer
-                //Each array represents a polygon
+                // Array of volume for this layer
+                // Each array represents a polygon
                 var volume = layer.volume(arrayIndex);
                 for (var i = 0; i < volume.length; i++) {
-                	//Array containing two scenes
-                	//One for extruded polygon
-                	//One for polygon bounding box
+                    // Array containing two scenes
+                    // One for extruded polygon
+                    // One for polygon bounding box
                     var scenes = volume[i];
                     if (scenes[0].children.length > 0) {
                         callback(scenes);
