@@ -33,5 +33,29 @@ var Camera = function(args) {
     };
 
     this._window.addEventListener('resize', this._onWindowResize, false);
+
+    this._frustum = new THREE.Frustum();
 };
 Camera.inheritsFrom(THREE.PerspectiveCamera);
+
+Camera.prototype.frustum = function() {
+    this.updateMatrix();
+    this.updateMatrixWorld();
+    this.matrixWorldInverse.getInverse(this.matrixWorld);
+
+    // Create frustum from camera
+    var matrixFrustum = this.projectionMatrix.clone();
+    matrixFrustum.multiply(this.matrixWorldInverse);
+    this._frustum.setFromMatrix(matrixFrustum);
+
+    return this._frustum;
+};
+
+Camera.prototype.extent = function() {
+    var position = this.position;
+    var extent = [position.x - this.far,
+                  position.y - this.far,
+                  position.x + this.far,
+                  position.y + this.far];
+    return extent;
+};

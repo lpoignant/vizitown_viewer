@@ -1,4 +1,4 @@
-/* global Geometry2DFactory, Geometry25DFactory, Geometry3DFactory */
+/* global Geometry2DFactory, Geometry25DFactory, Geometry3DFactory, GeometryVolumeFactory */
 "use strict";
 
 /**
@@ -8,10 +8,41 @@
  * @class GeometryFactoryComposite
  * @constructor
  */
-var GeometryFactoryComposite = function() {
-    this._geometry2DFactory = new Geometry2DFactory();
-    this._geometry25DFactory = new Geometry25DFactory();
-    this._geometry3DFactory = new Geometry3DFactory();
+var GeometryFactoryComposite = function(args) {
+    this._layer = args.layer;
+    this._objects = [];
+    
+    var self = this;
+    this._interval = setInterval(function() {
+         var object = self._objects.shift();
+         if (object === undefined) {
+             self._layer.loadingListener.dispatchEvent(new CustomEvent('loading', {'detail': false}));
+         } else {
+             self._layer.loadingListener.dispatchEvent(new CustomEvent('loading', {'detail': true}));
+         }
+         self._create(object);
+    }, 300);
+    
+    this._geometry2DFactory = new Geometry2DFactory({
+        layer: this._layer
+    });
+    this._geometry25DFactory = new Geometry25DFactory({
+        layer: this._layer
+    });
+    this._geometry3DFactory = new Geometry3DFactory({
+        layer: this._layer
+    });
+};
+
+GeometryFactoryComposite.prototype.setDEM = function(dem) {
+    this._geometry25DFactory.dem = dem;
+    this._geometry3DFactory.dem = dem;
+    this._geometry2DFactory = new GeometryVolumeFactory({
+        layer: this._layer,
+        minHeight: dem.minHeight,
+        maxHeight: dem.maxHeight
+    });
+    this._geometry2DFactory.dem = dem;
 };
 
 /**
@@ -24,20 +55,27 @@ var GeometryFactoryComposite = function() {
  * @param {Array} obj.geometries Array of JSON object representing the geometry
  * @returns {Array} An array containing the newly created mesh
  */
-GeometryFactoryComposite.prototype.create = function(obj) {
+GeometryFactoryComposite.prototype._create = function(obj) {
     if (!obj || !obj.dim) {
         return;
-        //throw "Invalid geometry container";
+        // throw "Invalid geometry container";
     }
 
     switch (obj.dim) {
         case "2":
-            return this._geometry2DFactory.create(obj);
+            this._geometry2DFactory.create(obj);
+            break;
         case "2.5":
-            return this._geometry25DFactory.create(obj);
+            this._geometry25DFactory.create(obj);
+            break;
         case "3":
-            return this._geometry3DFactory.create(obj);
+            this._geometry3DFactory.create(obj);
+            break;
         default:
             throw "Invalid geometry container";
     }
+};
+
+GeometryFactoryComposite.prototype.create = function(obj) {
+    this._objects.push(obj);
 };

@@ -21,7 +21,7 @@ Geometry2DFactory.inheritsFrom(GeometryFactory);
 
 Geometry2DFactory.prototype._parsePoint = function(obj) {
     var point = obj.coordinates[0];
-    return new THREE.Vector3(point[i], point[i + 1], 0);
+    return new THREE.Vector3(point[0], point[1], 0);
 };
 
 Geometry2DFactory.prototype._parseLine = function(obj) {

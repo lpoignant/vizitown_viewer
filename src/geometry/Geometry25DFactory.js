@@ -27,7 +27,7 @@ Geometry25DFactory.inheritsFrom(GeometryFactory);
 Geometry25DFactory.prototype._parsePoint = function(obj) {
     var point = obj.coordinates[0];
     var height = obj.height || 0;
-    return new THREE.Vector3(point[i], point[i + 1], height);
+    return new THREE.Vector3(point[0], point[1], height);
 };
 
 Geometry25DFactory.prototype._parseLine = function(obj) {

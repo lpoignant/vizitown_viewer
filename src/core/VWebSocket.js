@@ -34,26 +34,25 @@ var VWebSocket = function(args) {
 VWebSocket.inheritsFrom(EventDispatcher);
 
 VWebSocket.prototype._createSocket = function() {
+    if (this._interval) {
+        clearInterval(this._interval);
+    }
+
     this.socket = new WebSocket(this._url);
     this.socket.onmessage = this.message.bind(this);
+
     var self = this;
     this.socket.onopen = function() {
-        if (self.interval) {
-            clearInterval(self.interval);
-        }
-        self.interval = setInterval(function(){
-            self.socket.send("ping");
+        self._interval = setInterval(function() {
+            self.open();
+            if (self.socket.readyState === WebSocket.CONNECTED) {
+                self.socket.send("ping");
+            }
         }, 5000);
-        self.flush.bind(self);
     };
 };
 
 VWebSocket.prototype.open = function() {
-    if (!this.socket) {
-        this._createSocket();
-        return true;
-    }
-
     var state = this.socket.readyState;
     if (state === WebSocket.CLOSED || state === WebSocket.CLOSING) {
         this._createSocket();

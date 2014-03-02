@@ -27,14 +27,10 @@ FPSControl.inheritsFrom(EventDispatcher);
  * @method listen
  */
 FPSControl.prototype.listen = function() {
-    this.domElement.addEventListener('mousemove', this.onMouseMove.bind(this),
-                                     false);
-    this.domElement.addEventListener('mousedown', this.onMouseDown.bind(this),
-                                     false);
-    this.domElement.addEventListener('mouseup', this.onMouseUp.bind(this),
-                                     false);
-    this.domElement.addEventListener('keydown', this.onKeyDown.bind(this),
-                                     false);
+    this.domElement.addEventListener('mousemove', this.onMouseMove.bind(this), false);
+    this.domElement.addEventListener('mousedown', this.onMouseDown.bind(this), false);
+    this.domElement.addEventListener('mouseup', this.onMouseUp.bind(this), false);
+    this.domElement.addEventListener('keydown', this.onKeyDown.bind(this), false);
     this.domElement.addEventListener('keyup', this.onKeyUp.bind(this), false);
     this.handleResize();
 };
@@ -89,10 +85,8 @@ FPSControl.prototype.onMouseMove = function(event) {
         this.mouseY = (-event.pageY + this.viewHalfY) / this.viewHalfY;
     }
     else {
-        this.mouseX = (event.pageX - this.domElement.offsetLeft - this.viewHalfX) /
-                      this.viewHalfX;
-        this.mouseY = (-event.pageY + this.domElement.offsetTop + this.viewHalfY) /
-                      this.viewHalfY;
+        this.mouseX = (event.pageX - this.domElement.offsetLeft - this.viewHalfX) / this.viewHalfX;
+        this.mouseY = (-event.pageY + this.domElement.offsetTop + this.viewHalfY) / this.viewHalfY;
     }
 };
 
@@ -160,8 +154,7 @@ FPSControl.prototype.update = function() {
     var delta = this._clock.getDelta();
     var moved = false;
 
-    if (this.moveBackward || this.moveForward || this.moveLeft ||
-        this.moveRight) {
+    if (this.moveBackward || this.moveForward || this.moveLeft || this.moveRight) {
         // Translation
         var actualMoveSpeed = delta * this.movementSpeed;
 
@@ -183,8 +176,7 @@ FPSControl.prototype.update = function() {
 
     // Rotation
     if (this.mouseDragOn) {
-        var lon = -THREE.Math.degToRad(this.mouseX * this.rotationSpeed) *
-                  delta;
+        var lon = -THREE.Math.degToRad(this.mouseX * this.rotationSpeed) * delta;
         var lat = THREE.Math.degToRad(this.mouseY * this.rotationSpeed) * delta;
 
         var rotationMatrix = new THREE.Matrix4();

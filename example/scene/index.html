@@ -2,7 +2,7 @@
 
 <head>
     <title></title>
-    <script type="text/javascript" src="Vizitown.js"></script>
+    <script type="text/javascript" src="/js/Vizitown.js"></script>
 	<style>
 		body {
 			margin: 0px;
@@ -37,10 +37,11 @@
 	        maxX: parseFloat(sceneSettings.extent.xMax),
 	        maxY: parseFloat(sceneSettings.extent.yMax),
 	    },
-	    vectors: sceneSettings.vectors,
+	    url: "localhost:8888",
+	    layers: sceneSettings.vectors,
+	    hasRaster: sceneSettings.hasRaster
 	});
 	
-	console.log(scene);
 	scene.render();
 </script>
 </body>
