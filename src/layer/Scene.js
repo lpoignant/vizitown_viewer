@@ -8,7 +8,22 @@
 var Scene = function(args) {
     args = args || {};
 
-    var extent = args.extent;
+    var url = args.url || location.host;
+
+    var req = new XMLHttpRequest();
+    req.open('GET', "http://" + url + "/init", false);
+    req.send(null);
+    if (req.status !== 200) {
+        throw "No scene defined";
+    }
+    var sceneSettings = JSON.parse(req.responseText);
+
+    var extent = args.extent || {
+        minX: parseFloat(sceneSettings.extent.xMin),
+        minY: parseFloat(sceneSettings.extent.yMin),
+        maxX: parseFloat(sceneSettings.extent.xMax),
+        maxY: parseFloat(sceneSettings.extent.yMax),
+    };
 
     // Init
     this._url = args.url || location.host;
@@ -19,6 +34,8 @@ var Scene = function(args) {
     this._window = args.window || window;
     this._document = args.document || document;
     this._color = 0xdfdfdf;
+    this._hasRaster = args.hasRaster || sceneSettings.hasRaster;
+    this.layers = args.layers || sceneSettings.vectors;
 
     // Renderer
     this._renderer = new THREE.WebGLRenderer();
@@ -37,8 +54,8 @@ var Scene = function(args) {
     });
 
     // Layers
-    this._createVectorLayer(args.layers);
-    if (args.hasRaster) {
+    this._createVectorLayer(this.layers);
+    if (this._hasRaster) {
         this._createRasterLayer();
     }
 
@@ -119,6 +136,16 @@ Scene.prototype.displayVector = function(extents) {
     });
 };
 
+Scene.prototype.updateFar = function(far) {
+    this._camera.far = parseInt(far);
+    this._camera.updateProjectionMatrix();
+};
+
+Scene.prototype.updateFov = function(fov) {
+    this._camera.fov = parseInt(fov);
+    this._camera.updateProjectionMatrix();
+};
+
 Scene.prototype.zoom = function(zoomPercent) {
     var zoomMin = 100;
     var zoomMax = 0;
@@ -140,7 +167,8 @@ Scene.prototype._createVectorLayer = function(layers) {
         width: this._width,
         height: this._height,
         qgisLayers: layers,
-        scene: this._scene,
+        scene: this,
+        loadingListener: this._document,
     });
 
     this._vectorLayer.add(hemiLight);
@@ -166,10 +194,9 @@ Scene.prototype._createRasterLayer = function() {
             tileSize: obj.pixelSize * obj.tileSize,
         });
         self._terrainLayer.fog = new THREE.Fog(self._color, self._camera.far / 2, self._camera.far);
-        self._vectorLayer.setDEM(self._terrainLayer);
 
         self._terrainRender = new THREE.RenderPass(self._terrainLayer, self._camera);
-
+        self._vectorLayer.setDEM(self._terrainLayer);
         self.refreshLayers();
     });
 
@@ -180,7 +207,7 @@ Scene.prototype._createPasses = function() {
         minFilter: THREE.LinearFilter,
         magFilter: THREE.LinearFilter,
         format: THREE.RGBAFormat,
-        stencilBuffer: true
+        stencilBuffer: true,
     };
 
     this._target = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight, renderTargetParameters);
@@ -191,7 +218,6 @@ Scene.prototype._createPasses = function() {
 };
 
 Scene.prototype._volumeDrapping = function(scene) {
-    // console.log(scene);
     var context = this._renderer.context;
 
     // don't update color or depth
@@ -202,22 +228,19 @@ Scene.prototype._volumeDrapping = function(scene) {
     context.stencilOpSeparate(context.FRONT, context.KEEP, context.KEEP, context.INCR_WRAP);
     context.stencilOpSeparate(context.BACK, context.KEEP, context.KEEP, context.DECR_WRAP);
     context.clearStencil(0);
-    //
-    // // We can't do one pass using THREE.CullFaceBackAndFront ?!
 
+    // We can't do one pass using THREE.CullFaceBackAndFront ?!
     this._renderer.setFaceCulling(THREE.CullFaceFront);
     this._renderer.render(scene[0], this._camera, this._target, false);
     this._renderer.setFaceCulling(THREE.CullFaceBack);
     this._renderer.render(scene[0], this._camera, this._target, false);
 
-    // // re-enable update of color and depth
+    // re-enable update of color and depth
     context.colorMask(true, true, true, true);
     context.depthMask(true);
-    //
-    // // only render where stencil is not set to 0
-    //
+
+    // only render where stencil is not set to 0
     context.stencilFunc(context.NOTEQUAL, 0, 0xFF); // drasw if == 1
     context.stencilOp(context.KEEP, context.ZERO, context.ZERO);
-    // this._renderer.render(scene[0], this._camera, this._target);
     this._renderer.render(scene[1], this._camera, this._target);
 };

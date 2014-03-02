@@ -11,12 +11,12 @@ var VectorLayer = function VectorLayer(args) {
     this._isTileCreated = [];
     this._volumes = [];
     this._qgisLayers = {};
+    this.loadingListener = args.loadingListener || {};
 
     var qgisLayers = args.qgisLayers || [];
     var self = this;
     qgisLayers.forEach(function(layer) {
         var qgisLayer = new QGISLayer(layer.uuid);
-
         self._qgisLayers[layer.uuid] = qgisLayer;
         self.add(qgisLayer);
     });
@@ -199,7 +199,6 @@ VectorLayer.prototype.addToTile = function(mesh, uuid) {
     var coordinates = this.tileCoordinates(mesh.position);
     mesh.position = coordinates;
     tile.add(mesh);
-    console.log("tile", tile, mesh, coordinates);
 };
 
 /**
@@ -220,15 +219,15 @@ VectorLayer.prototype.addToVolume = function(mesh, uuid) {
     var coordinates = this.tileCoordinates(mesh.position);
     mesh.position = coordinates;
 
+	//Create an array of scenes for the volumes of this tile
     var volumeContainer = this.volume(tileIndex.x, tileIndex.y, uuid);
     var meshes = volumeContainer[0];
     var bbs = volumeContainer[1];
 
+	//TODO scenes should be in the volume and the volume in qgsLayer
     var volume = new Volume(mesh);
     meshes.add(volume.mesh);
     bbs.add(volume.bb);
-
-    console.log("Volume", volume.mesh, volume.bb);
 };
 
 /**
@@ -244,6 +243,8 @@ VectorLayer.prototype.refresh = function(uuid) {
     else {
         this.qgisLayer(uuid).refresh();
     }
+    //We sure should explain why i should do that
+    //this._scene.refreshLayers();
 };
 
 VectorLayer.prototype.refreshExtent = function(extent) {
@@ -266,16 +267,21 @@ VectorLayer.prototype.forEachVolume = function(camera, callback) {
     var self = this;
     tileIndexes.forEach(function(tileIndex) {
         var index = tileIndex[4];
-        // Not created yet
         if (!self.isTileCreated(index.x, index.y)) {
             return;
         }
         var arrayIndex = self._index(index.x, index.y);
+        //Each layer
         for ( var uuid in self._qgisLayers) {
             var layer = self.qgisLayer(uuid);
             if (layer.isVolumeCreated(arrayIndex)) {
+                //Array of volume for this layer
+                //Each array represents a polygon
                 var volume = layer.volume(arrayIndex);
                 for (var i = 0; i < volume.length; i++) {
+                	//Array containing two scenes
+                	//One for extruded polygon
+                	//One for polygon bounding box
                     var scenes = volume[i];
                     if (scenes[0].children.length > 0) {
                         callback(scenes);
@@ -292,7 +298,6 @@ VectorLayer.prototype.forEachVolume = function(camera, callback) {
  * @param camera
  */
 VectorLayer.prototype.display = function(camera) {
-
     var frustum = camera.frustum();
     var extent = camera.extent();
     var tileIndexes = this._spatialIndex.search(extent);
@@ -304,7 +309,7 @@ VectorLayer.prototype.display = function(camera) {
     var self = this;
     tileIndexes.forEach(function(tileIndex) {
         var index = tileIndex[4];
-        // Not created yet
+        // Can't intersect if not created
         if (!self.isTileCreated(index.x, index.y)) {
             // Building tile extent
             tileExtent.min.x = tileIndex[0];
@@ -319,11 +324,12 @@ VectorLayer.prototype.display = function(camera) {
             return;
         }
 
-        // Need to refresh ?
-        var arrayIndex = self._index(index.x, index.y);
+        // Create
+        var _index = self._index(index.x, index.y);
         for ( var uuid in self._qgisLayers) {
             var layer = self.qgisLayer(uuid);
-            if (layer.isDirty(arrayIndex)) {
+            // Need to refresh
+            if (layer.isDirty(_index)) {
                 self._createTile(index.x, index.y, uuid);
                 self._loadData(tileIndex, uuid);
             }

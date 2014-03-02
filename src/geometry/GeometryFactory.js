@@ -25,7 +25,6 @@ var GeometryFactory = function(args) {
     this._lineMaterial = args.lineMaterial || new THREE.LineBasicMaterial({
         linewidth: 3,
     });
-
 };
 
 /**
@@ -102,7 +101,7 @@ GeometryFactory.prototype._createLines = function(uuid, geometries, color) {
         var mesh = new THREE.Line(geometry, material);
         mesh.position = centroid;
 
-        this._layer.addToTile(mesh, uuid);
+        self._layer.addToTile(mesh, uuid);
     });
 };
 
