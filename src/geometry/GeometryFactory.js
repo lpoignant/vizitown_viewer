@@ -28,9 +28,11 @@ var GeometryFactory = function(args) {
 };
 
 /**
+ * Return the centroid of a geometry
+ *
  * @method _centroid
- * @param geometry
- * @returns {THREE.Vector3}
+ * @param {THREE.Geometry} geometry
+ * @returns {THREE.Vector3} the centroid
  */
 GeometryFactory.prototype._centroid = function(geometry) {
     var centroid = new THREE.Vector3();
@@ -43,6 +45,14 @@ GeometryFactory.prototype._centroid = function(geometry) {
     return centroid;
 };
 
+/**
+ * Center a geometry with its centroid
+ * 
+ * @method _centerGeometry
+ * @param {THREE.Geometry} geometry
+ * @param {THREE.Vector3} centroid
+ * @returns {THREE.Vector3} the centroid
+ */
 GeometryFactory.prototype._centerGeometry = function(geometry, centroid) {
     var centro = centroid || this._centroid(geometry);
     centro.z = 0;
@@ -55,6 +65,12 @@ GeometryFactory.prototype._centerGeometry = function(geometry, centroid) {
     return centro;
 };
 
+/**
+ * Level a point with a DEM if exists
+ * 
+ * @method _levelPoint
+ * @param {THREE.Geometry} point The point to translate
+ */
 GeometryFactory.prototype._levelPoint = function(point) {
     if (!this.dem) {
         return;
@@ -64,6 +80,12 @@ GeometryFactory.prototype._levelPoint = function(point) {
     point.z += height;
 };
 
+/**
+ * Level a line with a DEM if exists
+ * 
+ * @method _levelLine
+ * @param {THREE.Geometry} line The line to translate
+ */
 GeometryFactory.prototype._levelLine = function(line) {
     if (!this.dem) {
         return;
@@ -74,6 +96,12 @@ GeometryFactory.prototype._levelLine = function(line) {
     });
 };
 
+/**
+ * Level a polygon with a DEM if exists
+ * 
+ * @method _levelPolygon
+ * @param {THREE.Geometry} polygon The polygon to translate
+ */
 GeometryFactory.prototype._levelPolygon = function(polygon) {
     if (!this.dem) {
         return;
@@ -86,6 +114,14 @@ GeometryFactory.prototype._levelPolygon = function(polygon) {
     polygon.applyMatrix(translationMatrix);
 };
 
+/**
+ * Create colored lines in a QGISLayer
+ * 
+ * @method _createLines
+ * @param {String} uuid Unique identifier of the QGIS layer
+ * @param {Array} geometries Array containing the geometries to create
+ * @param {THREE.color} color Color of the polygons
+ */
 GeometryFactory.prototype._createLines = function(uuid, geometries, color) {
     var material = this._lineMaterial.clone();
     material.color = color;
@@ -105,6 +141,14 @@ GeometryFactory.prototype._createLines = function(uuid, geometries, color) {
     });
 };
 
+/**
+ * Create colored points in a QGISLayer
+ * 
+ * @method _createPoints
+ * @param {String} uuid Unique identifier of the QGIS layer
+ * @param {Array} geometries Array containing the geometries to create
+ * @param {THREE.color} color Color of the polygons
+ */
 GeometryFactory.prototype._createPoints = function(uuid, geometries, color) {
     var material = this._pointMaterial.clone();
     material.color = color;
@@ -125,6 +169,14 @@ GeometryFactory.prototype._createPoints = function(uuid, geometries, color) {
     this._layer.addToTile(particleSystem, uuid);
 };
 
+/**
+ * Create colored polygons in a QGISLayer
+ * 
+ * @method _createPolygons
+ * @param {String} uuid Unique identifier of the QGIS layer
+ * @param {Array} geometries Array containing the geometries to create
+ * @param {THREE.color} color Color of the polygons
+ */
 GeometryFactory.prototype._createPolygons = function(uuid, geometries, color) {
     var material = this._polyhedralMaterial.clone();
     material.color = color;
@@ -155,7 +207,7 @@ GeometryFactory.prototype._createPolygons = function(uuid, geometries, color) {
  * @param {Object} obj JSON object containing the geometries
  * @param {String} obj.type Type of the geometry. Must be 2.5.
  * @param {Array} obj.geometries Array containing the geometries to create
- * @returns {Array} array containing the meshes to add
+ * @return {Array} array containing the meshes to add
  */
 GeometryFactory.prototype.create = function(obj) {
     var color = new THREE.Color(parseInt(obj.color.substring(1), 16));

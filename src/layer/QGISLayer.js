@@ -1,5 +1,12 @@
 "use strict";
 
+/**
+ * @class QGISLayer
+ * @extends THREE.Object3D
+ * @constructor
+ * @param {Object} args JSON Object containing the arguments
+ * @param {String} args.uuid Unique identifier of the layer
+ */
 var QGISLayer = function(args) {
     args = args || {};
     THREE.Object3D.call(this, args);
@@ -11,18 +18,46 @@ var QGISLayer = function(args) {
 };
 QGISLayer.inheritsFrom(THREE.Object3D);
 
+/**
+ * Returns if a tile exists at index
+ *
+ * @method isTileCreated
+ * @param {int} index Index of the tile.
+ * @return {Boolean} True if a tile exists, false otherwise
+ */
 QGISLayer.prototype.isTileCreated = function(index) {
     return (this._tiles[index] !== undefined);
 };
 
+/**
+ * Returns if a volume exists at index
+ *
+ * @method isVolumeCreated
+ * @param {int} index Index of the tile.
+ * @return {Boolean} True if a volume exists, false otherwise
+ */
 QGISLayer.prototype.isVolumeCreated = function(index) {
     return (this._volumes[index] !== undefined);
 };
 
+/**
+ * Returns if a tile at index is dirty 
+ *
+ * @method isDirty
+ * @param {int} index Index of the tile.
+ * @return {Boolean} True if tile is dirty, false otherwise
+ */
 QGISLayer.prototype.isDirty = function(index) {
     return (this._dirty[index] === true);
 };
 
+/**
+ * Set a tile to dirty if index is specified 
+ * else set all tiles to dirty 
+ *
+ * @method refresh
+ * @param {int} index Index of the tile. Optionnal
+ */
 QGISLayer.prototype.refresh = function(index) {
     if (index !== undefined) {
         this._dirty[index] = true;
@@ -34,10 +69,22 @@ QGISLayer.prototype.refresh = function(index) {
     }
 };
 
+/**
+ * Retreive the tile at index
+ *
+ * @method tile
+ * @param {int} index Index of the tile.
+ */
 QGISLayer.prototype.tile = function(index) {
     return this._tiles[index];
 };
 
+/**
+ * Retreive the volume at index
+ *
+ * @method tile
+ * @param {int} index Index of the tile.
+ */
 QGISLayer.prototype.volume = function(index) {
     if (!this.isVolumeCreated(index)) {
         this._volumes[index] = [];
@@ -45,6 +92,12 @@ QGISLayer.prototype.volume = function(index) {
     return this._volumes[index];
 };
 
+/**
+ * Create tile at index
+ *
+ * @method createTile
+ * @param {int} index Index of the tile.
+ */
 QGISLayer.prototype.createTile = function(index) {
     if (this.isTileCreated(index)) {
         this.destroyTile(index);
@@ -55,6 +108,12 @@ QGISLayer.prototype.createTile = function(index) {
     return this._tiles[index];
 };
 
+/**
+ * Destroy tile at index
+ *
+ * @method destroyTile
+ * @param {int} index Index of the tile.
+ */
 QGISLayer.prototype.destroyTile = function(index) {
     if (!this.isTileCreated(index)) {
         return;

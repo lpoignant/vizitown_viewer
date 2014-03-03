@@ -2,18 +2,12 @@
 "use strict";
 
 /**
- * This class represents a tiled layer
+ * This class represents a tiled layer for DEM and raster
  * 
- * @class TiledLayer
+ * @class TerrainLayer
  * @constructor
- * @param {int} args.x X top left corner of the layer in the layer coordinate
- *                system
- * @param {int} args.y Y top left corner of the layer in the layer coordinate
- *                system
- * @param {int} args.tileSizeWidth Width of a tile in the layer coordinate
- *                system
- * @param {int} args.tileSizeHeight Height of a tile in the layer coordinate
- *                system
+ * @extends Layer
+ * @param {Object} args JSON Object containing the arguments
  * @param {String} args.ortho URL to get the ortho
  * @param {String} args.dem URL to get the dem raster
  * @param {int} args.xDensity Number of on the x axis
@@ -44,12 +38,14 @@ var TerrainLayer = function(args) {
 TerrainLayer.inheritsFrom(Layer);
 
 /**
- * @method _getRasterUrl Returns correct url to access a raster
- * @param {String} path Path to the
+ * Returns correct url to access a raster
+ *
+ * @method _getRasterUrl
+ * @param {String} path Base path
  * @param {Number} x X index of the tile. Starting at the bottom left corner
  * @param {Number} y Y index of the tile. Starting at the bottom left corner
  * @param {Number} zoomLevel Level of zoom required
- * @returns {String}
+ * @return {String}
  */
 TerrainLayer.prototype._rasterUrl = function(path, x, y, zoomLevel) {
     zoomLevel = zoomLevel || 0;
@@ -59,6 +55,13 @@ TerrainLayer.prototype._rasterUrl = function(path, x, y, zoomLevel) {
     return url;
 };
 
+/**
+ * Load an entire DEM
+ *
+ * @method _loadDEM
+ * @param {Number} x X index of the tile. Starting at the bottom left corner
+ * @param {Number} y Y index of the tile. Starting at the bottom left corner
+ */
 TerrainLayer.prototype._loadDEM = function(x, y) {
     if (!this._dem) {
         return;
@@ -81,6 +84,13 @@ TerrainLayer.prototype._loadDEM = function(x, y) {
     return this._demTextures[index].texture;
 };
 
+/**
+ * Load an entire Ortho
+ *
+ * @method _loadOrtho
+ * @param {Number} x X index of the tile. Starting at the bottom left corner
+ * @param {Number} y Y index of the tile. Starting at the bottom left corner
+ */
 TerrainLayer.prototype._loadOrtho = function(x, y) {
     if (!this._ortho) {
         return;
@@ -94,6 +104,13 @@ TerrainLayer.prototype._loadOrtho = function(x, y) {
     return this._orthoTextures[index];
 };
 
+/**
+ * Create a material for a tile
+ *
+ * @method _createMaterial
+ * @param {Number} x X index of the tile. Starting at the bottom left corner
+ * @param {Number} y Y index of the tile. Starting at the bottom left corner
+ */
 TerrainLayer.prototype._createMaterial = function(x, y) {
     var dem = this._loadDEM(x, y);
     var ortho = this._loadOrtho(x, y);
@@ -110,6 +127,13 @@ TerrainLayer.prototype._createMaterial = function(x, y) {
     return material;
 };
 
+/**
+ * Return the height contain in the DEM for a position 
+ *
+ * @method height
+ * @param {Object} position
+ * @return height
+ */
 TerrainLayer.prototype.height = function(position) {
     var tileIndex = this.tileIndex(position);
     var index = this._index(tileIndex.x, tileIndex.y);
@@ -130,6 +154,12 @@ TerrainLayer.prototype.height = function(position) {
     return height;
 };
 
+/**
+ * Level the all registered layers with the DEM value
+ *
+ * @method levelLayers
+ * @param {Object} tileIndex
+ */
 TerrainLayer.prototype.levelLayers = function(tileIndex) {
     var extent = this.tileExtent(tileIndex.x, tileIndex.y);
     var self = this;
