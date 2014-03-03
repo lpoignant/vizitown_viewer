@@ -10,8 +10,8 @@
  * @param {Object} args JSON Object containing the arguments
  * @param {String} args.ortho URL to get the ortho
  * @param {String} args.dem URL to get the dem raster
- * @param {int} args.xDensity Number of on the x axis
- * @param {int} args.yDensity Number of line on the y axis
+ * @param {Number} args.xDensity Number of on the x axis
+ * @param {Number} args.yDensity Number of line on the y axis
  */
 var TerrainLayer = function(args) {
     Layer.call(this, args);
@@ -131,7 +131,7 @@ TerrainLayer.prototype._createMaterial = function(x, y) {
  * Return the height contain in the DEM for a position 
  *
  * @method height
- * @param {Object} position
+ * @param {THREE.Vector2} position
  * @return height
  */
 TerrainLayer.prototype.height = function(position) {
@@ -158,7 +158,7 @@ TerrainLayer.prototype.height = function(position) {
  * Level the all registered layers with the DEM value
  *
  * @method levelLayers
- * @param {Object} tileIndex
+ * @param {THREE.Vector2} tileIndex
  */
 TerrainLayer.prototype.levelLayers = function(tileIndex) {
     var extent = this.tileExtent(tileIndex.x, tileIndex.y);

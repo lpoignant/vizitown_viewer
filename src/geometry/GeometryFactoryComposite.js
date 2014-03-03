@@ -43,7 +43,7 @@ var GeometryFactoryComposite = function(args) {
  * Add a DEM to translate polygon on it
  * 
  * @method setDEM
- * @param {Object} dem
+ * @param {TerrainLayer} dem
  */
 GeometryFactoryComposite.prototype.setDEM = function(dem) {
     this._geometry25DFactory.dem = dem;

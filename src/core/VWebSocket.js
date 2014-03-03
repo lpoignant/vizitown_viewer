@@ -9,6 +9,7 @@
  * @class VWebSocket
  * @constructor
  * @extends EventDispatcher
+ * @param {Object} args JSON Object containing the arguments
  * @param {String} args.host String representing the host
  * @param {String} args.port String representing the port number
  * @param {String} args.path String representing the server socket url
@@ -106,6 +107,7 @@ VWebSocket.prototype.flush = function() {
  * Retreive a JSON data from a websocket message and dispatch an event
  * 
  * @method message
+ * @param {Event} event
  */
 VWebSocket.prototype.message = function(event) {
     if (event.data === "pong") {

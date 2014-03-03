@@ -7,8 +7,8 @@
  * @class CanvasTile
  * @constructor
  * @param {String} url HTTP resource of the picture
- * @param {int} x The x coordinate
- * @param {int} y The y coordinate
+ * @param {Number} x The x coordinate
+ * @param {Number} y The y coordinate
  */
 var CanvasTile = function(url, x, y) {
     EventDispatcher.call(this);
@@ -53,7 +53,7 @@ CanvasTile.prototype.size = function() {
  * 
  * @method value
  * @param {THREE.Vector2} point
- * @return {int} pixel color value
+ * @return {Number} pixel color value
  */
 CanvasTile.prototype.value = function(point) {
     if (!this._context) {

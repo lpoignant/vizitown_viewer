@@ -22,7 +22,7 @@ QGISLayer.inheritsFrom(THREE.Object3D);
  * Returns if a tile exists at index
  *
  * @method isTileCreated
- * @param {int} index Index of the tile.
+ * @param {Number} index Index of the tile.
  * @return {Boolean} True if a tile exists, false otherwise
  */
 QGISLayer.prototype.isTileCreated = function(index) {
@@ -33,7 +33,7 @@ QGISLayer.prototype.isTileCreated = function(index) {
  * Returns if a volume exists at index
  *
  * @method isVolumeCreated
- * @param {int} index Index of the tile.
+ * @param {Number} index Index of the tile.
  * @return {Boolean} True if a volume exists, false otherwise
  */
 QGISLayer.prototype.isVolumeCreated = function(index) {
@@ -44,7 +44,7 @@ QGISLayer.prototype.isVolumeCreated = function(index) {
  * Returns if a tile at index is dirty 
  *
  * @method isDirty
- * @param {int} index Index of the tile.
+ * @param {Number} index Index of the tile.
  * @return {Boolean} True if tile is dirty, false otherwise
  */
 QGISLayer.prototype.isDirty = function(index) {
@@ -56,7 +56,7 @@ QGISLayer.prototype.isDirty = function(index) {
  * else set all tiles to dirty 
  *
  * @method refresh
- * @param {int} index Index of the tile. Optionnal
+ * @param {Number} index Index of the tile. Optionnal
  */
 QGISLayer.prototype.refresh = function(index) {
     if (index !== undefined) {
@@ -73,7 +73,7 @@ QGISLayer.prototype.refresh = function(index) {
  * Retreive the tile at index
  *
  * @method tile
- * @param {int} index Index of the tile.
+ * @param {Number} index Index of the tile.
  */
 QGISLayer.prototype.tile = function(index) {
     return this._tiles[index];
@@ -83,7 +83,7 @@ QGISLayer.prototype.tile = function(index) {
  * Retreive the volume at index
  *
  * @method tile
- * @param {int} index Index of the tile.
+ * @param {Number} index Index of the tile.
  */
 QGISLayer.prototype.volume = function(index) {
     if (!this.isVolumeCreated(index)) {
@@ -96,7 +96,7 @@ QGISLayer.prototype.volume = function(index) {
  * Create tile at index
  *
  * @method createTile
- * @param {int} index Index of the tile.
+ * @param {Number} index Index of the tile.
  */
 QGISLayer.prototype.createTile = function(index) {
     if (this.isTileCreated(index)) {
@@ -112,7 +112,7 @@ QGISLayer.prototype.createTile = function(index) {
  * Destroy tile at index
  *
  * @method destroyTile
- * @param {int} index Index of the tile.
+ * @param {Number} index Index of the tile.
  */
 QGISLayer.prototype.destroyTile = function(index) {
     if (!this.isTileCreated(index)) {
