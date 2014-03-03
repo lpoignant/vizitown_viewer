@@ -19,7 +19,6 @@ var TerrainLayer = function(args) {
     this._ortho = args.ortho || false;
     this._dem = args.dem || false;
 
-    console.log("dem", args.minHeight, args.maxHeight);
     this.minHeight = args.minHeight || 0;
     this.maxHeight = args.maxHeight || 100;
 
@@ -139,7 +138,7 @@ TerrainLayer.prototype.height = function(position) {
     var index = this._index(tileIndex.x, tileIndex.y);
     var dem = this._demTextures[index];
     if (!dem) {
-        return;
+        return 0;
     }
 
     var tileSize = this._tileSize;
