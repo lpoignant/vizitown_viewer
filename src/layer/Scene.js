@@ -11,7 +11,7 @@ var Scene = function(args) {
     var url = args.url || location.host;
 
     var req = new XMLHttpRequest();
-    req.open('GET', "http://" + url + "/init", false); 
+    req.open('GET', "http://" + url + "/init", false);
     req.send(null);
     if (req.status !== 200) {
         throw "No scene defined";
@@ -33,14 +33,15 @@ var Scene = function(args) {
     this._height = extent.maxY - extent.minY;
     this._window = args.window || window;
     this._document = args.document || document;
+    this._color = 0xdfdfdf;
     this._hasRaster = args.hasRaster || sceneSettings.hasRaster;
+    this.layers = args.layers || sceneSettings.vectors;
 
     // Renderer
     this._renderer = new THREE.WebGLRenderer();
-    this._renderer.setClearColor(0xdbdbdb, 0);
+    this._renderer.setClearColor(this._color, 0);
     this._renderer.setSize(this._window.innerWidth, this._window.innerHeight);
     this._renderer.autoClear = false;
-
 
     // Camera
     var camX = this._width * 0.5;
@@ -52,7 +53,6 @@ var Scene = function(args) {
         y: camY,
     });
 
-    this.layers = args.layers || sceneSettings.vectors;
     // Layers
     this._createVectorLayer(this.layers);
     if (this._hasRaster) {
@@ -61,7 +61,7 @@ var Scene = function(args) {
 
     // Control
     this._control = new FPSControl(this._camera, this._document);
-    this._control.addEventListener("moved", this.refreshLayers.bind(this));
+    this._control.addEventListener("moved", this.displayLayers.bind(this));
 
     // Sync
     this._socket = new SceneSocket({
@@ -72,10 +72,10 @@ var Scene = function(args) {
     this._document.getElementById(args.domId).appendChild(this._renderer.domElement);
 
     this._createPasses();
-    this.refreshLayers();
+    this.displayLayers();
 };
 
-Scene.prototype.refreshLayers = function() {
+Scene.prototype.displayLayers = function() {
     if (this._vectorLayer) {
         this._vectorLayer.display(this._camera);
     }
@@ -102,28 +102,22 @@ Scene.prototype.moveTo = function(coords) {
  */
 Scene.prototype.render = function() {
     this._window.requestAnimationFrame(this.render.bind(this));
-
-    // var delta = 0.01;
-    // var maskActive = false;
     this._renderer.clear();
-    // this._composer.render();
-    // if (this._terrainRender) {
-    // this._terrainRender.render(this._renderer, this._target, this._target,
-    // delta, maskActive);
-    // this._vectorLayer.forEachVolume(this._camera, this._volumeDrapping
-    // .bind(this));
-    // this._clearMask.render(this._renderer, this._target, this._target,
-    // delta, maskActive);
-    // }
-    // this._vectorRender.render(this._renderer, this._target, this._target,
-    // delta, maskActive);
-    // this._finalRender.render(this._renderer, this._target, this._target,
-    // delta,
-    // maskActive);
     if (this._terrainLayer) {
-        this._renderer.render(this._terrainLayer, this._camera);
+        this._renderer.render(this._terrainLayer, this._camera, this._target, true);
+
+        this._renderer.context.enable(this._renderer.context.STENCIL_TEST);
+        this._renderer.context.enable(this._renderer.context.DEPTH_TEST);
+        this._vectorLayer.forEachVolume(this._camera, this._volumeDrapping.bind(this));
+        this._renderer.context.disable(this._renderer.context.STENCIL_TEST);
+
+        this._renderer.render(this._vectorLayer, this._camera, this._target);
     }
-    this._renderer.render(this._vectorLayer, this._camera);
+    else {
+        this._renderer.render(this._vectorLayer, this._camera, this._target, true);
+    }
+
+    this._finalRender.render(this._renderer, this._target, this._target);
     this._control.update();
 };
 
@@ -159,7 +153,6 @@ Scene.prototype.zoom = function(zoomPercent) {
 };
 
 Scene.prototype.refreshLayer = function(uuid) {
-    console.log('refresh of the layer: ' + uuid);
     this._vectorLayer.refresh(uuid);
 };
 
@@ -200,18 +193,11 @@ Scene.prototype._createRasterLayer = function() {
             gridDensity: 64,
             tileSize: obj.pixelSize * obj.tileSize,
         });
-
-        // self._terrainLayer.fog = new THREE.Fog(0xdbdbdb,
-        // self._camera.far / 2,
-        // self._camera.far);
-        self._vectorLayer.setDEM(self._terrainLayer);
+        self._terrainLayer.fog = new THREE.Fog(self._color, self._camera.far / 2, self._camera.far);
 
         self._terrainRender = new THREE.RenderPass(self._terrainLayer, self._camera);
-
-        self._composer.insertPass(0, self._terrainRender);
-        self._vectorRender.clear = false;
-
-        self.refreshLayers();
+        self._vectorLayer.setDEM(self._terrainLayer);
+        self.displayLayers();
     });
 
 };
@@ -221,61 +207,40 @@ Scene.prototype._createPasses = function() {
         minFilter: THREE.LinearFilter,
         magFilter: THREE.LinearFilter,
         format: THREE.RGBAFormat,
-        stencilBuffer: true
+        stencilBuffer: true,
     };
 
     this._target = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight, renderTargetParameters);
 
-    this._clearMask = new THREE.ClearMaskPass();
-    this._clearMask.clear = false;
-
-    this._vectorRender = new THREE.RenderPass(this._vectorLayer, this._camera);
-    // this._vectorRender.clear = false;
-
     this._finalRender = new THREE.ShaderPass(THREE.CopyShader);
     this._finalRender.clear = false;
     this._finalRender.renderToScreen = true;
-
-    this._composer = new THREE.EffectComposer(this._renderer, this._target);
-    this._composer.addPass(this._clearMask);
-    this._composer.addPass(this._vectorRender);
-    this._composer.addPass(this._finalRender);
 };
 
 Scene.prototype._volumeDrapping = function(scene) {
-    console.log(scene);
     var context = this._renderer.context;
 
     // don't update color or depth
     context.colorMask(false, false, false, false);
     context.depthMask(false);
 
-    context.enable(context.DEPTH_TEST);
-    context.enable(context.STENCIL_TEST);
     context.stencilFunc(context.ALWAYS, 1, 0xFF); // draw if == 1
     context.stencilOpSeparate(context.FRONT, context.KEEP, context.KEEP, context.INCR_WRAP);
     context.stencilOpSeparate(context.BACK, context.KEEP, context.KEEP, context.DECR_WRAP);
     context.clearStencil(0);
 
     // We can't do one pass using THREE.CullFaceBackAndFront ?!
-    this._renderer.setFaceCulling(THREE.CullFaceBack, THREE.FrontFaceDirectionCCW);
-    this._renderer.render(scene, this._camera, this._target, false);
-    this._renderer.setFaceCulling(THREE.CullFaceFront, THREE.FrontFaceDirectionCW);
-    this._renderer.render(scene, this._camera, this._target, false);
-
-    // Default value
-    this._renderer.setFaceCulling(THREE.CullFaceBack, THREE.FrontFaceDirectionCCW);
+    this._renderer.setFaceCulling(THREE.CullFaceFront);
+    this._renderer.render(scene[0], this._camera, this._target, false);
+    this._renderer.setFaceCulling(THREE.CullFaceBack);
+    this._renderer.render(scene[0], this._camera, this._target, false);
 
     // re-enable update of color and depth
     context.colorMask(true, true, true, true);
     context.depthMask(true);
 
     // only render where stencil is not set to 0
-    context.enable(context.STENCIL_TEST);
-    context.stencilFunc(context.NOTEQUAL, 0, 0xffffffff); // draw if == 1
-    context.stencilOp(context.ZERO, context.ZERO, context.ZERO);
-
-    this._renderer.render(scene, this._camera, this._target, false);
-    context.clearStencil(0);
-    context.disable(context.STENCIL_TEST);
+    context.stencilFunc(context.NOTEQUAL, 0, 0xFF); // drasw if == 1
+    context.stencilOp(context.KEEP, context.ZERO, context.ZERO);
+    this._renderer.render(scene[1], this._camera, this._target);
 };

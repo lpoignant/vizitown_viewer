@@ -16,22 +16,15 @@ var GeometryFactory = function(args) {
     args = args || {};
     this._layer = args.layer;
 
-    this._polyhedralMaterial = args.polyhedralMaterial || new THREE.MeshLambertMaterial({
-        transparent: true,
-    });
+    this._polyhedralMaterial = args.polyhedralMaterial || new THREE.MeshLambertMaterial({});
 
     this._pointMaterial = args.pointMaterial || new THREE.ParticleBasicMaterial({
-        size: 5,
-        transparent: true,
+        size: 10,
     });
 
     this._lineMaterial = args.lineMaterial || new THREE.LineBasicMaterial({
-        color: 0x00ee22,
         linewidth: 3,
-        transparent: true,
     });
-
-    this._layer = args.layer;
 };
 
 /**
@@ -125,6 +118,7 @@ GeometryFactory.prototype._createPoints = function(uuid, geometries, color) {
         particles.vertices.push(particle);
     });
     // One mesh for all points
+    console.log(particles);
     var centroid = this._centerGeometry(particles);
     var particleSystem = new THREE.ParticleSystem(particles, material);
     particleSystem.position = centroid;
@@ -170,7 +164,7 @@ GeometryFactory.prototype.create = function(obj) {
     if (type === "point") {
         this._createPoints(obj.uuid, obj.geometries, color);
     }
-    if (type === "line") {
+    else if (type === "line") {
         this._createLines(obj.uuid, obj.geometries, color);
     }
     else {

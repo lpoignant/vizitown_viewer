@@ -78,8 +78,7 @@ Layer.prototype.isTileCreated = function(x, y) {
  * @returns {THREE.PlaneGeometry} The tile geometry translated
  */
 Layer.prototype._createGeometry = function() {
-    var geometry = new THREE.PlaneGeometry(this._tileSize, this._tileSize,
-                                           this._gridDensity, this._gridDensity);
+    var geometry = new THREE.PlaneGeometry(this._tileSize, this._tileSize, this._gridDensity, this._gridDensity);
     var position = new THREE.Matrix4();
     position.makeTranslation(this._tileHalfSize, this._tileHalfSize, 0);
     geometry.applyMatrix(position);
@@ -103,8 +102,7 @@ Layer.prototype._createMaterial = function() {
 Layer.prototype.tileExtent = function(x, y) {
     var origin = this.tileOrigin(x, y);
     var min = new THREE.Vector3(origin.x, origin.y, 0);
-    var max = new THREE.Vector3(origin.x + this._tileSize, origin.y +
-                                                           this._tileSize, 0);
+    var max = new THREE.Vector3(origin.x + this._tileSize, origin.y + this._tileSize, 0);
     return new THREE.Box3(min, max);
 };
 
@@ -213,7 +211,6 @@ Layer.prototype._createTile = function(x, y) {
     var material = this._createMaterial(x, y);
     var container = new THREE.Object3D();
     var tile = new THREE.Mesh(geometry, material);
-    tile.position.z = -10;
     container.add(tile);
 
     // Tile origin
@@ -252,10 +249,7 @@ Layer.prototype.forEach = function(func) {
 };
 
 Layer.prototype.forEachTileCreatedInExtent = function(extent, func) {
-    var tileIndexes = this._spatialIndex.search([extent.min.x - this.originX,
-                                                 extent.min.y - this.originY,
-                                                 extent.max.x - this.originX,
-                                                 extent.max.y - this.originY]);
+    var tileIndexes = this._spatialIndex.search([extent.min.x - this.originX, extent.min.y - this.originY, extent.max.x - this.originX, extent.max.y - this.originY]);
     var self = this;
     tileIndexes.forEach(function(tileIndex) {
         var x = tileIndex[4].x;

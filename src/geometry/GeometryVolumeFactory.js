@@ -20,22 +20,28 @@ var GeometryVolumeFactory = function(args) {
     this._minHeight = args.minHeight || -1;
     this._maxHeight = args.maxHeight || 1;
 
+    this._polyhedralMaterial = args.polyhedralMaterial || new THREE.MeshBasicMaterial({
+        color: 0x5728cd,
+        depthWrite: false,
+        side: THREE.DoubleSide
+    });
+
     this._extrudeSettings = {
         bevelEnabled: false,
         steps: 1,
-        amount: this.maxHeight() - this.minHeight(),
+        amount: this.maxHeight() - this.minHeight() + 1,
     };
 };
 GeometryVolumeFactory.inheritsFrom(Geometry2DFactory);
 
 GeometryVolumeFactory.prototype.setMinHeight = function(height) {
     this._minHeight = height;
-    this._extrudeSettings.amount = this.maxHeight() - this.minHeight();
+    this._extrudeSettings.amount = this.maxHeight() - this.minHeight() + 1;
 };
 
 GeometryVolumeFactory.prototype.setMaxHeight = function(height) {
     this._maxHeight = height;
-    this._extrudeSettings.amount = this.maxHeight() - this.minHeight();
+    this._extrudeSettings.amount = this.maxHeight() - this.minHeight() + 1;
 };
 
 GeometryVolumeFactory.prototype.minHeight = function() {
@@ -93,25 +99,22 @@ GeometryVolumeFactory.prototype._createLines = function(uuid, geometries, color)
     });
 };
 
-GeometryVolumeFactory.prototype._createPolygons = function(uuid, geometries,
-                                                           color) {
+GeometryVolumeFactory.prototype._createPolygons = function(uuid, geometries, color) {
     var material = this._polyhedralMaterial.clone();
     material.color = color;
 
     var self = this;
-    var geomBuffer = new THREE.Geometry();
     // Buffering all polygon geometries
     geometries.forEach(function(element) {
         // Polygon geometry
         var geometry = self._parsePolygon(element);
         // Do not center since we are using buffering
         self._levelPolygon(geometry);
-        THREE.GeometryUtils.merge(geomBuffer, geometry);
+        var centroid = self._centerGeometry(geometry);
+        var mesh1 = new THREE.Mesh(geometry, material);
+        mesh1.position = centroid.clone();
+        self._layer.addToVolume(mesh1, uuid);
     });
 
     // Translate mesh to geometries centroid
-    var centroid = this._centerGeometry(geomBuffer);
-    var mesh = new THREE.Mesh(geomBuffer, material);
-    mesh.position = centroid;
-    this._layer.addToVolume(mesh, uuid);
 };
