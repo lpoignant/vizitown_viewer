@@ -45,6 +45,7 @@ GeometryFactory.prototype._centroid = function(geometry) {
 
 GeometryFactory.prototype._centerGeometry = function(geometry, centroid) {
     var centro = centroid || this._centroid(geometry);
+    // Do not center on Z
     centro.z = 0;
 
     var translationMatrix = new THREE.Matrix4();

@@ -24,8 +24,6 @@ var TerrainLayer = function(args) {
 
     this._ortho = args.ortho || false;
     this._dem = args.dem || false;
-
-    console.log("dem", args.minHeight, args.maxHeight);
     this.minHeight = args.minHeight || 0;
     this.maxHeight = args.maxHeight || 100;
 
@@ -37,7 +35,6 @@ var TerrainLayer = function(args) {
         fog: true,
     });
 
-    this._layersToLevel = [];
     this._demTextures = [];
     this._orthoTextures = [];
 };
@@ -125,22 +122,6 @@ TerrainLayer.prototype.height = function(position) {
     var xPixel = rPos.x * demSize.x / tileSize;
     var yPixel = demSize.y - (rPos.y * demSize.y / tileSize);
     var pixelValue = dem.value(new THREE.Vector2(xPixel, yPixel));
-    var height = this.minHeight +
-                 ((this.maxHeight - this.minHeight) * pixelValue);
+    var height = this.minHeight + ((this.maxHeight - this.minHeight) * pixelValue);
     return height;
-};
-
-TerrainLayer.prototype.levelLayers = function(tileIndex) {
-    var extent = this.tileExtent(tileIndex.x, tileIndex.y);
-    var self = this;
-    this._layersToLevel.forEach(function(layer) {
-        layer.forEachTileCreatedInExtent(extent, function(tile, tileOrigin) {
-            tile.children.forEach(function(mesh) {
-                var point = mesh.position.clone();
-                point.x += tileOrigin.x;
-                point.y += tileOrigin.y;
-                mesh.position.z = self.height(point);
-            });
-        });
-    });
 };

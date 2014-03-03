@@ -111,9 +111,9 @@ GeometryVolumeFactory.prototype._createPolygons = function(uuid, geometries, col
         // Do not center since we are using buffering
         self._levelPolygon(geometry);
         var centroid = self._centerGeometry(geometry);
-        var mesh1 = new THREE.Mesh(geometry, material);
-        mesh1.position = centroid.clone();
-        self._layer.addToVolume(mesh1, uuid);
+        var mesh = new THREE.Mesh(geometry, material);
+        mesh.position = centroid.clone();
+        self._layer.addToVolume(mesh, uuid);
     });
 
     // Translate mesh to geometries centroid
