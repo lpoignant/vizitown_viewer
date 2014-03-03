@@ -89,25 +89,6 @@ GeometryVolumeFactory.prototype._levelPolygon = function(polygon) {
 };
 
 /**
- * Creates a 3D line from a JSON Model object
- * 
- * @method _parseLine
- * @param {Object} obj JSON object respecting model format and representing the
- *                line
- * @return {THREE.Geometry} Created geometry
- */
-GeometryVolumeFactory.prototype._parseLine = function(obj) {
-    var points = obj.coordinates;
-    var geometry = new THREE.Geometry();
-    for (var i = 0; i < points.length; i = i + 2) {
-        var coords = new THREE.Vector3(points[i], points[i + 1], 0);
-        geometry.vertices.push(coords);
-    }
-
-    return geometry;
-};
-
-/**
  * Creates a 3D polygon from a JSON Model object
  * 
  * @method _parsePolygon
@@ -124,33 +105,6 @@ GeometryVolumeFactory.prototype._parsePolygon = function(obj) {
     // console.log("not extruded", shape);
     var geometry = shape.extrude(this._extrudeSettings);
     return geometry;
-};
-
-/**
- * Create colored lines in a QGISLayer
- * 
- * @method _createLines
- * @param {String} uuid Unique identifier of the QGIS layer
- * @param {Array} geometries Array containing the geometries to create
- * @param {THREE.color} color Color of the polygons
- */
-GeometryVolumeFactory.prototype._createLines = function(uuid, geometries, color) {
-    var material = this._lineMaterial.clone();
-    material.color = color;
-
-    var self = this;
-    geometries.forEach(function(element) {
-        // Line geometry
-        var geometry = self._parseLine(element);
-        var centroid = self._centroid(geometry);
-        self._centerGeometry(geometry, centroid);
-        self._levelLine(geometry);
-        // Line mesh
-        var mesh = new THREE.Line(geometry, material);
-        mesh.position = centroid;
-
-        self._layer.addToTile(mesh, uuid);
-    });
 };
 
 /**
