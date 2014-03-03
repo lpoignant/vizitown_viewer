@@ -64,6 +64,13 @@ EventDispatcher.prototype.removeEventListener = function(event, listener) {
     }
 };
 
+/**
+ * Check if the EventDispatcher already have a specific listener
+ * 
+ * @method _hasEventListener
+ * @param {String} event Event name
+ * @param {Object} listener Listener to remove
+ */
 EventDispatcher.prototype._hasEventListener = function(event, listener) {
     if (!this._events.hasOwnProperty(event)) {
         return false;

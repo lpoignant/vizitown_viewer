@@ -34,41 +34,68 @@ var GeometryVolumeFactory = function(args) {
 };
 GeometryVolumeFactory.inheritsFrom(Geometry2DFactory);
 
+/**
+ * Setter for minHeight
+ * 
+ * @method setMinHeight
+ * @param {Number} height
+ */
 GeometryVolumeFactory.prototype.setMinHeight = function(height) {
     this._minHeight = height;
     this._extrudeSettings.amount = this.maxHeight() - this.minHeight() + 1;
 };
 
+/**
+ * Setter for maxHeight
+ * 
+ * @method setMaxHeight
+ * @param {Number} height
+ */
 GeometryVolumeFactory.prototype.setMaxHeight = function(height) {
     this._maxHeight = height;
     this._extrudeSettings.amount = this.maxHeight() - this.minHeight() + 1;
 };
 
+/**
+ * Getter for minHeight
+ * 
+ * @method minHeight
+ * @return {Number} minHeight
+ */
 GeometryVolumeFactory.prototype.minHeight = function() {
     return this._minHeight;
 };
 
+/**
+ * Getter for maxHeight
+ * 
+ * @method maxHeight
+ * @return {Number} maxHeight
+ */
 GeometryVolumeFactory.prototype.maxHeight = function() {
     return this._maxHeight;
 };
 
+/**
+ * Level a polygon at the min height
+ * 
+ * @method _levelPolygon
+ * @param {THREE.Geometry} polygon The polygon to translate
+ */
 GeometryVolumeFactory.prototype._levelPolygon = function(polygon) {
     var translationMatrix = new THREE.Matrix4();
     translationMatrix.makeTranslation(0, 0, this.minHeight());
     polygon.applyMatrix(translationMatrix);
 };
 
-GeometryVolumeFactory.prototype._parseLine = function(obj) {
-    var points = obj.coordinates;
-    var geometry = new THREE.Geometry();
-    for (var i = 0; i < points.length; i = i + 2) {
-        var coords = new THREE.Vector3(points[i], points[i + 1], 0);
-        geometry.vertices.push(coords);
-    }
-
-    return geometry;
-};
-
+/**
+ * Creates a 3D polygon from a JSON Model object
+ * 
+ * @method _parsePolygon
+ * @param {Object} obj JSON object respecting model format and representing the
+ *                polygon
+ * @return {THREE.Geometry} Created geometry
+ */
 GeometryVolumeFactory.prototype._parsePolygon = function(obj) {
     var points = obj.coordinates;
     var shape = new THREE.Shape();
@@ -80,25 +107,14 @@ GeometryVolumeFactory.prototype._parsePolygon = function(obj) {
     return geometry;
 };
 
-GeometryVolumeFactory.prototype._createLines = function(uuid, geometries, color) {
-    var material = this._lineMaterial.clone();
-    material.color = color;
-
-    var self = this;
-    geometries.forEach(function(element) {
-        // Line geometry
-        var geometry = self._parseLine(element);
-        var centroid = self._centroid(geometry);
-        self._centerGeometry(geometry, centroid);
-        self._levelLine(geometry);
-        // Line mesh
-        var mesh = new THREE.Line(geometry, material);
-        mesh.position = centroid;
-
-        self._layer.addToTile(mesh, uuid);
-    });
-};
-
+/**
+ * Create colored points in a QGISLayer
+ * 
+ * @method _createPoints
+ * @param {String} uuid Unique identifier of the QGIS layer
+ * @param {Array} geometries Array containing the geometries to create
+ * @param {THREE.color} color Color of the polygons
+ */
 GeometryVolumeFactory.prototype._createPolygons = function(uuid, geometries, color) {
     var material = this._polyhedralMaterial.clone();
     material.color = color;

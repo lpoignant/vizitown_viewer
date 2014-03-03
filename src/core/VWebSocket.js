@@ -9,6 +9,7 @@
  * @class VWebSocket
  * @constructor
  * @extends EventDispatcher
+ * @param {Object} args JSON Object containing the arguments
  * @param {String} args.host String representing the host
  * @param {String} args.port String representing the port number
  * @param {String} args.path String representing the server socket url
@@ -33,6 +34,11 @@ var VWebSocket = function(args) {
 };
 VWebSocket.inheritsFrom(EventDispatcher);
 
+/**
+ * Method factory to create an empty VWebSocket
+ * 
+ * @method _createSocket
+ */
 VWebSocket.prototype._createSocket = function() {
     if (this._interval) {
         clearInterval(this._interval);
@@ -52,6 +58,11 @@ VWebSocket.prototype._createSocket = function() {
     };
 };
 
+/**
+ * Open the VWebSocket
+ * 
+ * @method open
+ */
 VWebSocket.prototype.open = function() {
     var state = this.socket.readyState;
     if (state === WebSocket.CLOSED || state === WebSocket.CLOSING) {
@@ -69,7 +80,6 @@ VWebSocket.prototype.open = function() {
 /**
  * Sends a JSON Object to the socket
  * 
- * @class VWebSocket
  * @method send
  * @param {Object} jsonObject JSON Object to send
  */
@@ -80,6 +90,11 @@ VWebSocket.prototype.send = function(jsonObject) {
     this.open();
 };
 
+/**
+ * Flush the internal buffer and send all his content
+ * 
+ * @method flush
+ */
 VWebSocket.prototype.flush = function() {
     var obj = this._buffer.shift();
     while (obj) {
@@ -88,6 +103,12 @@ VWebSocket.prototype.flush = function() {
     }
 };
 
+/**
+ * Retreive a JSON data from a websocket message and dispatch an event
+ * 
+ * @method message
+ * @param {Event} event
+ */
 VWebSocket.prototype.message = function(event) {
     if (event.data === "pong") {
         return;

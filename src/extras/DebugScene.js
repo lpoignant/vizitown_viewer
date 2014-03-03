@@ -61,6 +61,11 @@ var DebugScene = function(window, document, domElementId, size) {
     this._window.addEventListener('resize', this._onWindowResize, false);
 };
 
+/**
+ * Render the scene
+ * 
+ * @method render
+ */
 DebugScene.prototype.render = function() {
     this._window.requestAnimationFrame(this.render.bind(this));
     this._renderer.render(this._scene, this._camera);
@@ -69,6 +74,12 @@ DebugScene.prototype.render = function() {
     this._control.update(delta);
 };
 
+/**
+ * Move camera at a height and in a direction
+ * 
+ * @method lookAt
+ * @param {THREE.Vector3} pos 
+ */
 DebugScene.prototype.lookAt = function(pos) {
     this._camera.lookAt(pos);
     this._camera.position = pos.clone();

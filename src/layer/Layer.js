@@ -4,17 +4,21 @@
 /**
  * This class represents a tiled layer
  * 
- * @class TiledLayer
+ * @class Layer
+ * @extends THREE.Scene
  * @constructor
- * @param {int} args.x X top left corner of the layer in the layer coordinate
+ * @param {Object} args JSON Object containing the arguments
+ * @param {Number} args.x X top left corner of the layer in the layer coordinate
  *                system
- * @param {int} args.y Y top left corner of the layer in the layer coordinate
+ * @param {Number} args.y Y top left corner of the layer in the layer coordinate
  *                system
- * @param {int} args.tileSizeWidth Width of a tile in the layer coordinate
+ * @param {THREE.Scene} args.scene Scene container of the layer
+ * @param {Number} args.width Width of the layer
+ * @param {Number} args.height Height of the layer
+ * @param {Number} args.tileSize Size of a tile in the layer coordinate
  *                system
- * @param {int} args.tileSizeHeight Height of a tile in the layer coordinate
- *                system
- * @param {int} args.gridDensity Number of lines on the x and y axis
+ * @param {Number} args.gridDensity Number of lines on the x and y axis
+ * @param {THREE.Material} args.material Material to apply on the layer
  */
 var Layer = function(args) {
     THREE.Scene.call(this);
@@ -61,21 +65,24 @@ var Layer = function(args) {
 Layer.inheritsFrom(THREE.Scene);
 
 /**
- * @method isTileCreated Returns if a tile exists at index
+ * Returns if a tile exists at index
+ *
+ * @method isTileCreated
  * @param {Number} x X index of the tile. Starting at the upper left corner
  * @param {Number} y Y index of the tile. Starting at the upper left corner
- * @returns {Boolean} True if a tile exists, false otherwise
+ * @return {Boolean} True if a tile exists, false otherwise
  */
 Layer.prototype.isTileCreated = function(x, y) {
     return (this._tiles[this._index(x, y)] !== undefined);
 };
 
 /**
- * @method _createTranslatedTileGeometry Creates a tile geometry translated at
- *         the correct position
+ * Creates a tile geometry translated at the correct position
+ * 
+ * @method _createGeometry
  * @param {Number} x X index of the tile. Starting at the upper left corner
  * @param {Number} y Y index of the tile. Starting at the upper left corner
- * @returns {THREE.PlaneGeometry} The tile geometry translated
+ * @return {THREE.PlaneGeometry} The tile geometry translated
  */
 Layer.prototype._createGeometry = function() {
     var geometry = new THREE.PlaneGeometry(this._tileSize, this._tileSize, this._gridDensity, this._gridDensity);
@@ -86,18 +93,22 @@ Layer.prototype._createGeometry = function() {
 };
 
 /**
+ * Return the material of the layer (real implementation override in subclass)
  * 
- * @returns {THREE.MeshLambertMaterial}
+ * @method _createMaterial
+ * @return {THREE.MeshLambertMaterial}
  */
 Layer.prototype._createMaterial = function() {
     return this._material;
 };
 
 /**
- * @method tileBox Returns the tile geometry at x,y
+ * Returns the tile geometry at x,y
+ *
+ * @method tileExtent
  * @param {Number} x X index of the tile. Starting at the upper left corner
  * @param {Number} y Y index of the tile. Starting at the upper left corner
- * @returns {THREE.Box3} The translated geometry of the tile;
+ * @return {THREE.Box3} The translated geometry of the tile
  */
 Layer.prototype.tileExtent = function(x, y) {
     var origin = this.tileOrigin(x, y);
@@ -107,10 +118,12 @@ Layer.prototype.tileExtent = function(x, y) {
 };
 
 /**
- * @method _index Returns the index of the tile
+ * Returns the index of the tile
+ *
+ * @method _index
  * @param {Number} x X index of the tile. Starting at the upper left corner
  * @param {Number} y Y index of the tile. Starting at the upper left corner
- * @returns {Number} Array index of the tile
+ * @return {Number} Array index of the tile
  */
 Layer.prototype._index = function(x, y) {
     return this.nbTileX * x + y;
@@ -119,7 +132,7 @@ Layer.prototype._index = function(x, y) {
 /**
  * Add a mesh to the correct tile
  * 
- * @method addToTile Add an object to a tile
+ * @method addToTile
  * @param {THREE.Object3D} mesh
  */
 Layer.prototype.addToTile = function(mesh) {
@@ -132,9 +145,11 @@ Layer.prototype.addToTile = function(mesh) {
 };
 
 /**
+ * Return the index of a tile
  * 
- * @param coords
- * @returns {THREE.Vector2}
+ * @method tileIndex
+ * @param coords Coordinates f the tile
+ * @return {THREE.Vector2}
  */
 Layer.prototype.tileIndex = function(coords) {
     var x = Math.floor((coords.x - this.originX) / this._tileSize);
@@ -143,9 +158,11 @@ Layer.prototype.tileIndex = function(coords) {
 };
 
 /**
+ * Return the tile coordinates of a world position
  * 
- * @param position
- * @returns
+ * @method tileCoordinates
+ * @param {THREE.Vector2} position In world coordinates
+ * @return {THREE.Vector2} tileCoords Tile coordinates
  */
 Layer.prototype.tileCoordinates = function(position) {
     var tileIndex = this.tileIndex(position);
@@ -156,6 +173,13 @@ Layer.prototype.tileCoordinates = function(position) {
     return tileCoords;
 };
 
+/**
+ * Return the world coordinates of a tile position
+ * 
+ * @method worldCoordinates
+ * @param {THREE.Vector2} position In tile coordinates
+ * @return {THREE.Vector2} tileCoords Tile coordinates
+ */
 Layer.prototype.worldCoordinates = function(x, y, position) {
     var pos = this.tileOrigin(x, y);
     pos.x += position.x;
@@ -164,10 +188,12 @@ Layer.prototype.worldCoordinates = function(x, y, position) {
 };
 
 /**
+ * Return tile origin relative to the layer origin
  * 
- * @param x
- * @param y
- * @returns
+ * @method _tileRelativeOrigin
+ * @param {Number} x X index of the tile. Starting at the upper left corner
+ * @param {Number} y Y index of the tile. Starting at the upper left corner
+ * @return {THREE.Vector2} coordinates
  */
 Layer.prototype._tileRelativeOrigin = function(x, y) {
     var dx = this._tileSize * x;
@@ -176,10 +202,12 @@ Layer.prototype._tileRelativeOrigin = function(x, y) {
 };
 
 /**
+ * Return tile origin in absolute coordinates
  * 
- * @param x
- * @param y
- * @returns
+ * @method tileOrigin
+ * @param {Number} x X index of the tile. Starting at the upper left corner
+ * @param {Number} y Y index of the tile. Starting at the upper left corner
+ * @return {THREE.Vector2} coordinates
  */
 Layer.prototype.tileOrigin = function(x, y) {
     var origin = this._tileRelativeOrigin(x, y);
@@ -189,10 +217,12 @@ Layer.prototype.tileOrigin = function(x, y) {
 };
 
 /**
+ * Create a tile 
  * 
- * @param x
- * @param y
- * @returns {THREE.Mesh}
+ * @method _createTile
+ * @param {Number} x X index of the tile. Starting at the upper left corner
+ * @param {Number} y Y index of the tile. Starting at the upper left corner
+ * @return {THREE.Mesh} mesh
  */
 Layer.prototype._createTile = function(x, y) {
     var geometry = this._createGeometry(x, y);
@@ -212,10 +242,12 @@ Layer.prototype._createTile = function(x, y) {
 };
 
 /**
- * @method tile Returns the tile at the index
+ * Returns the tile at the index
+ *
+ * @method tile
  * @param {Number} x X index of the tile. Starting at the upper left corner
  * @param {Number} y Y index of the tile. Starting at the upper left corner
- * @returns {THREE.Mesh} Mesh representing the tile
+ * @return {THREE.Mesh} Mesh representing the tile
  */
 Layer.prototype.tile = function(x, y) {
     if (!this.isTileCreated(x, y)) {
@@ -225,8 +257,9 @@ Layer.prototype.tile = function(x, y) {
 };
 
 /**
+ * Apply a function to each tiles in the layer
  * 
- * @param func
+ * @param func The function to apply
  */
 Layer.prototype.forEach = function(func) {
     for (var x = 0; x < this.nbTileX; x++) {
@@ -236,6 +269,13 @@ Layer.prototype.forEach = function(func) {
     }
 };
 
+/**
+ * Apply a function to each tiles in an extent
+ * 
+ * @method forEachTileCreatedInExtent
+ * @param {THREE.Box3} Extent
+ * @param {Function} func The function to apply
+ */
 Layer.prototype.forEachTileCreatedInExtent = function(extent, func) {
     var tileIndexes = this._spatialIndex.search([extent.min.x - this.originX, extent.min.y - this.originY, extent.max.x - this.originX, extent.max.y - this.originY]);
     var self = this;
@@ -251,13 +291,20 @@ Layer.prototype.forEachTileCreatedInExtent = function(extent, func) {
 };
 
 /**
+ * An abstract method to load data
  * 
- * @param {Array} tileIndex
+ * @method _loadData
  */
 Layer.prototype._loadData = function() {
     return;
 };
 
+/**
+ * Display all tiles viewed
+ * 
+ * @method display
+ * @param {THREE.Camera} camera
+ */
 Layer.prototype.display = function(camera) {
 
     var frustum = camera.frustum();

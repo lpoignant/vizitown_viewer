@@ -1,6 +1,18 @@
 /* global Layer, GeometryFactoryComposite, VWebSocket, QGISLayer, Volume */
 "use strict";
 
+/**
+ * This class represents a tiled layer for DEM and raster
+ * 
+ * @class TerrainLayer
+ * @constructor
+ * @extends Layer
+ * @param {Object} args JSON Object containing the arguments
+ * @param {String} url Url which contains all resources
+ * @param {Number} args.tileSize
+ * @param {String} args.loadingListener DOM element which is notify when data is loading
+ * @param {Array} args.qgisLayers All QGIS layers contained
+ */
 var VectorLayer = function VectorLayer(args) {
     args.tileSize = args.tileSize || 500;
     Layer.call(this, args);
@@ -24,6 +36,13 @@ var VectorLayer = function VectorLayer(args) {
 };
 VectorLayer.inheritsFrom(Layer);
 
+/**
+ * Factory method to create VectorLayer
+ *
+ * @method create
+ * @param {Object} args JSON Object containing the arguments
+ * @return {VectorLayer}
+ */
 VectorLayer.create = function(args) {
     var layer = new VectorLayer(args);
 
@@ -54,6 +73,12 @@ VectorLayer.create = function(args) {
     return layer;
 };
 
+/**
+ * Set DEM to the layer
+ *
+ * @method setDEM
+ * @param {TerrainLayer} dem
+ */
 VectorLayer.prototype.setDEM = function(dem) {
     this._dem = dem;
     var self = this;
@@ -64,15 +89,23 @@ VectorLayer.prototype.setDEM = function(dem) {
     this._factory.setDEM(dem);
 };
 
+/**
+ * Retreive the QGIS layer
+ *
+ * @method qgisLayer
+ * @param {String} uuid Unique identifier for the QGIS layer
+ */
 VectorLayer.prototype.qgisLayer = function(uuid) {
     return this._qgisLayers[uuid];
 };
 
 /**
- * @method isTileCreated Returns if a tile exists at index
+ * Returns true if a tile exists at index otherwise return false
+ *
+ * @method isTileCreated 
  * @param {Number} x X index of the tile. Starting at the upper left corner
  * @param {Number} y Y index of the tile. Starting at the upper left corner
- * @returns {Boolean} True if a tile exists, false otherwise
+ * @return {Boolean} True if a tile exists, false otherwise
  */
 VectorLayer.prototype.isTileCreated = function(x, y) {
     var index = this._index(x, y);
@@ -80,7 +113,9 @@ VectorLayer.prototype.isTileCreated = function(x, y) {
 };
 
 /**
+ * Request all data vectors for a specific extent
  * 
+ * @method _loadData
  * @param extent
  * @param uuid
  */
@@ -99,11 +134,12 @@ VectorLayer.prototype._loadData = function(extent, uuid) {
 };
 
 /**
+ * Create a specific tile a the x, y index
  * 
- * @param x
- * @param y
+ * @param {Number} x X index of the tile. Starting at the upper left corner
+ * @param {Number} y Y index of the tile. Starting at the upper left corner
  * @param uuid
- * @returns {THREE.Mesh}
+ * @return {THREE.Mesh}
  */
 VectorLayer.prototype._createTile = function(x, y, uuid) {
     var index = this._index(x, y);
@@ -117,6 +153,13 @@ VectorLayer.prototype._createTile = function(x, y, uuid) {
     return tile;
 };
 
+/**
+ * Create all tiles at x, y index
+ * 
+ * @param {Number} x X index of the tile. Starting at the upper left corner
+ * @param {Number} y Y index of the tile. Starting at the upper left corner
+ * @return {THREE.Mesh}
+ */
 VectorLayer.prototype.createTile = function(x, y) {
     if (this.isTileCreated(x, y)) {
         return;
@@ -128,7 +171,6 @@ VectorLayer.prototype.createTile = function(x, y) {
     for ( var uuid in this._qgisLayers) {
         this._createTile(x, y, uuid);
     }
-
 };
 
 /**
@@ -136,7 +178,7 @@ VectorLayer.prototype.createTile = function(x, y) {
  * @param {Number} x X index of the tile. Starting at the upper left corner
  * @param {Number} y Y index of the tile. Starting at the upper left corner
  * @param {String} uuid
- * @returns {THREE.Mesh} Mesh representing the tile
+ * @return {THREE.Mesh} Mesh representing the tile
  */
 VectorLayer.prototype.tile = function(x, y, uuid) {
     var index = this._index(x, y);
@@ -149,7 +191,7 @@ VectorLayer.prototype.tile = function(x, y, uuid) {
  * @param {Number} x X index of the tile. Starting at the upper left corner
  * @param {Number} y Y index of the tile. Starting at the upper left corner
  * @param {String} uuid
- * @returns {THREE.Scene} Mesh representing the tile
+ * @return {THREE.Scene} Mesh representing the tile
  */
 VectorLayer.prototype.volume = function(x, y, uuid) {
     if (!this.isTileCreated(x, y)) {
@@ -183,7 +225,7 @@ VectorLayer.prototype.volume = function(x, y, uuid) {
 /**
  * Add a mesh to the correct tile
  * 
- * @method addToTile Add an object to a tile
+ * @method addToTile
  * @param {THREE.Object3D} mesh
  * @param {String} uuid
  */
@@ -202,9 +244,9 @@ VectorLayer.prototype.addToTile = function(mesh, uuid) {
 };
 
 /**
- * Add a mesh to the correct tile
+ * Add a mesh to the correct volume
  * 
- * @method addToTile Add an object to a tile
+ * @method addToVolume
  * @param {THREE.Object3D} mesh
  * @param {String} uuid
  */
@@ -231,7 +273,9 @@ VectorLayer.prototype.addToVolume = function(mesh, uuid) {
 };
 
 /**
- * @method refresh Refresh a specific qgis layer
+ * Refresh a specific qgis layer
+ *
+ * @method refresh
  * @param {String} uuid Identifier of the layer who needs to be refreshed
  */
 VectorLayer.prototype.refresh = function(uuid) {
@@ -243,10 +287,15 @@ VectorLayer.prototype.refresh = function(uuid) {
     else {
         this.qgisLayer(uuid).refresh();
     }
-    // We sure should explain why i should do that
-    // this._scene.refreshLayers();
+    this._scene.displayLayers();
 };
 
+/**
+ * Refresh an extent
+ *
+ * @method refreshExtent
+ * @param {Object} extent
+ */
 VectorLayer.prototype.refreshExtent = function(extent) {
     var tileIndexes = this._spatialIndex.search(extent);
     var self = this;
@@ -260,6 +309,13 @@ VectorLayer.prototype.refreshExtent = function(extent) {
     });
 };
 
+/**
+ * Apply a function for each volume
+ *
+ * @method forEachVolume
+ * @param {THREE.Camera} camera
+ * @param {Function} callback
+ */
 VectorLayer.prototype.forEachVolume = function(camera, callback) {
     var extent = camera.extent();
     var tileIndexes = this._spatialIndex.search(extent);
@@ -294,8 +350,10 @@ VectorLayer.prototype.forEachVolume = function(camera, callback) {
 };
 
 /**
+ * Display the whole layer
  * 
- * @param camera
+ * @method display
+ * @param {THREE.Camera} camera
  */
 VectorLayer.prototype.display = function(camera) {
     var frustum = camera.frustum();

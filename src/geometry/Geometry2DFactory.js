@@ -19,6 +19,14 @@ var Geometry2DFactory = function(args) {
 };
 Geometry2DFactory.inheritsFrom(GeometryFactory);
 
+/**
+ * Creates a 2D point from a JSON Model object
+ * 
+ * @method _parsePoint
+ * @param {Object} obj JSON object respecting model format and representing the
+ *                point
+ * @return {THREE.Vector3} Created vector
+ */
 Geometry2DFactory.prototype._parsePoint = function(obj) {
     var point = obj.coordinates;
     console.log(obj);
@@ -27,6 +35,14 @@ Geometry2DFactory.prototype._parsePoint = function(obj) {
     return vec;
 };
 
+/**
+ * Creates a 2D line from a JSON Model object
+ * 
+ * @method _parseLine
+ * @param {Object} obj JSON object respecting model format and representing the
+ *                line
+ * @return {THREE.Geometry} Created geometry
+ */
 Geometry2DFactory.prototype._parseLine = function(obj) {
     var points = obj.coordinates;
     var geometry = new THREE.Geometry();
@@ -37,6 +53,14 @@ Geometry2DFactory.prototype._parseLine = function(obj) {
     return geometry;
 };
 
+/**
+ * Creates a 2D polygon from a JSON Model object
+ * 
+ * @method _parsePolygon
+ * @param {Object} obj JSON object respecting model format and representing the
+ *                polygon
+ * @return {THREE.Geometry} Created geometry
+ */
 Geometry2DFactory.prototype._parsePolygon = function(obj) {
     var points = obj.coordinates;
     var shape = new THREE.Shape();

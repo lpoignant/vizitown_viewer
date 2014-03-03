@@ -6,7 +6,9 @@
  * 
  * @class CanvasTile
  * @constructor
- * @param {Object} args JSON Object containing arguments
+ * @param {String} url HTTP resource of the picture
+ * @param {Number} x The x coordinate
+ * @param {Number} y The y coordinate
  */
 var CanvasTile = function(url, x, y) {
     EventDispatcher.call(this);
@@ -33,6 +35,12 @@ var CanvasTile = function(url, x, y) {
 };
 CanvasTile.inheritsFrom(EventDispatcher);
 
+/**
+ * Getter for canvas size
+ * 
+ * @method size
+ * @return {THREE.Vector2} size of the tile
+ */
 CanvasTile.prototype.size = function() {
     if (!this._context) {
         return;
@@ -40,6 +48,13 @@ CanvasTile.prototype.size = function() {
     return new THREE.Vector2(this._canvas.width, this._canvas.height);
 };
 
+/**
+ * Return the pixel color value for a point
+ * 
+ * @method value
+ * @param {THREE.Vector2} point
+ * @return {Number} pixel color value
+ */
 CanvasTile.prototype.value = function(point) {
     if (!this._context) {
         return;

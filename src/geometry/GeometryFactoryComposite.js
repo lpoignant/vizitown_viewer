@@ -39,6 +39,12 @@ var GeometryFactoryComposite = function(args) {
     });
 };
 
+/**
+ * Add a DEM to translate polygon on it
+ * 
+ * @method setDEM
+ * @param {TerrainLayer} dem
+ */
 GeometryFactoryComposite.prototype.setDEM = function(dem) {
     this._geometry25DFactory.dem = dem;
     this._geometry3DFactory.dem = dem;
@@ -53,12 +59,12 @@ GeometryFactoryComposite.prototype.setDEM = function(dem) {
 /**
  * Creates geometries based on JSON object
  * 
- * @method create
+ * @method _create
  * @param {Object} obj JSON object containing the type of geometries and an
  *                array of geometries
  * @param {String} obj.type String representing the type of the geometry
  * @param {Array} obj.geometries Array of JSON object representing the geometry
- * @returns {Array} An array containing the newly created mesh
+ * @return {Array} An array containing the newly created mesh
  */
 GeometryFactoryComposite.prototype._create = function(obj) {
     if (!obj || !obj.dim) {
@@ -80,6 +86,13 @@ GeometryFactoryComposite.prototype._create = function(obj) {
     }
 };
 
+/**
+ * Add object into creation buffer
+ * 
+ * @method create
+ * @param {Object} obj JSON object containing the type of geometries and an
+ *                array of geometries
+ */
 GeometryFactoryComposite.prototype.create = function(obj) {
     this._objects.push(obj);
 };
