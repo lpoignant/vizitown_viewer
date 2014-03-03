@@ -3,7 +3,13 @@
 "use strict";
 
 /**
- * 
+ * Socket use to sync camera with QGIS
+ *
+ * @class SceneSocket
+ * @constructor
+ * @param {Object} args JSON Object containing the arguments
+ * @param {String} url Url which contains all resources
+ * @param {Object} Scene The scene to move
  */
 var SceneSocket = function(args) {
     this._scene = args.scene;

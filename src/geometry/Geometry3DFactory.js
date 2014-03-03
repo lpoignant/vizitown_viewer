@@ -20,14 +20,38 @@ var Geometry3DFactory = function(args) {
 };
 Geometry3DFactory.inheritsFrom(GeometryFactory);
 
+/**
+ * Creates a 3D point from a JSON Model object
+ * 
+ * @method _parsePoint
+ * @param {Object} obj JSON object respecting model format and representing the
+ *                point
+ * @return {THREE.Geometry} Created geometry
+ */
 Geometry3DFactory.prototype._parsePoint = function(obj) {
     return this._parseGeometry(obj);
 };
 
+/**
+ * Creates a 3D line from a JSON Model object
+ * 
+ * @method _parseLine
+ * @param {Object} obj JSON object respecting model format and representing the
+ *                line
+ * @return {THREE.Geometry} Created geometry
+ */
 Geometry3DFactory.prototype._parseLine = function(obj) {
     return this._parseGeometry(obj);
 };
 
+/**
+ * Creates a 3D polygon from a JSON Model object
+ * 
+ * @method _parsePolygon
+ * @param {Object} obj JSON object respecting model format and representing the
+ *                polygon
+ * @return {THREE.Geometry} Created geometry
+ */
 Geometry3DFactory.prototype._parsePolygon = function(obj) {
     return this._parseGeometry(obj);
 };
@@ -35,7 +59,7 @@ Geometry3DFactory.prototype._parsePolygon = function(obj) {
 /**
  * Creates a geometry from a JSON Model object
  * 
- * @method parseGeometry
+ * @method _parseGeometry
  * @param {Object} obj JSON object respecting model format and representing the
  *                geometry
  * @return {THREE.Geometry} Created geometry

@@ -4,6 +4,14 @@
 /**
  * @class Scene
  * @constructor
+ * @param {Object} args JSON Object containing the arguments
+ * @param {String} url Url which contains all resources
+ * @param {Object} extent The extent of the scene
+ * @param {Object} window The window DOM element
+ * @param {Object} document The document DOM element
+ * @param {Boolean} hasRaster True if the generated scene need to display rasters
+ * @param {Array} layers An array of vector layers
+ * @param {String} domId Identifier of the DOM element representing the scene
  */
 var Scene = function(args) {
     args = args || {};
@@ -75,6 +83,11 @@ var Scene = function(args) {
     this.displayLayers();
 };
 
+/**
+ * Display all the layers if exists
+ *
+ * @method displayLayers
+ */
 Scene.prototype.displayLayers = function() {
     if (this._vectorLayer) {
         this._vectorLayer.display(this._camera);
@@ -85,7 +98,9 @@ Scene.prototype.displayLayers = function() {
 };
 
 /**
- * @method moveTo Move the camera to a specific location
+ * Move the camera to a specific location
+ *
+ * @method moveTo
  * @param coords A 2D coordinates of the futur location
  */
 Scene.prototype.moveTo = function(coords) {
@@ -98,6 +113,8 @@ Scene.prototype.moveTo = function(coords) {
 };
 
 /**
+ * Render the entire scene
+ *
  * @method render
  */
 Scene.prototype.render = function() {
@@ -122,8 +139,10 @@ Scene.prototype.render = function() {
 };
 
 /**
- * @method display
- * @param extents
+ * Display all vector layers in extent
+ *
+ * @method displayVector
+ * @param {Array} extents Array of extent
  */
 Scene.prototype.displayVector = function(extents) {
     var self = this;
@@ -136,26 +155,56 @@ Scene.prototype.displayVector = function(extents) {
     });
 };
 
+/**
+ * Update far of the camera
+ *
+ * @method updateFar
+ * @param {int} far
+ */
 Scene.prototype.updateFar = function(far) {
-    this._camera.far = parseInt(far);
+    this._camera.far = far;
     this._camera.updateProjectionMatrix();
 };
 
+/**
+ * Update fov of the camera
+ *
+ * @method updateFov
+ * @param {int} fov
+ */
 Scene.prototype.updateFov = function(fov) {
-    this._camera.fov = parseInt(fov);
+    this._camera.fov = fov;
     this._camera.updateProjectionMatrix();
 };
 
+/**
+ * Camera zoom with a percent of a maximum zoom
+ *
+ * @method zoom
+ * @param {int} zoomPercent
+ */
 Scene.prototype.zoom = function(zoomPercent) {
     var zoomMin = 100;
     var zoomMax = 0;
     this._camera.position.z = (zoomMin - zoomMax) * 100 / zoomPercent;
 };
 
+/**
+ * Refresh a specific vector layer
+ *
+ * @method refreshLayer
+ * @param {String} uuid Unique indentifier of the layer
+ */
 Scene.prototype.refreshLayer = function(uuid) {
     this._vectorLayer.refresh(uuid);
 };
 
+/**
+ * Factory method to create vector layer
+ *
+ * @method _createVectorLayer
+ * @param {Array} layers All the vector layers contained
+ */
 Scene.prototype._createVectorLayer = function(layers) {
     // Light
     var hemiLight = new THREE.HemisphereLight(0x999999, 0xffffff, 1);
@@ -174,6 +223,11 @@ Scene.prototype._createVectorLayer = function(layers) {
     this._vectorLayer.add(hemiLight);
 };
 
+/**
+ * Factory method to create raster layer
+ *
+ * @method _createRasterLayer
+ */
 Scene.prototype._createRasterLayer = function() {
     var socket = new VWebSocket({
         url: "ws://" + this._url + "/tiles_info"
@@ -202,6 +256,11 @@ Scene.prototype._createRasterLayer = function() {
 
 };
 
+/**
+ * Create a buffer to display all scene.
+ *
+ * @method _createPasses
+ */
 Scene.prototype._createPasses = function() {
     var renderTargetParameters = {
         minFilter: THREE.LinearFilter,
@@ -217,6 +276,14 @@ Scene.prototype._createPasses = function() {
     this._finalRender.renderToScreen = true;
 };
 
+/**
+ * Display a projected polygon
+ *
+ * @method _volumeDrapping
+ * @param {Array} scene Contain 2 THREE.Scene. 
+ * 			One with extruded polygon and 
+ * 			the other with the bounding box of the extruded polygon
+ */
 Scene.prototype._volumeDrapping = function(scene) {
     var context = this._renderer.context;
 

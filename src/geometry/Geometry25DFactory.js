@@ -24,12 +24,28 @@ var Geometry25DFactory = function(args) {
 };
 Geometry25DFactory.inheritsFrom(GeometryFactory);
 
+/**
+ * Creates a 2.5D point(2D point with a height) from a JSON Model object
+ * 
+ * @method _parsePoint
+ * @param {Object} obj JSON object respecting model format and representing the
+ *                point
+ * @return {THREE.Vector3} Created vector
+ */
 Geometry25DFactory.prototype._parsePoint = function(obj) {
     var point = obj.coordinates[0];
     var height = obj.height || 0;
     return new THREE.Vector3(point[0], point[1], height);
 };
 
+/**
+ * Creates a 2.5D line(2D line with a height) from a JSON Model object
+ * 
+ * @method _parseLine
+ * @param {Object} obj JSON object respecting model format and representing the
+ *                line
+ * @return {THREE.Geometry} Created geometry
+ */
 Geometry25DFactory.prototype._parseLine = function(obj) {
     var points = obj.coordinates;
     var height = obj.height || 0;
@@ -41,6 +57,14 @@ Geometry25DFactory.prototype._parseLine = function(obj) {
     return geometry;
 };
 
+/**
+ * Creates a 2.5D polygon(2D polygon with a height) from a JSON Model object
+ * 
+ * @method _parsePolygon
+ * @param {Object} obj JSON object respecting model format and representing the
+ *                polygon
+ * @return {THREE.Geometry} Created geometry
+ */
 Geometry25DFactory.prototype._parsePolygon = function(obj) {
     var points = obj.coordinates;
     var shape = new THREE.Shape();

@@ -5,6 +5,8 @@
  * @class FPSControl
  * @extends EventDispatcher
  * @constructor
+ * @param {Object} camera A camera to move
+ * @param {Object} domElement A DOM element which handle moves
  */
 var FPSControl = function(camera, domElement) {
     this._camera = camera;
@@ -36,6 +38,22 @@ FPSControl.prototype.listen = function() {
 };
 
 /**
+ * Handle the resize of the browser window
+ *
+ * @method handleResize
+ */
+FPSControl.prototype.handleResize = function() {
+    if (this.domElement === document) {
+        this.viewHalfX = window.innerWidth / 2;
+        this.viewHalfY = window.innerHeight / 2;
+    }
+    else {
+        this.viewHalfX = this.domElement.offsetWidth / 2;
+        this.viewHalfY = this.domElement.offsetHeight / 2;
+    }
+};
+
+/**
  * @method onMouseDown
  * @param event
  */
@@ -56,20 +74,6 @@ FPSControl.prototype.onMouseUp = function(event) {
     event.preventDefault();
     event.stopPropagation();
     this.mouseDragOn = false;
-};
-
-/**
- * @method handleResize
- */
-FPSControl.prototype.handleResize = function() {
-    if (this.domElement === document) {
-        this.viewHalfX = window.innerWidth / 2;
-        this.viewHalfY = window.innerHeight / 2;
-    }
-    else {
-        this.viewHalfX = this.domElement.offsetWidth / 2;
-        this.viewHalfY = this.domElement.offsetHeight / 2;
-    }
 };
 
 /**
@@ -147,6 +151,8 @@ FPSControl.prototype.onKeyUp = function(event) {
 };
 
 /**
+ * Update camera position with movements done
+ *
  * @method update
  */
 FPSControl.prototype.update = function() {

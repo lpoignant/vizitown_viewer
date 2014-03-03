@@ -38,6 +38,11 @@ var Camera = function(args) {
 };
 Camera.inheritsFrom(THREE.PerspectiveCamera);
 
+/**
+ * Return a frustrum culling from the current camera
+ * 
+ * @method fustrum
+ */
 Camera.prototype.frustum = function() {
     this.updateMatrix();
     this.updateMatrixWorld();
@@ -51,6 +56,11 @@ Camera.prototype.frustum = function() {
     return this._frustum;
 };
 
+/**
+ * Return the current extent
+ * 
+ * @method extent
+ */
 Camera.prototype.extent = function() {
     var position = this.position;
     var extent = [position.x - this.far,
