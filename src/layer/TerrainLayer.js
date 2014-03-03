@@ -18,10 +18,6 @@ var TerrainLayer = function(args) {
 
     this._ortho = args.ortho || false;
     this._dem = args.dem || false;
-<<<<<<< HEAD
-=======
-
->>>>>>> ea56cc807fabe04b315d40614281805d2d3acc30
     this.minHeight = args.minHeight || 0;
     this.maxHeight = args.maxHeight || 100;
 
