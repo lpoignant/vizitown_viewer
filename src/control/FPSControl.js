@@ -5,8 +5,8 @@
  * @class FPSControl
  * @extends EventDispatcher
  * @constructor
- * @param {Object} camera A camera to move
- * @param {Object} domElement A DOM element which handle moves
+ * @param {THREE.Camera} camera A camera to move
+ * @param {DomElement} domElement A DOM element which handle moves
  */
 var FPSControl = function(camera, domElement) {
     this._camera = camera;

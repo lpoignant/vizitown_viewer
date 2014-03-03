@@ -7,8 +7,8 @@
  * @param {Object} args JSON Object containing the arguments
  * @param {String} url Url which contains all resources
  * @param {Object} extent The extent of the scene
- * @param {Object} window The window DOM element
- * @param {Object} document The document DOM element
+ * @param {Window} window The window DOM element
+ * @param {Document} document The document DOM element
  * @param {Boolean} hasRaster True if the generated scene need to display rasters
  * @param {Array} layers An array of vector layers
  * @param {String} domId Identifier of the DOM element representing the scene
@@ -159,7 +159,7 @@ Scene.prototype.displayVector = function(extents) {
  * Update far of the camera
  *
  * @method updateFar
- * @param {int} far
+ * @param {Number} far
  */
 Scene.prototype.updateFar = function(far) {
     this._camera.far = far;
@@ -170,7 +170,7 @@ Scene.prototype.updateFar = function(far) {
  * Update fov of the camera
  *
  * @method updateFov
- * @param {int} fov
+ * @param {Number} fov
  */
 Scene.prototype.updateFov = function(fov) {
     this._camera.fov = fov;
@@ -181,7 +181,7 @@ Scene.prototype.updateFov = function(fov) {
  * Camera zoom with a percent of a maximum zoom
  *
  * @method zoom
- * @param {int} zoomPercent
+ * @param {Number} zoomPercent
  */
 Scene.prototype.zoom = function(zoomPercent) {
     var zoomMin = 100;

@@ -9,7 +9,7 @@
  * @extends Layer
  * @param {Object} args JSON Object containing the arguments
  * @param {String} url Url which contains all resources
- * @param {int} args.tileSize
+ * @param {Number} args.tileSize
  * @param {String} args.loadingListener DOM element which is notify when data is loading
  * @param {Array} args.qgisLayers All QGIS layers contained
  */
@@ -77,7 +77,7 @@ VectorLayer.create = function(args) {
  * Set DEM to the layer
  *
  * @method setDEM
- * @param {Object} dem
+ * @param {TerrainLayer} dem
  */
 VectorLayer.prototype.setDEM = function(dem) {
     this._dem = dem;
@@ -103,8 +103,8 @@ VectorLayer.prototype.qgisLayer = function(uuid) {
  * Returns true if a tile exists at index otherwise return false
  *
  * @method isTileCreated 
- * @param {int} x X index of the tile. Starting at the upper left corner
- * @param {int} y Y index of the tile. Starting at the upper left corner
+ * @param {Number} x X index of the tile. Starting at the upper left corner
+ * @param {Number} y Y index of the tile. Starting at the upper left corner
  * @return {Boolean} True if a tile exists, false otherwise
  */
 VectorLayer.prototype.isTileCreated = function(x, y) {
@@ -136,8 +136,8 @@ VectorLayer.prototype._loadData = function(extent, uuid) {
 /**
  * Create a specific tile a the x, y index
  * 
- * @param {int} x X index of the tile. Starting at the upper left corner
- * @param {int} y Y index of the tile. Starting at the upper left corner
+ * @param {Number} x X index of the tile. Starting at the upper left corner
+ * @param {Number} y Y index of the tile. Starting at the upper left corner
  * @param uuid
  * @return {THREE.Mesh}
  */
@@ -156,8 +156,8 @@ VectorLayer.prototype._createTile = function(x, y, uuid) {
 /**
  * Create all tiles at x, y index
  * 
- * @param {int} x X index of the tile. Starting at the upper left corner
- * @param {int} y Y index of the tile. Starting at the upper left corner
+ * @param {Number} x X index of the tile. Starting at the upper left corner
+ * @param {Number} y Y index of the tile. Starting at the upper left corner
  * @return {THREE.Mesh}
  */
 VectorLayer.prototype.createTile = function(x, y) {
@@ -175,8 +175,8 @@ VectorLayer.prototype.createTile = function(x, y) {
 
 /**
  * @method tile Returns the tile at the index
- * @param {int} x X index of the tile. Starting at the upper left corner
- * @param {int} y Y index of the tile. Starting at the upper left corner
+ * @param {Number} x X index of the tile. Starting at the upper left corner
+ * @param {Number} y Y index of the tile. Starting at the upper left corner
  * @param {String} uuid
  * @return {THREE.Mesh} Mesh representing the tile
  */
@@ -188,8 +188,8 @@ VectorLayer.prototype.tile = function(x, y, uuid) {
 
 /**
  * @method volume Returns the scene at the index
- * @param {int} x X index of the tile. Starting at the upper left corner
- * @param {int} y Y index of the tile. Starting at the upper left corner
+ * @param {Number} x X index of the tile. Starting at the upper left corner
+ * @param {Number} y Y index of the tile. Starting at the upper left corner
  * @param {String} uuid
  * @return {THREE.Scene} Mesh representing the tile
  */

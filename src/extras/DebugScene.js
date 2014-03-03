@@ -78,7 +78,7 @@ DebugScene.prototype.render = function() {
  * Move camera at a height and in a direction
  * 
  * @method lookAt
- * @param {Object} pos 
+ * @param {THREE.Vector3} pos 
  */
 DebugScene.prototype.lookAt = function(pos) {
     this._camera.lookAt(pos);
