@@ -61,7 +61,7 @@ var Scene = function(args) {
 
     // Control
     this._control = new FPSControl(this._camera, this._document);
-    this._control.addEventListener("moved", this.refreshLayers.bind(this));
+    this._control.addEventListener("moved", this.displayLayers.bind(this));
 
     // Sync
     this._socket = new SceneSocket({
@@ -72,10 +72,10 @@ var Scene = function(args) {
     this._document.getElementById(args.domId).appendChild(this._renderer.domElement);
 
     this._createPasses();
-    this.refreshLayers();
+    this.displayLayers();
 };
 
-Scene.prototype.refreshLayers = function() {
+Scene.prototype.displayLayers = function() {
     if (this._vectorLayer) {
         this._vectorLayer.display(this._camera);
     }
@@ -197,7 +197,7 @@ Scene.prototype._createRasterLayer = function() {
 
         self._terrainRender = new THREE.RenderPass(self._terrainLayer, self._camera);
         self._vectorLayer.setDEM(self._terrainLayer);
-        self.refreshLayers();
+        self.displayLayers();
     });
 
 };
