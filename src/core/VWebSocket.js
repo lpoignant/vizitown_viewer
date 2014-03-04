@@ -40,8 +40,14 @@ VWebSocket.inheritsFrom(EventDispatcher);
  * @method _createSocket
  */
 VWebSocket.prototype._createSocket = function() {
+    console.log(this._url);
     this.socket = new WebSocket(this._url);
     this.socket.onmessage = this.message.bind(this);
+    var self = this;
+    this.socket.onopen = function() {
+        console.log("connected");
+        self.flush();
+    };
 };
 
 /**
@@ -76,7 +82,6 @@ VWebSocket.prototype.send = function(jsonObject) {
         this._buffer.push(jsonObject);
     }
     this.flush();
-    // this.open();
 };
 
 /**
@@ -85,8 +90,14 @@ VWebSocket.prototype.send = function(jsonObject) {
  * @method flush
  */
 VWebSocket.prototype.flush = function() {
+    var state = this.socket.readyState;
+    console.log(state, WebSocket.OPEN);
+    if (state !== WebSocket.OPEN) {
+        return;
+    }
     var obj = this._buffer.shift();
     while (obj) {
+        console.log(obj);
         this.socket.send(JSON.stringify(obj));
         obj = this._buffer.shift();
     }
