@@ -8,7 +8,6 @@
  * @constructor
  * @extends Layer
  * @param {Object} args JSON Object containing the arguments
- * @param {String} url Url which contains all resources
  * @param {Number} args.tileSize
  * @param {String} args.loadingListener DOM element which is notify when data is loading
  * @param {Array} args.qgisLayers All QGIS layers contained
