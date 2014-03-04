@@ -12,7 +12,8 @@
  * @param {Boolean} args.hasRaster True if the generated scene need to display
  *                rasters
  * @param {Array} args.layers An array of vector layers
- * @param {String} args.domId Identifier of the DOM element representing the scene
+ * @param {String} args.domId Identifier of the DOM element representing the
+ *                scene
  */
 var Scene = function(args) {
     args = args || {};
@@ -292,6 +293,7 @@ Scene.prototype._volumeDrapping = function(scene) {
     context.colorMask(false, false, false, false);
     context.depthMask(false);
 
+    // Setting up stencil buffer
     context.stencilFunc(context.ALWAYS, 1, 0xFF); // draw if == 1
     context.stencilOpSeparate(context.FRONT, context.KEEP, context.KEEP, context.INCR_WRAP);
     context.stencilOpSeparate(context.BACK, context.KEEP, context.KEEP, context.DECR_WRAP);

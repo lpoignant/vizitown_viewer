@@ -40,7 +40,6 @@ VWebSocket.inheritsFrom(EventDispatcher);
  * @method _createSocket
  */
 VWebSocket.prototype._createSocket = function() {
-    console.log(this._url);
     this.socket = new WebSocket(this._url);
     this.socket.onmessage = this.message.bind(this);
     var self = this;
