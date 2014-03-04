@@ -18,8 +18,6 @@ var TerrainLayer = function(args) {
 
     this._ortho = args.ortho || false;
     this._dem = args.dem || false;
-
-    console.log("dem", args.minHeight, args.maxHeight);
     this.minHeight = args.minHeight || 0;
     this.maxHeight = args.maxHeight || 100;
 
@@ -31,7 +29,6 @@ var TerrainLayer = function(args) {
         fog: true,
     });
 
-    this._layersToLevel = [];
     this._demTextures = [];
     this._orthoTextures = [];
 };
@@ -39,7 +36,7 @@ TerrainLayer.inheritsFrom(Layer);
 
 /**
  * Returns correct url to access a raster
- *
+ * 
  * @method _getRasterUrl
  * @param {String} path Base path
  * @param {Number} x X index of the tile. Starting at the bottom left corner
@@ -57,7 +54,7 @@ TerrainLayer.prototype._rasterUrl = function(path, x, y, zoomLevel) {
 
 /**
  * Load an entire DEM
- *
+ * 
  * @method _loadDEM
  * @param {Number} x X index of the tile. Starting at the bottom left corner
  * @param {Number} y Y index of the tile. Starting at the bottom left corner
@@ -86,7 +83,7 @@ TerrainLayer.prototype._loadDEM = function(x, y) {
 
 /**
  * Load an entire Ortho
- *
+ * 
  * @method _loadOrtho
  * @param {Number} x X index of the tile. Starting at the bottom left corner
  * @param {Number} y Y index of the tile. Starting at the bottom left corner
@@ -106,7 +103,7 @@ TerrainLayer.prototype._loadOrtho = function(x, y) {
 
 /**
  * Create a material for a tile
- *
+ * 
  * @method _createMaterial
  * @param {Number} x X index of the tile. Starting at the bottom left corner
  * @param {Number} y Y index of the tile. Starting at the bottom left corner
@@ -128,8 +125,8 @@ TerrainLayer.prototype._createMaterial = function(x, y) {
 };
 
 /**
- * Return the height contain in the DEM for a position 
- *
+ * Return the height contain in the DEM for a position
+ * 
  * @method height
  * @param {THREE.Vector2} position
  * @return height
@@ -139,7 +136,7 @@ TerrainLayer.prototype.height = function(position) {
     var index = this._index(tileIndex.x, tileIndex.y);
     var dem = this._demTextures[index];
     if (!dem) {
-        return;
+        return 0;
     }
 
     var tileSize = this._tileSize;
@@ -149,28 +146,6 @@ TerrainLayer.prototype.height = function(position) {
     var xPixel = rPos.x * demSize.x / tileSize;
     var yPixel = demSize.y - (rPos.y * demSize.y / tileSize);
     var pixelValue = dem.value(new THREE.Vector2(xPixel, yPixel));
-    var height = this.minHeight +
-                 ((this.maxHeight - this.minHeight) * pixelValue);
+    var height = this.minHeight + ((this.maxHeight - this.minHeight) * pixelValue);
     return height;
-};
-
-/**
- * Level the all registered layers with the DEM value
- *
- * @method levelLayers
- * @param {THREE.Vector2} tileIndex
- */
-TerrainLayer.prototype.levelLayers = function(tileIndex) {
-    var extent = this.tileExtent(tileIndex.x, tileIndex.y);
-    var self = this;
-    this._layersToLevel.forEach(function(layer) {
-        layer.forEachTileCreatedInExtent(extent, function(tile, tileOrigin) {
-            tile.children.forEach(function(mesh) {
-                var point = mesh.position.clone();
-                point.x += tileOrigin.x;
-                point.y += tileOrigin.y;
-                mesh.position.z = self.height(point);
-            });
-        });
-    });
 };

@@ -140,13 +140,6 @@ Layer.prototype.addToTile = function(mesh) {
     var tileIndex = this.tileIndex(mesh.position);
     var tile = this.tile(tileIndex.x, tileIndex.y);
 
-    if (this.dem) {
-        var height = this.dem.height(mesh.position);
-        if (height) {
-            coordinates.z = height;
-        }
-    }
-
     mesh.position = coordinates;
     tile.add(mesh);
 };
@@ -159,11 +152,6 @@ Layer.prototype.addToTile = function(mesh) {
  * @return {THREE.Vector2}
  */
 Layer.prototype.tileIndex = function(coords) {
-    /*
-     * if (coords.x > this.originX + this._layerWidth) { console.log("out of
-     * bounds x", coords); return; } if (coords.y > this.originY +
-     * this._layerHeight) { console.log("out of bounds x", coords); return; }
-     */
     var x = Math.floor((coords.x - this.originX) / this._tileSize);
     var y = Math.floor((coords.y - this.originY) / this._tileSize);
     return new THREE.Vector2(x, y);

@@ -9,7 +9,8 @@
  * @param {Object} args.extent The extent of the scene
  * @param {Window} args.window The window DOM element
  * @param {Document} args.document The document DOM element
- * @param {Boolean} args.hasRaster True if the generated scene need to display rasters
+ * @param {Boolean} args.hasRaster True if the generated scene need to display
+ *                rasters
  * @param {Array} args.layers An array of vector layers
  * @param {String} args.domId Identifier of the DOM element representing the scene
  */
@@ -85,7 +86,7 @@ var Scene = function(args) {
 
 /**
  * Display all the layers if exists
- *
+ * 
  * @method displayLayers
  */
 Scene.prototype.displayLayers = function() {
@@ -99,7 +100,7 @@ Scene.prototype.displayLayers = function() {
 
 /**
  * Move the camera to a specific location
- *
+ * 
  * @method moveTo
  * @param {THREE.Vector2} coords A 2D coordinates of the futur location
  */
@@ -114,7 +115,7 @@ Scene.prototype.moveTo = function(coords) {
 
 /**
  * Render the entire scene
- *
+ * 
  * @method render
  */
 Scene.prototype.render = function() {
@@ -140,7 +141,7 @@ Scene.prototype.render = function() {
 
 /**
  * Display all vector layers in extent
- *
+ * 
  * @method displayVector
  * @param {Array} extents Array of extent
  */
@@ -157,7 +158,7 @@ Scene.prototype.displayVector = function(extents) {
 
 /**
  * Update far of the camera
- *
+ * 
  * @method updateFar
  * @param {Number} far
  */
@@ -168,7 +169,7 @@ Scene.prototype.updateFar = function(far) {
 
 /**
  * Update fov of the camera
- *
+ * 
  * @method updateFov
  * @param {Number} fov
  */
@@ -179,7 +180,7 @@ Scene.prototype.updateFov = function(fov) {
 
 /**
  * Camera zoom with a percent of a maximum zoom
- *
+ * 
  * @method zoom
  * @param {Number} zoomPercent
  */
@@ -191,7 +192,7 @@ Scene.prototype.zoom = function(zoomPercent) {
 
 /**
  * Refresh a specific vector layer
- *
+ * 
  * @method refreshLayer
  * @param {String} uuid Unique indentifier of the layer
  */
@@ -201,7 +202,7 @@ Scene.prototype.refreshLayer = function(uuid) {
 
 /**
  * Factory method to create vector layer
- *
+ * 
  * @method _createVectorLayer
  * @param {Array} layers All the vector layers contained
  */
@@ -225,7 +226,7 @@ Scene.prototype._createVectorLayer = function(layers) {
 
 /**
  * Factory method to create raster layer
- *
+ * 
  * @method _createRasterLayer
  */
 Scene.prototype._createRasterLayer = function() {
@@ -258,7 +259,7 @@ Scene.prototype._createRasterLayer = function() {
 
 /**
  * Create a buffer to display all scene.
- *
+ * 
  * @method _createPasses
  */
 Scene.prototype._createPasses = function() {
@@ -278,11 +279,10 @@ Scene.prototype._createPasses = function() {
 
 /**
  * Display a projected polygon
- *
+ * 
  * @method _volumeDrapping
- * @param {Array} scene Contain 2 THREE.Scene. 
- * 			One with extruded polygon and 
- * 			the other with the bounding box of the extruded polygon
+ * @param {Array} scene Contain 2 THREE.Scene. One with extruded polygon and the
+ *                other with the bounding box of the extruded polygon
  */
 Scene.prototype._volumeDrapping = function(scene) {
     var context = this._renderer.context;

@@ -55,6 +55,7 @@ GeometryFactory.prototype._centroid = function(geometry) {
  */
 GeometryFactory.prototype._centerGeometry = function(geometry, centroid) {
     var centro = centroid || this._centroid(geometry);
+    // Do not center on Z
     centro.z = 0;
 
     var translationMatrix = new THREE.Matrix4();
@@ -77,7 +78,7 @@ GeometryFactory.prototype._levelPoint = function(point) {
     }
     var position = point.centroid || point;
     var height = this.dem.height(position);
-    point.z += height;
+    point.z += height + 0.5;
 };
 
 /**
@@ -125,14 +126,15 @@ GeometryFactory.prototype._levelPolygon = function(polygon) {
 GeometryFactory.prototype._createLines = function(uuid, geometries, color) {
     var material = this._lineMaterial.clone();
     material.color = color;
-
     var self = this;
     geometries.forEach(function(element) {
         // Line geometry
         var geometry = self._parseLine(element);
         var centroid = self._centroid(geometry);
-        self._centerGeometry(geometry, centroid);
+
         self._levelLine(geometry);
+        self._centerGeometry(geometry, centroid);
+        
         // Line mesh
         var mesh = new THREE.Line(geometry, material);
         mesh.position = centroid;
@@ -162,7 +164,6 @@ GeometryFactory.prototype._createPoints = function(uuid, geometries, color) {
         particles.vertices.push(particle);
     });
     // One mesh for all points
-    console.log(particles);
     var centroid = this._centerGeometry(particles);
     var particleSystem = new THREE.ParticleSystem(particles, material);
     particleSystem.position = centroid;

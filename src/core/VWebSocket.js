@@ -50,10 +50,13 @@ VWebSocket.prototype._createSocket = function() {
     var self = this;
     this.socket.onopen = function() {
         self._interval = setInterval(function() {
-            self.open();
+            if (self.interval) {
+                clearInterval(self.interval);
+            }
             if (self.socket.readyState === WebSocket.CONNECTED) {
                 self.socket.send("ping");
             }
+            self.flush.bind(self);
         }, 5000);
     };
 };
