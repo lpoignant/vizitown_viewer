@@ -40,31 +40,22 @@ VWebSocket.inheritsFrom(EventDispatcher);
  * @method _createSocket
  */
 VWebSocket.prototype._createSocket = function() {
-    if (this._interval) {
-        clearInterval(this._interval);
-    }
-
     this.socket = new WebSocket(this._url);
     this.socket.onmessage = this.message.bind(this);
 
-    var self = this;
-    this.socket.onopen = function() {
-        self._interval = setInterval(function() {
-            if (self.interval) {
-                clearInterval(self.interval);
-            }
-            if (self.socket.readyState === WebSocket.CONNECTED) {
-                self.socket.send("ping");
-            }
-            self.flush.bind(self);
-        }, 5000);
-    };
+    // var self = this;
+    /*
+     * this.socket.onopen = function() { if (self.interval) {
+     * clearInterval(self.interval); } self.interval = setInterval(function() {
+     * self.socket.send("ping"); }, 5000); self.flush.bind(self); };
+     */
 };
 
 /**
  * Open the VWebSocket
  * 
  * @method open
+ * @return true if a socket was opened, false otherwise
  */
 VWebSocket.prototype.open = function() {
     var state = this.socket.readyState;
@@ -75,6 +66,7 @@ VWebSocket.prototype.open = function() {
 
     if (state !== WebSocket.CONNECTING) {
         this.flush();
+        return false;
     }
 
     return false;
@@ -90,7 +82,7 @@ VWebSocket.prototype.send = function(jsonObject) {
     if (jsonObject !== undefined) {
         this._buffer.push(jsonObject);
     }
-    this.open();
+    // this.open();
 };
 
 /**
