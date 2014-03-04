@@ -45,7 +45,6 @@ VWebSocket.prototype._createSocket = function() {
     this.socket.onmessage = this.message.bind(this);
     var self = this;
     this.socket.onopen = function() {
-        console.log("connected");
         self.flush();
     };
 };
@@ -113,8 +112,9 @@ VWebSocket.prototype.message = function(event) {
     if (event.data === "pong") {
         return;
     }
-    console.log(event.data);
+
     var json = JSON.parse(event.data);
+    console.log(json);
     this.dispatch("messageReceived", json);
 };
 
