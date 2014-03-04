@@ -42,7 +42,7 @@ var Scene = function(args) {
     this._height = extent.maxY - extent.minY;
     this._window = args.window || window;
     this._document = args.document || document;
-    this._color = 0xdfdfdf;
+    this._color = 0xffffff;
     this._hasRaster = args.hasRaster || sceneSettings.hasRaster;
     this.layers = args.layers || sceneSettings.vectors;
 
@@ -222,6 +222,7 @@ Scene.prototype._createVectorLayer = function(layers) {
     });
 
     this._vectorLayer.add(hemiLight);
+    this._vectorLayer.fog = new THREE.Fog(this._color, this._camera.far / 2, this._camera.far);
 };
 
 /**

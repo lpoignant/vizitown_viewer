@@ -20,7 +20,7 @@ QGISLayer.inheritsFrom(THREE.Object3D);
 
 /**
  * Returns if a tile exists at index
- *
+ * 
  * @method isTileCreated
  * @param {Number} index Index of the tile.
  * @return {Boolean} True if a tile exists, false otherwise
@@ -31,7 +31,7 @@ QGISLayer.prototype.isTileCreated = function(index) {
 
 /**
  * Returns if a volume exists at index
- *
+ * 
  * @method isVolumeCreated
  * @param {Number} index Index of the tile.
  * @return {Boolean} True if a volume exists, false otherwise
@@ -41,8 +41,8 @@ QGISLayer.prototype.isVolumeCreated = function(index) {
 };
 
 /**
- * Returns if a tile at index is dirty 
- *
+ * Returns if a tile at index is dirty
+ * 
  * @method isDirty
  * @param {Number} index Index of the tile.
  * @return {Boolean} True if tile is dirty, false otherwise
@@ -52,9 +52,8 @@ QGISLayer.prototype.isDirty = function(index) {
 };
 
 /**
- * Set a tile to dirty if index is specified 
- * else set all tiles to dirty 
- *
+ * Set a tile to dirty if index is specified else set all tiles to dirty
+ * 
  * @method refresh
  * @param {Number} index Index of the tile. Optionnal
  */
@@ -71,7 +70,7 @@ QGISLayer.prototype.refresh = function(index) {
 
 /**
  * Retreive the tile at index
- *
+ * 
  * @method tile
  * @param {Number} index Index of the tile.
  */
@@ -81,9 +80,10 @@ QGISLayer.prototype.tile = function(index) {
 
 /**
  * Retreive the volume at index
- *
+ * 
  * @method tile
  * @param {Number} index Index of the tile.
+ * @return {Array} An array containing all the Volumes
  */
 QGISLayer.prototype.volume = function(index) {
     if (!this.isVolumeCreated(index)) {
@@ -94,7 +94,7 @@ QGISLayer.prototype.volume = function(index) {
 
 /**
  * Create tile at index
- *
+ * 
  * @method createTile
  * @param {Number} index Index of the tile.
  */
@@ -110,7 +110,7 @@ QGISLayer.prototype.createTile = function(index) {
 
 /**
  * Destroy tile at index
- *
+ * 
  * @method destroyTile
  * @param {Number} index Index of the tile.
  */

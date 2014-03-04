@@ -26,7 +26,7 @@ var GeometryFactoryComposite = function(args) {
             }));
         }
         self._create(object);
-    }, 300);
+    }, 200);
 
     this._geometry2DFactory = new Geometry2DFactory({
         layer: this._layer

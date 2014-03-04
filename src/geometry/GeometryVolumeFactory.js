@@ -23,7 +23,7 @@ var GeometryVolumeFactory = function(args) {
     this._polyhedralMaterial = args.polyhedralMaterial || new THREE.MeshBasicMaterial({
         color: 0x5728cd,
         depthWrite: false,
-        side: THREE.DoubleSide
+        side: THREE.DoubleSide,
     });
 
     this._extrudeSettings = {
@@ -102,7 +102,6 @@ GeometryVolumeFactory.prototype._parsePolygon = function(obj) {
     for (var i = 0; i < points.length; i = i + 2) {
         shape.moveTo(points[i], points[i + 1]);
     }
-    // console.log("not extruded", shape);
     var geometry = shape.extrude(this._extrudeSettings);
     return geometry;
 };

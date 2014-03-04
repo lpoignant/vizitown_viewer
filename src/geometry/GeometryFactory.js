@@ -16,20 +16,24 @@ var GeometryFactory = function(args) {
     args = args || {};
     this._layer = args.layer;
 
-    this._polyhedralMaterial = args.polyhedralMaterial || new THREE.MeshLambertMaterial({});
+    this._polyhedralMaterial = args.polyhedralMaterial || new THREE.MeshLambertMaterial({
+        fog: true,
+    });
 
     this._pointMaterial = args.pointMaterial || new THREE.ParticleBasicMaterial({
         size: 10,
+        fog: true,
     });
 
     this._lineMaterial = args.lineMaterial || new THREE.LineBasicMaterial({
         linewidth: 3,
+        fog: true,
     });
 };
 
 /**
  * Return the centroid of a geometry
- *
+ * 
  * @method _centroid
  * @param {THREE.Geometry} geometry
  * @returns {THREE.Vector3} the centroid
@@ -134,7 +138,7 @@ GeometryFactory.prototype._createLines = function(uuid, geometries, color) {
 
         self._levelLine(geometry);
         self._centerGeometry(geometry, centroid);
-        
+
         // Line mesh
         var mesh = new THREE.Line(geometry, material);
         mesh.position = centroid;

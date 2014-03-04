@@ -90,13 +90,14 @@ VWebSocket.prototype.send = function(jsonObject) {
  */
 VWebSocket.prototype.flush = function() {
     var state = this.socket.readyState;
-    console.log(state, WebSocket.OPEN);
     if (state !== WebSocket.OPEN) {
+        if (state !== WebSocket.CONNECTING) {
+            this.open();
+        }
         return;
     }
     var obj = this._buffer.shift();
     while (obj) {
-        console.log(obj);
         this.socket.send(JSON.stringify(obj));
         obj = this._buffer.shift();
     }
@@ -112,9 +113,7 @@ VWebSocket.prototype.message = function(event) {
     if (event.data === "pong") {
         return;
     }
-
     var json = JSON.parse(event.data);
-    console.log(json);
     this.dispatch("messageReceived", json);
 };
 
