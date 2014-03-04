@@ -5,13 +5,13 @@
  * @class Scene
  * @constructor
  * @param {Object} args JSON Object containing the arguments
- * @param {String} url Url which contains all resources
- * @param {Object} extent The extent of the scene
- * @param {Window} window The window DOM element
- * @param {Document} document The document DOM element
- * @param {Boolean} hasRaster True if the generated scene need to display rasters
- * @param {Array} layers An array of vector layers
- * @param {String} domId Identifier of the DOM element representing the scene
+ * @param {String} args.url Url which contains all resources
+ * @param {Object} args.extent The extent of the scene
+ * @param {Window} args.window The window DOM element
+ * @param {Document} args.document The document DOM element
+ * @param {Boolean} args.hasRaster True if the generated scene need to display rasters
+ * @param {Array} args.layers An array of vector layers
+ * @param {String} args.domId Identifier of the DOM element representing the scene
  */
 var Scene = function(args) {
     args = args || {};
@@ -101,7 +101,7 @@ Scene.prototype.displayLayers = function() {
  * Move the camera to a specific location
  *
  * @method moveTo
- * @param coords A 2D coordinates of the futur location
+ * @param {THREE.Vector2} coords A 2D coordinates of the futur location
  */
 Scene.prototype.moveTo = function(coords) {
     var x = coords.x - this._originX;
