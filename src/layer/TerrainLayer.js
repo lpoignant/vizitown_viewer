@@ -57,7 +57,8 @@ TerrainLayer.prototype._rasterUrl = function(path, x, y, zoomLevel) {
  * 
  * @method _loadDEM
  * @param {Number} x X index of the tile. Starting at the bottom left corner
- * @param {Number} y Y index of the tile. Starting at the bottom left corner
+ * @param {Number} y Y index of the tile. Starting at the bottom left corner7
+ * @return {THREE.Texture} texture of the DEM
  */
 TerrainLayer.prototype._loadDEM = function(x, y) {
     if (!this._dem) {
@@ -87,6 +88,7 @@ TerrainLayer.prototype._loadDEM = function(x, y) {
  * @method _loadOrtho
  * @param {Number} x X index of the tile. Starting at the bottom left corner
  * @param {Number} y Y index of the tile. Starting at the bottom left corner
+ * @return {THREE.Texture} Texture of the ortho-photo
  */
 TerrainLayer.prototype._loadOrtho = function(x, y) {
     if (!this._ortho) {
@@ -107,6 +109,7 @@ TerrainLayer.prototype._loadOrtho = function(x, y) {
  * @method _createMaterial
  * @param {Number} x X index of the tile. Starting at the bottom left corner
  * @param {Number} y Y index of the tile. Starting at the bottom left corner
+ * @return {THREE.Material} Material containing a DEM and an Ortho
  */
 TerrainLayer.prototype._createMaterial = function(x, y) {
     var dem = this._loadDEM(x, y);

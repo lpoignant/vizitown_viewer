@@ -140,7 +140,7 @@ GeometryFactory.prototype._createLines = function(uuid, geometries, color) {
         self._centerGeometry(geometry, centroid);
 
         // Line mesh
-        var mesh = new THREE.Line(geometry, material);
+        var mesh = new THREE.Line(geometry, material.clone());
         mesh.position = centroid;
 
         self._layer.addToTile(mesh, uuid);

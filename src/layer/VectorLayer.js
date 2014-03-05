@@ -9,11 +9,12 @@
  * @extends Layer
  * @param {Object} args JSON Object containing the arguments
  * @param {Number} args.tileSize
- * @param {String} args.loadingListener DOM element which is notify when data is loading
+ * @param {String} args.loadingListener DOM element which is notify when data is
+ *                loading
  * @param {Array} args.qgisLayers All QGIS layers contained
  */
 var VectorLayer = function VectorLayer(args) {
-    args.tileSize = args.tileSize || 500;
+    args.tileSize = args.tileSize || 1000;
     Layer.call(this, args);
 
     this._factory = new GeometryFactoryComposite({
@@ -37,7 +38,7 @@ VectorLayer.inheritsFrom(Layer);
 
 /**
  * Factory method to create VectorLayer
- *
+ * 
  * @method create
  * @param {Object} args JSON Object containing the arguments
  * @return {VectorLayer}
@@ -74,7 +75,7 @@ VectorLayer.create = function(args) {
 
 /**
  * Set DEM to the layer
- *
+ * 
  * @method setDEM
  * @param {TerrainLayer} dem
  */
@@ -90,7 +91,7 @@ VectorLayer.prototype.setDEM = function(dem) {
 
 /**
  * Retreive the QGIS layer
- *
+ * 
  * @method qgisLayer
  * @param {String} uuid Unique identifier for the QGIS layer
  */
@@ -100,8 +101,8 @@ VectorLayer.prototype.qgisLayer = function(uuid) {
 
 /**
  * Returns true if a tile exists at index otherwise return false
- *
- * @method isTileCreated 
+ * 
+ * @method isTileCreated
  * @param {Number} x X index of the tile. Starting at the upper left corner
  * @param {Number} y Y index of the tile. Starting at the upper left corner
  * @return {Boolean} True if a tile exists, false otherwise
@@ -273,7 +274,7 @@ VectorLayer.prototype.addToVolume = function(mesh, uuid) {
 
 /**
  * Refresh a specific qgis layer
- *
+ * 
  * @method refresh
  * @param {String} uuid Identifier of the layer who needs to be refreshed
  */
@@ -291,7 +292,7 @@ VectorLayer.prototype.refresh = function(uuid) {
 
 /**
  * Refresh an extent
- *
+ * 
  * @method refreshExtent
  * @param {Object} extent
  */
@@ -310,7 +311,7 @@ VectorLayer.prototype.refreshExtent = function(extent) {
 
 /**
  * Apply a function for each volume
- *
+ * 
  * @method forEachVolume
  * @param {THREE.Camera} camera
  * @param {Function} callback
