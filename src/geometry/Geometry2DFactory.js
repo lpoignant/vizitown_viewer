@@ -29,9 +29,7 @@ Geometry2DFactory.inheritsFrom(GeometryFactory);
  */
 Geometry2DFactory.prototype._parsePoint = function(obj) {
     var point = obj.coordinates;
-    console.log(obj);
     var vec = new THREE.Vector3(point[0], point[1], 0);
-    console.log(vec);
     return vec;
 };
 
