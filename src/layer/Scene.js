@@ -212,7 +212,7 @@ Scene.prototype._createVectorLayer = function(layers) {
     var hemiLight = new THREE.HemisphereLight(0x999999, 0xffffff, 1);
 
     this._vectorLayer = VectorLayer.create({
-        url: "ws://" + this._url + "/data",
+        url: "http://" + this._url + "/data",
         x: this._originX,
         y: this._originY,
         width: this._width,

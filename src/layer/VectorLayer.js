@@ -1,4 +1,4 @@
-/* global Layer, GeometryFactoryComposite, VWebSocket, QGISLayer, Volume */
+/* global Layer, GeometryFactoryComposite, QGISLayer, Volume */
 "use strict";
 
 /**
@@ -46,6 +46,8 @@ VectorLayer.inheritsFrom(Layer);
 VectorLayer.create = function(args) {
     var layer = new VectorLayer(args);
 
+
+/*
     // WebSocket
     layer._socket = new VWebSocket({
         url: args.url
@@ -53,6 +55,8 @@ VectorLayer.create = function(args) {
     layer._socket.addEventListener("messageReceived", function(obj) {
         layer._factory.create(obj);
     });
+*/
+    layer._url = args.url;
 
     // Plane
     var layerHalfWidth = layer._layerWidth * 0.5;
@@ -130,7 +134,19 @@ VectorLayer.prototype._loadData = function(extent, uuid) {
     if (uuid) {
         ext.uuid = uuid;
     }
-    this._socket.send(ext);
+//    this._socket.send(ext);
+
+    var req = new XMLHttpRequest();
+    req.open('POST', this._url, false);
+    var ext_json = JSON.stringify( ext );
+    req.setRequestHeader('Content-type', 'application/json');
+    req.setRequestHeader("Content-length", ext_json.length);
+    req.send(ext_json);
+    if (req.status !== 200) {
+        throw "No scene defined";
+    }
+    var obj = JSON.parse(req.responseText);
+    this._factory.create( obj );
 };
 
 /**
