@@ -1,4 +1,4 @@
-/* global Layer, GeometryFactoryComposite, QGISLayer, Volume */
+/* global Layer, GeometryFactoryComposite, Volume, QGISLayer */
 "use strict";
 
 /**
@@ -20,17 +20,20 @@ var VectorLayer = function VectorLayer(args) {
     this._factory = new GeometryFactoryComposite({
         layer: this
     });
+    console.log('this._factory:' + this._factory);
     this._isTileCreated = [];
     this._volumes = [];
     this._qgisLayers = {};
     this.loadingListener = args.loadingListener || {};
 
-    var qgisLayers = args.qgisLayers || [];
+
+    var layers = args.layers || [];
     var self = this;
-    qgisLayers.forEach(function(layer) {
-        var qgisLayer = new QGISLayer(layer.uuid);
-        self._qgisLayers[layer.uuid] = qgisLayer;
-        self.add(qgisLayer);
+    layers.forEach(function(layer) {
+        console.log('new layer uuid: ' + layer.uuid);
+        var nlayer = new QGISLayer(layer.uuid);
+        self._qgisLayers[layer.uuid] = nlayer;
+        self.add(nlayer);
     });
 
 };
@@ -134,19 +137,30 @@ VectorLayer.prototype._loadData = function(extent, uuid) {
     if (uuid) {
         ext.uuid = uuid;
     }
+    console.log(this.originX + ' ' + this.originY + ' ' + extent);
+    console.log('_loadData uuid: ' + uuid);
 //    this._socket.send(ext);
 
     var req = new XMLHttpRequest();
-    req.open('POST', this._url, false);
-    var ext_json = JSON.stringify( ext );
-    req.setRequestHeader('Content-type', 'application/json');
-    req.setRequestHeader("Content-length", ext_json.length);
-    req.send(ext_json);
+    var bboxStr = 'bbox=' + ext.Xmin.toString() + ',' + ext.Ymin.toString() + ',' + ext.Xmax.toString() + ',' + ext.Ymax.toString();
+    var url = this._url + '?Service=WFS&version=1.1.0&outputFormat=THREEJS&Request=GetFeature&typeName=' + ext.uuid + '&' + bboxStr;
+    console.log( "url:" + url );
+    req.open('GET', url, false);
+    req.send(null);
     if (req.status !== 200) {
         throw "No scene defined";
     }
-    var obj = JSON.parse(req.responseText);
-    this._factory.create( obj );
+    var objs = JSON.parse(req.responseText);
+    objs.forEach(function(obj) {
+        var exchObj = {
+            dim : "3",
+            color : "#ff0000",
+            type : "polygon",
+            uuid : uuid,
+            geometries : [obj] };
+        console.log( "obj:" + obj);
+        this._factory.create( exchObj );
+    }, this );
 };
 
 /**
@@ -393,7 +407,9 @@ VectorLayer.prototype.display = function(camera) {
 
             if (frustum.intersectsBox(tileExtent)) {
                 self.createTile(index.x, index.y);
-                self._loadData(tileIndex);
+                for ( var muuid in self._qgisLayers) {
+                    self._loadData(tileIndex, muuid);
+                }
             }
             return;
         }

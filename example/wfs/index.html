@@ -1,0 +1,42 @@
+<html>
+
+<head>
+    <title></title>
+    <script type="text/javascript" src="js/Vizitown.js"></script>
+	<style>
+		body {
+			margin: 0px;
+			background-color: #000000;
+			overflow: hidden;
+		}
+	</style>
+</head>
+
+<body>
+
+<div id="main_map"></div>
+ 
+<script type="text/javascript">
+
+	var scene = new Scene({
+	    window: window,
+	    document: document,
+	    domId: "main_map",
+	    extent: {
+	        minX: -1000.0,
+	        minY: -1000.0,
+	        maxX: 1000.0,
+	        maxY: 1000.0,
+                maxZ : 10
+	    },
+	    url: "localhost:8888/cgi",
+	    layers: [ { uuid: 'ns:layer' } ],
+	    hasRaster: false,
+            tileSize: 2000
+	});
+	
+        scene.zoom(99.0);
+	scene.render();
+</script>
+</body>
+</html>

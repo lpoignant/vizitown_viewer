@@ -14,7 +14,7 @@ var FPSControl = function(camera, domElement) {
     this.mouseX = 0;
     this.mouseY = 0;
     this.rotationSpeed = 90;
-    this.movementSpeed = 500;
+    this.movementSpeed = 50;
 
     this._clock = new THREE.Clock();
 

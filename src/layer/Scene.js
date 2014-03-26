@@ -1,4 +1,4 @@
-/* global FPSControl, VectorLayer, Camera, SceneSocket, TerrainLayer, VWebSocket */
+/* global FPSControl, VectorLayer, Camera, TerrainLayer, VWebSocket */
 "use strict";
 
 /**
@@ -17,7 +17,7 @@
  */
 var Scene = function(args) {
     args = args || {};
-
+/*
     var url = args.url || location.host;
 
     var req = new XMLHttpRequest();
@@ -27,25 +27,23 @@ var Scene = function(args) {
         throw "No scene defined";
     }
     var sceneSettings = JSON.parse(req.responseText);
+*/
 
-    var extent = args.extent || {
-        minX: parseFloat(sceneSettings.extent.xMin),
-        minY: parseFloat(sceneSettings.extent.yMin),
-        maxX: parseFloat(sceneSettings.extent.xMax),
-        maxY: parseFloat(sceneSettings.extent.yMax),
-    };
+    var extent = args.extent;
 
     // Init
     this._url = args.url || location.host;
     this._originX = extent.minX;
     this._originY = extent.minY;
+    this._maxZ = extent.maxZ;
     this._width = extent.maxX - extent.minX;
     this._height = extent.maxY - extent.minY;
     this._window = args.window || window;
     this._document = args.document || document;
     this._color = 0xffffff;
-    this._hasRaster = args.hasRaster || sceneSettings.hasRaster;
-    this.layers = args.layers || sceneSettings.vectors;
+    this._hasRaster = args.hasRaster;
+    this.layers = args.layers;
+    this._tileSize = args.tileSize;
 
     // Renderer
     this._renderer = new THREE.WebGLRenderer();
@@ -74,10 +72,12 @@ var Scene = function(args) {
     this._control.addEventListener("moved", this.displayLayers.bind(this));
 
     // Sync
+    /*
     this._socket = new SceneSocket({
         url: "ws://" + this._url,
         scene: this,
     });
+*/
 
     this._document.getElementById(args.domId).appendChild(this._renderer.domElement);
 
@@ -152,7 +152,7 @@ Scene.prototype.displayVector = function(extents) {
         var tileCreated = self._vectorLayer.isTileCreated(extent.x, extent.y);
         if (!tileCreated) {
             self._vectorLayer.tile(extent.x, extent.y);
-            self._socket.sendExtent(extent.extent);
+//            self._socket.sendExtent(extent.extent);
         }
     });
 };
@@ -186,7 +186,7 @@ Scene.prototype.updateFov = function(fov) {
  * @param {Number} zoomPercent
  */
 Scene.prototype.zoom = function(zoomPercent) {
-    var zoomMin = 100;
+    var zoomMin = this._maxZ;
     var zoomMax = 0;
     this._camera.position.z = (zoomMin - zoomMax) * 100 / zoomPercent;
 };
@@ -212,14 +212,15 @@ Scene.prototype._createVectorLayer = function(layers) {
     var hemiLight = new THREE.HemisphereLight(0x999999, 0xffffff, 1);
 
     this._vectorLayer = VectorLayer.create({
-        url: "http://" + this._url + "/data",
+        url: "http://" + this._url,
         x: this._originX,
         y: this._originY,
         width: this._width,
         height: this._height,
-        qgisLayers: layers,
+        layers: layers,
         scene: this,
         loadingListener: this._document,
+        tileSize : this._tileSize
     });
 
     this._vectorLayer.add(hemiLight);
