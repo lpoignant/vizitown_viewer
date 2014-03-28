@@ -22,17 +22,24 @@
 	    window: window,
 	    document: document,
 	    domId: "main_map",
-	    extent: {
-	        minX: -1000.0,
-	        minY: -1000.0,
-	        maxX: 1000.0,
-	        maxY: 1000.0,
-                maxZ : 10
-	    },
-	    url: "localhost:8888/cgi",
-	    layers: [ { uuid: 'ns:layer' } ],
+/*	    extent: {
+	        minX: 1842636,
+	        minY: 5173710,
+	        maxX: 1843014,
+	        maxY: 5173920,
+                maxZ : 400
+	    },*/
+        extent: {
+        minX: 1839466,
+        minY: 5170713,
+        maxX: 1846973,
+        maxY: 5177038,
+        maxZ: 400
+        },
+	    url: "localhost/cgi-bin/tinyows",
+	    layers: [ { uuid: 'tows:lod2_tin' } ],
 	    hasRaster: false,
-            tileSize: 2000
+            tileSize: 500
 	});
 	
         scene.zoom(99.0);

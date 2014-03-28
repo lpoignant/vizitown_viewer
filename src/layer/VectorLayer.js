@@ -137,30 +137,33 @@ VectorLayer.prototype._loadData = function(extent, uuid) {
     if (uuid) {
         ext.uuid = uuid;
     }
-    console.log(this.originX + ' ' + this.originY + ' ' + extent);
     console.log('_loadData uuid: ' + uuid);
 //    this._socket.send(ext);
 
     var req = new XMLHttpRequest();
     var bboxStr = 'bbox=' + ext.Xmin.toString() + ',' + ext.Ymin.toString() + ',' + ext.Xmax.toString() + ',' + ext.Ymax.toString();
-    var url = this._url + '?Service=WFS&version=1.1.0&outputFormat=THREEJS&Request=GetFeature&typeName=' + ext.uuid + '&' + bboxStr;
+    var url = this._url + '?Service=WFS&version=1.0.0&outputFormat=THREE&Request=GetFeature&typeName=' + ext.uuid + '&' + bboxStr;
     console.log( "url:" + url );
-    req.open('GET', url, false);
+    req.open('GET', url, true);
+    var self = this;
+    req.onreadystatechange = function() {
+        if (req.status !== 200) {
+            throw "No scene defined";
+        }
+        if ( req.readyState === 4 ) /* completed */ {
+            var objs = JSON.parse(req.responseText);
+            var exchObj = {
+                dim : "3",
+                color : "#ff0000",
+                type : "polygon",
+                uuid : uuid,
+                geometries : objs
+            };
+            self._factory.create( exchObj );
+        }
+    };
     req.send(null);
-    if (req.status !== 200) {
-        throw "No scene defined";
-    }
-    var objs = JSON.parse(req.responseText);
-    objs.forEach(function(obj) {
-        var exchObj = {
-            dim : "3",
-            color : "#ff0000",
-            type : "polygon",
-            uuid : uuid,
-            geometries : [obj] };
-        console.log( "obj:" + obj);
-        this._factory.create( exchObj );
-    }, this );
+
 };
 
 /**
